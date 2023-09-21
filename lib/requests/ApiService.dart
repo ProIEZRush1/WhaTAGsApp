@@ -12,7 +12,7 @@ class ApiService {
   String listMessagesEndpoint = "";
 
   ApiService() :
-        _baseUrl = 'https://6318-2806-107e-f-7019-e921-1086-ad47-3f80.ngrok-free.app',
+        _baseUrl = 'https://34cd-2806-107e-f-7019-4022-503e-c8db-b63d.ngrok-free.app',
         _authGroupEndpoint = '/auth',
         _messagesGroupEndpoint = '/messages'
   {

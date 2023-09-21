@@ -60,9 +60,23 @@ class ChatRepository {
           final chats = data['chats'];
           for (var chat in chats) {
             final String name = chat["contact"]["name"];
+            final String chatId = chat["chat"]["chatId"]["_serialized"];
             final String profilePicUrl = chat["contact"]["profilePicUrl"];
+            final String number = chat["contact"]["number"];
 
+            final Map lastMessageMap = chat["chat"]["lastMessage"];
+            final String lastMessage = lastMessageMap["body"];
+            final int lastMessageTimestamp = lastMessageMap["timestamp"] ?? 0;
 
+            final bool isGroup = chat["chat"]["isGroup"]!;
+
+            _saveDataToContactsSubcollection(
+              UserModel(name: name, uid: chatId, profilePic: profilePicUrl, isOnline: false, phoneNumber: number, groupId: []),
+              lastMessage,
+              DateTime.fromMicrosecondsSinceEpoch(lastMessageTimestamp),
+              chatId,
+              isGroup,
+            );
           }
         }
       }
@@ -81,11 +95,11 @@ class ChatRepository {
       List<ChatContact> contacts = [];
       for (var document in event.docs) {
         var chatContact = ChatContact.fromMap(document.data());
-        var userData = await firestore
-            .collection('users')
-            .doc(chatContact.contactId)
-            .get();
-        var user = UserModel.fromMap(userData.data()!);
+        var user = UserModel(name: chatContact.name, uid: chatContact.contactId, profilePic: chatContact.profilePic,
+            isOnline: false, phoneNumber: chatContact.contactId.replaceAll("@c.us", ""), groupId: []);
+
+        print(user);
+        print("HOLA");
 
         contacts.add(
           ChatContact(
@@ -153,7 +167,6 @@ class ChatRepository {
   }
 
   void _saveDataToContactsSubcollection(
-    UserModel senderUserData,
     UserModel? recieverUserData,
     String text,
     DateTime timeSent,
@@ -165,23 +178,8 @@ class ChatRepository {
         'lastMessage': text,
         'timeSent': DateTime.now().millisecondsSinceEpoch,
       });
-    } else {
-// users -> reciever user id => chats -> current user id -> set data
-      var recieverChatContact = ChatContact(
-        name: senderUserData.name,
-        profilePic: senderUserData.profilePic,
-        contactId: senderUserData.uid,
-        timeSent: timeSent,
-        lastMessage: text,
-      );
-      await firestore
-          .collection('users')
-          .doc(recieverUserId)
-          .collection('chats')
-          .doc(auth.currentUser!.uid)
-          .set(
-            recieverChatContact.toMap(),
-          );
+    }
+    else {
       // users -> current user id  => chats -> reciever user id -> set data
       var senderChatContact = ChatContact(
         name: recieverUserData!.name,
@@ -287,7 +285,6 @@ class ChatRepository {
       var messageId = const Uuid().v1();
 
       _saveDataToContactsSubcollection(
-        senderUser,
         recieverUserData,
         text,
         timeSent,
@@ -359,7 +356,6 @@ class ChatRepository {
           contactMsg = 'GIF';
       }
       _saveDataToContactsSubcollection(
-        senderUserData,
         recieverUserData,
         contactMsg,
         timeSent,
@@ -405,7 +401,6 @@ class ChatRepository {
       var messageId = const Uuid().v1();
 
       _saveDataToContactsSubcollection(
-        senderUser,
         recieverUserData,
         'GIF',
         timeSent,

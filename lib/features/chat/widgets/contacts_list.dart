@@ -96,6 +96,11 @@ class ContactsList extends ConsumerWidget {
                     return const Loader();
                   }
 
+                  if (!snapshot.hasData || snapshot.data == null) {
+                    // Handle the case where snapshot.data is null
+                    return Text('No data available');
+                  }
+
                   return ListView.builder(
                     shrinkWrap: true,
                     itemCount: snapshot.data!.length,
