@@ -118,6 +118,14 @@ cupertino_stepper
 2.12
 file:///Users/ech/.pub-cache/hosted/pub.dev/cupertino_stepper-0.2.1/
 file:///Users/ech/.pub-cache/hosted/pub.dev/cupertino_stepper-0.2.1/lib/
+device_info_plus
+2.18
+file:///Users/ech/.pub-cache/hosted/pub.dev/device_info_plus-9.0.3/
+file:///Users/ech/.pub-cache/hosted/pub.dev/device_info_plus-9.0.3/lib/
+device_info_plus_platform_interface
+2.12
+file:///Users/ech/.pub-cache/hosted/pub.dev/device_info_plus_platform_interface-7.0.0/
+file:///Users/ech/.pub-cache/hosted/pub.dev/device_info_plus_platform_interface-7.0.0/lib/
 emoji_picker_flutter
 2.17
 file:///Users/ech/.pub-cache/hosted/pub.dev/emoji_picker_flutter-1.6.1/
@@ -522,6 +530,10 @@ win32
 3.0
 file:///Users/ech/.pub-cache/hosted/pub.dev/win32-5.0.8/
 file:///Users/ech/.pub-cache/hosted/pub.dev/win32-5.0.8/lib/
+win32_registry
+3.1
+file:///Users/ech/.pub-cache/hosted/pub.dev/win32_registry-1.1.2/
+file:///Users/ech/.pub-cache/hosted/pub.dev/win32_registry-1.1.2/lib/
 xdg_directories
 2.19
 file:///Users/ech/.pub-cache/hosted/pub.dev/xdg_directories-1.0.3/

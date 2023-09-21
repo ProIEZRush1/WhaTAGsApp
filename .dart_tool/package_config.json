@@ -182,6 +182,18 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "device_info_plus",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/device_info_plus-9.0.3",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
+      "name": "device_info_plus_platform_interface",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/device_info_plus_platform_interface-7.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "emoji_picker_flutter",
       "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/emoji_picker_flutter-1.6.1",
       "packageUri": "lib/",
@@ -812,6 +824,12 @@
       "languageVersion": "3.0"
     },
     {
+      "name": "win32_registry",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/win32_registry-1.1.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.1"
+    },
+    {
       "name": "xdg_directories",
       "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/xdg_directories-1.0.3",
       "packageUri": "lib/",
@@ -824,7 +842,7 @@
       "languageVersion": "2.17"
     }
   ],
-  "generated": "2023-09-19T23:32:36.452330Z",
+  "generated": "2023-09-21T03:35:15.315880Z",
   "generator": "pub",
   "generatorVersion": "3.1.0"
 }

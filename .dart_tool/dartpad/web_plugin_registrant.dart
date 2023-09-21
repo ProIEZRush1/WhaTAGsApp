@@ -8,6 +8,7 @@
 
 import 'package:audioplayers_web/audioplayers_web.dart';
 import 'package:cloud_firestore_web/cloud_firestore_web.dart';
+import 'package:device_info_plus/src/device_info_plus_web.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter_web.dart';
 import 'package:firebase_auth_web/firebase_auth_web.dart';
 import 'package:firebase_core_web/firebase_core_web.dart';
@@ -22,6 +23,7 @@ void registerPlugins([final Registrar? pluginRegistrar]) {
   final Registrar registrar = pluginRegistrar ?? webPluginRegistrar;
   AudioplayersPlugin.registerWith(registrar);
   FirebaseFirestoreWeb.registerWith(registrar);
+  DeviceInfoPlusWebPlugin.registerWith(registrar);
   EmojiPickerFlutterPluginWeb.registerWith(registrar);
   FirebaseAuthWeb.registerWith(registrar);
   FirebaseCoreWeb.registerWith(registrar);

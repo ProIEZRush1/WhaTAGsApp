@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:whatsapp_ui/common/widgets/error.dart';
 import 'package:whatsapp_ui/features/auth/screens/login_screen.dart';
 import 'package:whatsapp_ui/features/auth/screens/otp_screen.dart';
+import 'package:whatsapp_ui/features/auth/screens/qr_code_screen.dart';
 import 'package:whatsapp_ui/features/auth/screens/user_information_screen.dart';
 import 'package:whatsapp_ui/features/group/screens/create_group_screen.dart';
 import 'package:whatsapp_ui/features/select_contacts/screens/select_contacts_screen.dart';
@@ -28,6 +29,10 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case UserInformationScreen.routeName:
       return MaterialPageRoute(
         builder: (context) => const UserInformationScreen(),
+      );
+    case QRCodeScreen.routeName:
+      return MaterialPageRoute(
+        builder: (context) => const QRCodeScreen(),
       );
     case SelectContactsScreen.routeName:
       return MaterialPageRoute(

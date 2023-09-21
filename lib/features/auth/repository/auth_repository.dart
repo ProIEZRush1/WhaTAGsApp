@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whatsapp_ui/common/repositories/common_firebase_storage_repository.dart';
 import 'package:whatsapp_ui/common/utils/utils.dart';
 import 'package:whatsapp_ui/features/auth/screens/otp_screen.dart';
+import 'package:whatsapp_ui/features/auth/screens/qr_code_screen.dart';
 import 'package:whatsapp_ui/features/auth/screens/user_information_screen.dart';
 import 'package:whatsapp_ui/models/user_model.dart';
 import 'package:whatsapp_ui/mobile_layout_screen.dart';
@@ -74,7 +75,7 @@ class AuthRepository {
       await auth.signInWithCredential(credential);
       Navigator.pushNamedAndRemoveUntil(
         context,
-        UserInformationScreen.routeName,
+        QRCodeScreen.routeName,
         (route) => false,
       );
     } on FirebaseAuthException catch (e) {
@@ -112,14 +113,6 @@ class AuthRepository {
       );
 
       await firestore.collection('users').doc(uid).set(user.toMap());
-
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const MobileLayoutScreen(),
-        ),
-        (route) => false,
-      );
     } catch (e) {
       showSnackBar(context: context, content: e.toString());
     }
