@@ -23,7 +23,7 @@ class _MobileLayoutScreenState extends ConsumerState<MobileLayoutScreen>
   @override
   void initState() {
     super.initState();
-    tabBarController = TabController(length: 3, vsync: this);
+    tabBarController = TabController(length: 2, vsync: this);
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -51,7 +51,7 @@ class _MobileLayoutScreenState extends ConsumerState<MobileLayoutScreen>
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 2,
       child: Scaffold(
         appBar: AppBar(
           elevation: 0,
@@ -101,9 +101,9 @@ class _MobileLayoutScreenState extends ConsumerState<MobileLayoutScreen>
               Tab(
                 text: 'CHATS',
               ),
-              Tab(
+              /*Tab(
                 text: 'STATUS',
-              ),
+              ),*/
               Tab(
                 text: 'CALLS',
               ),
@@ -114,8 +114,8 @@ class _MobileLayoutScreenState extends ConsumerState<MobileLayoutScreen>
           controller: tabBarController,
           children: const [
             ContactsList(),
-            StatusContactsScreen(),
-            Text('Calls')
+            //StatusContactsScreen(),
+            Text('Calls are comming soon'),
           ],
         ),
         floatingActionButton: FloatingActionButton(

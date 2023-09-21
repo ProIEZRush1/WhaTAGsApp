@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
 class FileUtils {
@@ -19,5 +20,19 @@ class FileUtils {
 
     // Write the bytes to the file and return it
     return tempFile.writeAsBytes(data.buffer.asUint8List());
+  }
+
+  static Future<File> downloadFile(String url, String filename) async {
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      final bytes = response.bodyBytes;
+      final dir = await getApplicationDocumentsDirectory();
+      final file = File('${dir.path}/$filename');
+
+      return file.writeAsBytes(bytes);
+    } else {
+      throw Exception('Error downloading file');
+    }
   }
 }

@@ -57,7 +57,7 @@ class _ChatListState extends ConsumerState<ChatList> {
                 .groupChatStream(widget.recieverUserId)
             : ref
                 .read(chatControllerProvider)
-                .chatStream(widget.recieverUserId),
+                .chatStream(context, ref, widget.recieverUserId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Loader();

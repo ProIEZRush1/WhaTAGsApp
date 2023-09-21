@@ -26,16 +26,16 @@ class ChatController {
     required this.ref,
   });
 
-  Stream<List<ChatContact>> chatContacts() {
-    return chatRepository.getChatContacts();
+  Stream<List<ChatContact>> chatContacts(BuildContext context, WidgetRef ref) {
+    return chatRepository.getChatContacts(context, ref);
   }
 
-  Stream<List<Group>> chatGroups() {
-    return chatRepository.getChatGroups();
+  Stream<List<Group>> chatGroups(BuildContext context, WidgetRef ref) {
+    return chatRepository.getChatGroups(context, ref);
   }
 
-  Stream<List<Message>> chatStream(String recieverUserId) {
-    return chatRepository.getChatStream(recieverUserId);
+  Stream<List<Message>> chatStream(BuildContext context, WidgetRef ref, String recieverUserId) {
+    return chatRepository.getChatStream(context, ref, recieverUserId);
   }
 
   Stream<List<Message>> groupChatStream(String groupId) {

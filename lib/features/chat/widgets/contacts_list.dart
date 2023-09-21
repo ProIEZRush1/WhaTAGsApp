@@ -19,10 +19,15 @@ class ContactsList extends ConsumerWidget {
         child: Column(
           children: [
             StreamBuilder<List<Group>>(
-                stream: ref.watch(chatControllerProvider).chatGroups(),
+                stream: ref.watch(chatControllerProvider).chatGroups(context, ref),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Loader();
+                  }
+
+                  if (!snapshot.hasData || snapshot.data == null) {
+                    // Handle the case where snapshot.data is null
+                    return Text('No data available');
                   }
 
                   return ListView.builder(
@@ -85,7 +90,7 @@ class ContactsList extends ConsumerWidget {
                   );
                 }),
             StreamBuilder<List<ChatContact>>(
-                stream: ref.watch(chatControllerProvider).chatContacts(),
+                stream: ref.watch(chatControllerProvider).chatContacts(context, ref),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Loader();

@@ -8,10 +8,16 @@ import 'package:whatsapp_ui/common/enums/message_enum.dart';
 import 'package:whatsapp_ui/common/providers/message_reply_provider.dart';
 import 'package:whatsapp_ui/common/repositories/common_firebase_storage_repository.dart';
 import 'package:whatsapp_ui/common/utils/utils.dart';
+import 'package:whatsapp_ui/features/auth/controller/auth_controller.dart';
+import 'package:whatsapp_ui/features/auth/screens/login_screen.dart';
 import 'package:whatsapp_ui/models/chat_contact.dart';
 import 'package:whatsapp_ui/models/group.dart';
 import 'package:whatsapp_ui/models/message.dart';
 import 'package:whatsapp_ui/models/user_model.dart';
+import 'package:whatsapp_ui/requests/ApiService.dart';
+import 'package:whatsapp_ui/utils/FIleUtils.dart';
+
+import '../../../utils/DeviceUtils.dart';
 
 final chatRepositoryProvider = Provider(
   (ref) => ChatRepository(
@@ -28,7 +34,44 @@ class ChatRepository {
     required this.auth,
   });
 
-  Stream<List<ChatContact>> getChatContacts() {
+  void retrieveChats(BuildContext context, WidgetRef ref) {
+    Future(() async {
+      final ApiService listMessagesApiService = ApiService();
+
+      final deviceToken = await DeviceUtils.getDeviceId();
+
+      final dataR = await listMessagesApiService.get("${listMessagesApiService.listMessagesEndpoint}?deviceToken=$deviceToken");
+      final success = dataR['success'];
+
+      if (success) {
+        final data = dataR['data'];
+
+        final loggedIn = data['loggedIn'];
+        if (!loggedIn) {
+          // firebase logout and redirect to login screen
+          await auth.signOut();
+
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            LoginScreen.routeName,
+                (route) => false,
+          );
+        } else {
+          final chats = data['chats'];
+          for (var chat in chats) {
+            final String name = chat["contact"]["name"];
+            final String profilePicUrl = chat["contact"]["profilePicUrl"];
+
+
+          }
+        }
+      }
+    });
+  }
+
+  Stream<List<ChatContact>> getChatContacts(BuildContext context, WidgetRef ref) {
+    retrieveChats(context, ref);
+
     return firestore
         .collection('users')
         .doc(auth.currentUser!.uid)
@@ -58,7 +101,9 @@ class ChatRepository {
     });
   }
 
-  Stream<List<Group>> getChatGroups() {
+  Stream<List<Group>> getChatGroups(BuildContext context, WidgetRef ref){
+    retrieveChats(context, ref);
+
     return firestore.collection('groups').snapshots().map((event) {
       List<Group> groups = [];
       for (var document in event.docs) {
@@ -71,7 +116,9 @@ class ChatRepository {
     });
   }
 
-  Stream<List<Message>> getChatStream(String recieverUserId) {
+  Stream<List<Message>> getChatStream(BuildContext context, WidgetRef ref, String recieverUserId) {
+    retrieveChats(context, ref);
+
     return firestore
         .collection('users')
         .doc(auth.currentUser!.uid)

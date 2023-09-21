@@ -42,7 +42,7 @@ class SelectContactRepository {
           ' ',
           '',
         );
-        if (selectedPhoneNum == userData.phoneNumber) {
+        if (selectedPhoneNum.contains(userData.phoneNumber)) {
           isFound = true;
           Navigator.pushNamed(
             context,
@@ -50,6 +50,7 @@ class SelectContactRepository {
             arguments: {
               'name': userData.name,
               'uid': userData.uid,
+              'profilePic': userData.profilePic,
             },
           );
         }
@@ -58,7 +59,7 @@ class SelectContactRepository {
       if (!isFound) {
         showSnackBar(
           context: context,
-          content: 'This number does not exist on this app.',
+          content: 'This number does not exist on WhatsApp.',
         );
       }
     } catch (e) {
