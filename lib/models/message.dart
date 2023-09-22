@@ -1,57 +1,65 @@
 import 'package:whatsapp_ui/common/enums/message_enum.dart';
 
 class Message {
-  final String senderId;
-  final String recieverid;
-  final String text;
+
+  final String id;
+  final String author;
+  final bool fromMe;
+  final String body;
+  final String timestamp;
   final MessageEnum type;
-  final DateTime timeSent;
-  final String messageId;
-  final bool isSeen;
-  final String repliedMessage;
-  final String repliedTo;
-  final MessageEnum repliedMessageType;
+  final String media;
+  final bool delivery;
+  final bool seen;
+  final bool hasQuotedMsg;
+  final String quotedMessageBody;
+  final MessageEnum quotedMessageType;
 
   Message({
-    required this.senderId,
-    required this.recieverid,
-    required this.text,
+    required this.id,
+    required this.author,
+    required this.fromMe,
+    required this.body,
+    required this.timestamp,
     required this.type,
-    required this.timeSent,
-    required this.messageId,
-    required this.isSeen,
-    required this.repliedMessage,
-    required this.repliedTo,
-    required this.repliedMessageType,
+    required this.media,
+    required this.delivery,
+    required this.seen,
+    required this.hasQuotedMsg,
+    required this.quotedMessageBody,
+    required this.quotedMessageType,
   });
 
   Map<String, dynamic> toMap() {
     return {
-      'senderId': senderId,
-      'recieverid': recieverid,
-      'text': text,
+      'id': id,
+      'author': author,
+      'fromMe': fromMe,
+      'body': body,
+      'timestamp': timestamp,
       'type': type.type,
-      'timeSent': timeSent.millisecondsSinceEpoch,
-      'messageId': messageId,
-      'isSeen': isSeen,
-      'repliedMessage': repliedMessage,
-      'repliedTo': repliedTo,
-      'repliedMessageType': repliedMessageType.type,
+      'delivery': delivery,
+      'seen': seen,
+      'hasQuotedMsg': hasQuotedMsg,
+      'quotedMessageBody': quotedMessageBody,
+      'quotedMessageType': quotedMessageType.type,
     };
   }
 
   factory Message.fromMap(Map<String, dynamic> map) {
     return Message(
-      senderId: map['senderId'] ?? '',
-      recieverid: map['recieverid'] ?? '',
-      text: map['text'] ?? '',
-      type: (map['type'] as String).toEnum(),
-      timeSent: DateTime.fromMillisecondsSinceEpoch(map['timeSent']),
-      messageId: map['messageId'] ?? '',
-      isSeen: map['isSeen'] ?? false,
-      repliedMessage: map['repliedMessage'] ?? '',
-      repliedTo: map['repliedTo'] ?? '',
-      repliedMessageType: (map['repliedMessageType'] as String).toEnum(),
+      id: map['id'],
+      author: map['author'],
+      fromMe: map['fromMe'],
+      body: map['body'],
+      timestamp: map['timestamp'],
+      type: ConvertMessage(map['type']).toEnum(),
+      media: map['media'] ?? "",
+      delivery: map['delivery'],
+      seen: map['seen'],
+      hasQuotedMsg: map['hasQuotedMsg'],
+      quotedMessageBody: map['quotedMessageBody'],
+      quotedMessageType: ConvertMessage(map['quotedMessageType']).toEnum(),
     );
   }
 }

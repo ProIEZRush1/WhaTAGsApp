@@ -6,28 +6,38 @@ import 'package:whatsapp_ui/common/enums/message_enum.dart';
 import 'package:whatsapp_ui/features/chat/widgets/display_text_image_gif.dart';
 
 class SenderMessageCard extends StatelessWidget {
+  final String id;
+  final String author;
+  final bool fromMe;
+  final String body;
+  final String timestamp;
+  final MessageEnum type;
+  final String media;
+  final bool delivery;
+  final bool seen;
+  final bool hasQuotedMsg;
+  final String quotedMessageBody;
+  final MessageEnum quotedMessageType;
+  final VoidCallback onRightSwipe;
   const SenderMessageCard({
     Key? key,
-    required this.message,
-    required this.date,
+    required this.id,
+    required this.author,
+    required this.fromMe,
+    required this.body,
+    required this.timestamp,
     required this.type,
+    required this.media,
+    required this.delivery,
+    required this.seen,
+    required this.hasQuotedMsg,
+    required this.quotedMessageBody,
+    required this.quotedMessageType,
     required this.onRightSwipe,
-    required this.repliedText,
-    required this.username,
-    required this.repliedMessageType,
   }) : super(key: key);
-  final String message;
-  final String date;
-  final MessageEnum type;
-  final VoidCallback onRightSwipe;
-  final String repliedText;
-  final String username;
-  final MessageEnum repliedMessageType;
 
   @override
   Widget build(BuildContext context) {
-    final isReplying = repliedText.isNotEmpty;
-
     return SwipeTo(
       onRightSwipe: onRightSwipe,
       child: Align(
@@ -60,9 +70,9 @@ class SenderMessageCard extends StatelessWidget {
                         ),
                   child: Column(
                     children: [
-                      if (isReplying) ...[
+                      if (hasQuotedMsg) ...[
                         Text(
-                          username,
+                          quotedMessageBody,
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                           ),
@@ -79,14 +89,14 @@ class SenderMessageCard extends StatelessWidget {
                             ),
                           ),
                           child: DisplayTextImageGIF(
-                            message: repliedText,
-                            type: repliedMessageType,
+                            message: quotedMessageBody,
+                            type: quotedMessageType,
                           ),
                         ),
                         const SizedBox(height: 8),
                       ],
                       DisplayTextImageGIF(
-                        message: message,
+                        message: body,
                         type: type,
                       ),
                     ],
@@ -96,7 +106,7 @@ class SenderMessageCard extends StatelessWidget {
                   bottom: 2,
                   right: 10,
                   child: Text(
-                    date,
+                    timestamp,
                     style: TextStyle(
                       fontSize: 13,
                       color: Colors.grey[600],

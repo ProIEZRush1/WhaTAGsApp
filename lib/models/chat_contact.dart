@@ -2,7 +2,7 @@ class ChatContact {
   final String name;
   final String profilePic;
   final String contactId;
-  final DateTime timeSent;
+  final String timeSent;
   final String lastMessage;
   ChatContact({
     required this.name,
@@ -17,7 +17,7 @@ class ChatContact {
       'name': name,
       'profilePic': profilePic,
       'contactId': contactId,
-      'timeSent': timeSent.millisecondsSinceEpoch,
+      'timeSent': timeSent,
       'lastMessage': lastMessage,
     };
   }
@@ -27,7 +27,7 @@ class ChatContact {
       name: map['name'] ?? '',
       profilePic: map['profilePic'] ?? '',
       contactId: map['contactId'] ?? '',
-      timeSent: DateTime.fromMillisecondsSinceEpoch(map['timeSent']),
+      timeSent: map['timeSent'],
       lastMessage: map['lastMessage'] ?? '',
     );
   }

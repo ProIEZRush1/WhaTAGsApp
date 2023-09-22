@@ -5,6 +5,7 @@ import 'package:whatsapp_ui/common/utils/colors.dart';
 import 'package:whatsapp_ui/common/widgets/loader.dart';
 import 'package:whatsapp_ui/features/chat/controller/chat_controller.dart';
 import 'package:whatsapp_ui/features/chat/screens/mobile_chat_screen.dart';
+import 'package:whatsapp_ui/models/chat.dart';
 import 'package:whatsapp_ui/models/chat_contact.dart';
 import 'package:whatsapp_ui/models/group.dart';
 
@@ -89,7 +90,7 @@ class ContactsList extends ConsumerWidget {
                     },
                   );
                 }),
-            StreamBuilder<List<ChatContact>>(
+            StreamBuilder<List<Chat>>(
                 stream: ref.watch(chatControllerProvider).chatContacts(context, ref),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
@@ -116,9 +117,9 @@ class ContactsList extends ConsumerWidget {
                                 MobileChatScreen.routeName,
                                 arguments: {
                                   'name': chatContactData.name,
-                                  'uid': chatContactData.contactId,
+                                  'uid': chatContactData.chatId,
                                   'isGroupChat': false,
-                                  'profilePic': chatContactData.profilePic,
+                                  'profilePic': chatContactData.profilePicUrl,
                                 },
                               );
                             },
@@ -134,19 +135,18 @@ class ContactsList extends ConsumerWidget {
                                 subtitle: Padding(
                                   padding: const EdgeInsets.only(top: 6.0),
                                   child: Text(
-                                    chatContactData.lastMessage,
+                                    chatContactData.lastMessageBody,
                                     style: const TextStyle(fontSize: 15),
                                   ),
                                 ),
                                 leading: CircleAvatar(
                                   backgroundImage: NetworkImage(
-                                    chatContactData.profilePic,
+                                    chatContactData.profilePicUrl,
                                   ),
                                   radius: 30,
                                 ),
                                 trailing: Text(
-                                  DateFormat.Hm()
-                                      .format(chatContactData.timeSent),
+                                  chatContactData.lastMessageTimestamp,
                                   style: const TextStyle(
                                     color: Colors.grey,
                                     fontSize: 13,

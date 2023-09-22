@@ -51,16 +51,17 @@ class _ChatListState extends ConsumerState<ChatList> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Message>>(
-        stream: widget.isGroupChat
-            ? ref
-                .read(chatControllerProvider)
-                .groupChatStream(widget.recieverUserId)
-            : ref
+        stream: ref
                 .read(chatControllerProvider)
                 .chatStream(context, ref, widget.recieverUserId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Loader();
+          }
+
+          if (!snapshot.hasData || snapshot.data == null) {
+            // Handle the case where snapshot.data is null
+            return Text('No data available');
           }
 
           SchedulerBinding.instance.addPostFrameCallback((_) {
@@ -73,46 +74,54 @@ class _ChatListState extends ConsumerState<ChatList> {
             itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
               final messageData = snapshot.data![index];
-              var timeSent = DateFormat.Hm().format(messageData.timeSent);
+              var timeSent = messageData.timestamp;
 
-              if (!messageData.isSeen &&
-                  messageData.recieverid ==
-                      FirebaseAuth.instance.currentUser!.uid) {
+              if (!messageData.seen && !messageData.fromMe) {
                 ref.read(chatControllerProvider).setChatMessageSeen(
                       context,
                       widget.recieverUserId,
-                      messageData.messageId,
+                      messageData.id,
                     );
               }
-              if (messageData.senderId ==
-                  FirebaseAuth.instance.currentUser!.uid) {
+              if (messageData.fromMe) {
                 return MyMessageCard(
-                  message: messageData.text,
-                  date: timeSent,
-                  type: messageData.type,
-                  repliedText: messageData.repliedMessage,
-                  username: messageData.repliedTo,
-                  repliedMessageType: messageData.repliedMessageType,
-                  onLeftSwipe: () => onMessageSwipe(
-                    messageData.text,
-                    true,
-                    messageData.type,
-                  ),
-                  isSeen: messageData.isSeen,
+                    id: messageData.id,
+                    author: messageData.author,
+                    fromMe: messageData.fromMe,
+                    body: messageData.body,
+                    timestamp: messageData.timestamp,
+                    type: messageData.type,
+                    media: messageData.media,
+                    delivery: messageData.delivery,
+                    seen: messageData.seen,
+                    hasQuotedMsg: messageData.hasQuotedMsg,
+                    quotedMessageBody: messageData.quotedMessageBody,
+                    quotedMessageType: messageData.quotedMessageType,
+                    onLeftSwipe: () => onMessageSwipe(
+                      messageData.body,
+                      true,
+                      messageData.type,
+                    ),
                 );
               }
               return SenderMessageCard(
-                message: messageData.text,
-                date: timeSent,
+                id: messageData.id,
+                author: messageData.author,
+                fromMe: messageData.fromMe,
+                body: messageData.body,
+                timestamp: messageData.timestamp,
                 type: messageData.type,
-                username: messageData.repliedTo,
-                repliedMessageType: messageData.repliedMessageType,
+                media: messageData.media,
+                delivery: messageData.delivery,
+                seen: messageData.seen,
+                hasQuotedMsg: messageData.hasQuotedMsg,
+                quotedMessageBody: messageData.quotedMessageBody,
+                quotedMessageType: messageData.quotedMessageType,
                 onRightSwipe: () => onMessageSwipe(
-                  messageData.text,
+                  messageData.body,
                   false,
                   messageData.type,
                 ),
-                repliedText: messageData.repliedMessage,
               );
             },
           );

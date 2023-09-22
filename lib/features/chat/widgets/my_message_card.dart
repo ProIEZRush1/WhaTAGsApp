@@ -6,31 +6,39 @@ import 'package:whatsapp_ui/common/enums/message_enum.dart';
 import 'package:whatsapp_ui/features/chat/widgets/display_text_image_gif.dart';
 
 class MyMessageCard extends StatelessWidget {
-  final String message;
-  final String date;
+  final String id;
+  final String author;
+  final bool fromMe;
+  final String body;
+  final String timestamp;
   final MessageEnum type;
+  final String media;
+  final bool delivery;
+  final bool seen;
+  final bool hasQuotedMsg;
+  final String quotedMessageBody;
+  final MessageEnum quotedMessageType;
   final VoidCallback onLeftSwipe;
-  final String repliedText;
-  final String username;
-  final MessageEnum repliedMessageType;
-  final bool isSeen;
 
   const MyMessageCard({
     Key? key,
-    required this.message,
-    required this.date,
+    required this.id,
+    required this.author,
+    required this.fromMe,
+    required this.body,
+    required this.timestamp,
     required this.type,
+    required this.media,
+    required this.delivery,
+    required this.seen,
+    required this.hasQuotedMsg,
+    required this.quotedMessageBody,
+    required this.quotedMessageType,
     required this.onLeftSwipe,
-    required this.repliedText,
-    required this.username,
-    required this.repliedMessageType,
-    required this.isSeen,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final isReplying = repliedText.isNotEmpty;
-
     return SwipeTo(
       onLeftSwipe: onLeftSwipe,
       child: Align(
@@ -63,9 +71,9 @@ class MyMessageCard extends StatelessWidget {
                         ),
                   child: Column(
                     children: [
-                      if (isReplying) ...[
+                      if (hasQuotedMsg) ...[
                         Text(
-                          username,
+                          quotedMessageBody,
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                           ),
@@ -82,14 +90,14 @@ class MyMessageCard extends StatelessWidget {
                             ),
                           ),
                           child: DisplayTextImageGIF(
-                            message: repliedText,
-                            type: repliedMessageType,
+                            message: quotedMessageBody,
+                            type: quotedMessageType,
                           ),
                         ),
                         const SizedBox(height: 8),
                       ],
                       DisplayTextImageGIF(
-                        message: message,
+                        message: body,
                         type: type,
                       ),
                     ],
@@ -101,7 +109,7 @@ class MyMessageCard extends StatelessWidget {
                   child: Row(
                     children: [
                       Text(
-                        date,
+                        timestamp,
                         style: const TextStyle(
                           fontSize: 13,
                           color: Colors.white60,
@@ -111,9 +119,9 @@ class MyMessageCard extends StatelessWidget {
                         width: 5,
                       ),
                       Icon(
-                        isSeen ? Icons.done_all : Icons.done,
+                        seen ? Icons.done_all : Icons.done,
                         size: 20,
-                        color: isSeen ? Colors.blue : Colors.white60,
+                        color: seen ? Colors.blue : Colors.white60,
                       ),
                     ],
                   ),

@@ -10,9 +10,10 @@ class ApiService {
 
   final String _messagesGroupEndpoint;
   String listMessagesEndpoint = "";
+  String listChatMessagesEndpoint = "";
 
   ApiService() :
-        _baseUrl = 'https://34cd-2806-107e-f-7019-4022-503e-c8db-b63d.ngrok-free.app',
+        _baseUrl = 'https://horribly-vital-gar.ngrok-free.app',
         _authGroupEndpoint = '/auth',
         _messagesGroupEndpoint = '/messages'
   {
@@ -20,6 +21,7 @@ class ApiService {
     generateQrCodeEndpoint = '$_authGroupEndpoint/qr';
 
     listMessagesEndpoint = '$_messagesGroupEndpoint/list';
+    listChatMessagesEndpoint = '$_messagesGroupEndpoint/chat/list';
   }
 
   Map<String, String> _defaultHeaders = {

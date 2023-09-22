@@ -6,6 +6,7 @@ import 'package:whatsapp_ui/common/enums/message_enum.dart';
 import 'package:whatsapp_ui/common/providers/message_reply_provider.dart';
 import 'package:whatsapp_ui/features/auth/controller/auth_controller.dart';
 import 'package:whatsapp_ui/features/chat/repositories/chat_repository.dart';
+import 'package:whatsapp_ui/models/chat.dart';
 import 'package:whatsapp_ui/models/chat_contact.dart';
 import 'package:whatsapp_ui/models/group.dart';
 import 'package:whatsapp_ui/models/message.dart';
@@ -26,7 +27,7 @@ class ChatController {
     required this.ref,
   });
 
-  Stream<List<ChatContact>> chatContacts(BuildContext context, WidgetRef ref) {
+  Stream<List<Chat>> chatContacts(BuildContext context, WidgetRef ref) {
     return chatRepository.getChatContacts(context, ref);
   }
 
@@ -34,8 +35,8 @@ class ChatController {
     return chatRepository.getChatGroups(context, ref);
   }
 
-  Stream<List<Message>> chatStream(BuildContext context, WidgetRef ref, String recieverUserId) {
-    return chatRepository.getChatStream(context, ref, recieverUserId);
+  Stream<List<Message>> chatStream(BuildContext context, WidgetRef ref, String chatId) {
+    return chatRepository.getChatStream(context, ref, chatId);
   }
 
   Stream<List<Message>> groupChatStream(String groupId) {
@@ -45,7 +46,7 @@ class ChatController {
   void sendTextMessage(
     BuildContext context,
     String text,
-    String recieverUserId,
+    String receiverUserId,
     bool isGroupChat,
   ) {
     final messageReply = ref.read(messageReplyProvider);
@@ -53,7 +54,7 @@ class ChatController {
           (value) => chatRepository.sendTextMessage(
             context: context,
             text: text,
-            recieverUserId: recieverUserId,
+            receiverUserId: receiverUserId,
             senderUser: value!,
             messageReply: messageReply,
             isGroupChat: isGroupChat,
@@ -65,7 +66,7 @@ class ChatController {
   void sendFileMessage(
     BuildContext context,
     File file,
-    String recieverUserId,
+    String receiverUserId,
     MessageEnum messageEnum,
     bool isGroupChat,
   ) {
@@ -74,7 +75,7 @@ class ChatController {
           (value) => chatRepository.sendFileMessage(
             context: context,
             file: file,
-            recieverUserId: recieverUserId,
+            receiverUserId: receiverUserId,
             senderUserData: value!,
             messageEnum: messageEnum,
             ref: ref,
@@ -88,7 +89,7 @@ class ChatController {
   void sendGIFMessage(
     BuildContext context,
     String gifUrl,
-    String recieverUserId,
+    String receiverUserId,
     bool isGroupChat,
   ) {
     final messageReply = ref.read(messageReplyProvider);
@@ -100,7 +101,7 @@ class ChatController {
           (value) => chatRepository.sendGIFMessage(
             context: context,
             gifUrl: newgifUrl,
-            recieverUserId: recieverUserId,
+            receiverUserId: receiverUserId,
             senderUser: value!,
             messageReply: messageReply,
             isGroupChat: isGroupChat,
@@ -111,12 +112,12 @@ class ChatController {
 
   void setChatMessageSeen(
     BuildContext context,
-    String recieverUserId,
+    String receiverUserId,
     String messageId,
   ) {
     chatRepository.setChatMessageSeen(
       context,
-      recieverUserId,
+      receiverUserId,
       messageId,
     );
   }

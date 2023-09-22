@@ -39,27 +39,7 @@ class MobileChatScreen extends ConsumerWidget {
       scaffold: Scaffold(
         appBar: AppBar(
           backgroundColor: appBarColor,
-          title: isGroupChat
-              ? Text(name)
-              : StreamBuilder<UserModel>(
-                  stream: ref.read(authControllerProvider).userDataById(uid),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Loader();
-                    }
-                    return Column(
-                      children: [
-                        Text(name),
-                        Text(
-                          snapshot.data!.isOnline ? 'online' : 'offline',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
-                      ],
-                    );
-                  }),
+          title: Text(name),
           centerTitle: false,
           actions: [
             IconButton(

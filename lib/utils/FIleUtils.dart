@@ -1,9 +1,11 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
+
+import 'dart:convert';
+import 'dart:io';
 
 class FileUtils {
 
@@ -34,5 +36,21 @@ class FileUtils {
     } else {
       throw Exception('Error downloading file');
     }
+  }
+
+  static Future<File> base64ToFile(String base64String, String fileName) async {
+    // Remove data URI scheme prefix
+    final split = base64String.split(',');
+    final bytes = base64Decode(split.last);
+
+    // Get the temporary directory
+    final directory = await getTemporaryDirectory();
+    final filePath = '${directory.path}/$fileName';
+
+    // Write to the file
+    final file = File(filePath);
+    await file.writeAsBytes(bytes);
+
+    return file;
   }
 }
