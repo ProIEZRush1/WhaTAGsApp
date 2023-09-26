@@ -6,6 +6,7 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/firebase_auth_web-5.8.1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/sqflite-2.3.0" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/agora_rtc_engine-6.2.2" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/device_info_plus-9.0.3" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/image_picker_windows-0.2.1+1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences_android-2.2.1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/cloud_firestore-4.9.2" />
@@ -47,7 +48,7 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_contacts-1.1.7+1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/cloud_firestore_web-3.7.1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/video_player-2.6.0" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/device_info_plus-9.0.3" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/fluttertoast-8.2.2" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

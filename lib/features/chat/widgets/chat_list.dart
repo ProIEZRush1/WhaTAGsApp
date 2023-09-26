@@ -53,7 +53,7 @@ class _ChatListState extends ConsumerState<ChatList> {
     return StreamBuilder<List<Message>>(
         stream: ref
                 .read(chatControllerProvider)
-                .chatStream(context, ref, widget.recieverUserId),
+                .chatMessagesStream(context, ref, widget.recieverUserId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Loader();
@@ -74,7 +74,6 @@ class _ChatListState extends ConsumerState<ChatList> {
             itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
               final messageData = snapshot.data![index];
-              var timeSent = messageData.timestamp;
 
               if (!messageData.seen && !messageData.fromMe) {
                 ref.read(chatControllerProvider).setChatMessageSeen(

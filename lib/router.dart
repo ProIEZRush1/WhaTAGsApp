@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:whatsapp_ui/common/widgets/error.dart';
 import 'package:whatsapp_ui/features/auth/screens/login_screen.dart';
+import 'package:whatsapp_ui/features/auth/screens/load_messages_screen.dart';
 import 'package:whatsapp_ui/features/auth/screens/otp_screen.dart';
 import 'package:whatsapp_ui/features/auth/screens/qr_code_screen.dart';
 import 'package:whatsapp_ui/features/auth/screens/user_information_screen.dart';
@@ -33,6 +34,10 @@ Route<dynamic> generateRoute(RouteSettings settings) {
     case QRCodeScreen.routeName:
       return MaterialPageRoute(
         builder: (context) => const QRCodeScreen(),
+      );
+    case LoadMessagesScreen.routeName:
+      return MaterialPageRoute(
+        builder: (context) => const LoadMessagesScreen(),
       );
     case SelectContactsScreen.routeName:
       return MaterialPageRoute(

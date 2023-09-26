@@ -1,16 +1,17 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide DateUtils;
 import 'package:swipe_to/swipe_to.dart';
 
 import 'package:whatsapp_ui/common/utils/colors.dart';
 import 'package:whatsapp_ui/common/enums/message_enum.dart';
 import 'package:whatsapp_ui/features/chat/widgets/display_text_image_gif.dart';
+import 'package:whatsapp_ui/utils/DateUtils.dart';
 
 class SenderMessageCard extends StatelessWidget {
   final String id;
   final String author;
   final bool fromMe;
   final String body;
-  final String timestamp;
+  final int timestamp;
   final MessageEnum type;
   final String media;
   final bool delivery;
@@ -97,6 +98,7 @@ class SenderMessageCard extends StatelessWidget {
                       ],
                       DisplayTextImageGIF(
                         message: body,
+                        media: type != MessageEnum.text ? media : null,
                         type: type,
                       ),
                     ],
@@ -106,7 +108,7 @@ class SenderMessageCard extends StatelessWidget {
                   bottom: 2,
                   right: 10,
                   child: Text(
-                    timestamp,
+                    DateUtils.formatDate(DateTime.fromMicrosecondsSinceEpoch(timestamp)),
                     style: TextStyle(
                       fontSize: 13,
                       color: Colors.grey[600],

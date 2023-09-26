@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:whatsapp_ui/common/enums/message_enum.dart';
 
 class Message {
@@ -6,7 +8,7 @@ class Message {
   final String author;
   final bool fromMe;
   final String body;
-  final String timestamp;
+  final int timestamp;
   final MessageEnum type;
   final String media;
   final bool delivery;
@@ -52,9 +54,9 @@ class Message {
       author: map['author'],
       fromMe: map['fromMe'],
       body: map['body'],
-      timestamp: map['timestamp'],
+      timestamp: map['timestamp'] * 1000,
       type: ConvertMessage(map['type']).toEnum(),
-      media: map['media'] ?? "",
+      media: map['media'] != null ? map['media'][0] : '',
       delivery: map['delivery'],
       seen: map['seen'],
       hasQuotedMsg: map['hasQuotedMsg'],

@@ -7,10 +7,12 @@ import 'package:whatsapp_ui/features/chat/widgets/video_player_item.dart';
 
 class DisplayTextImageGIF extends StatelessWidget {
   final String message;
+  final String? media;
   final MessageEnum type;
   const DisplayTextImageGIF({
     Key? key,
     required this.message,
+    this.media,
     required this.type,
   }) : super(key: key);
 
@@ -21,18 +23,18 @@ class DisplayTextImageGIF extends StatelessWidget {
 
     return type == MessageEnum.text
         ? Text(
-            message,
-            style: const TextStyle(
-              fontSize: 16,
-            ),
-          )
-        : type == MessageEnum.audio
-            ? StatefulBuilder(builder: (context, setState) {
-                return IconButton(
-                  constraints: const BoxConstraints(
+                    message,
+                    style: const TextStyle(
+                    fontSize: 16,
+                    ),
+                    )
+                        : type == MessageEnum.audio
+                    ? StatefulBuilder(builder: (context, setState) {
+                    return IconButton(
+                    constraints: const BoxConstraints(
                     minWidth: 100,
-                  ),
-                  onPressed: () async {
+                    ),
+                    onPressed: () async {
                     if (isPlaying) {
                       await audioPlayer.pause();
                       setState(() {
@@ -52,14 +54,24 @@ class DisplayTextImageGIF extends StatelessWidget {
               })
             : type == MessageEnum.video
                 ? VideoPlayerItem(
-                    videoUrl: message,
+                    videoUrl: media!,
                   )
                 : type == MessageEnum.gif
-                    ? CachedNetworkImage(
-                        imageUrl: message,
-                      )
-                    : CachedNetworkImage(
-                        imageUrl: message,
-                      );
+                    ? Column(
+        children: [
+          CachedNetworkImage(
+            imageUrl: media!,
+          ),
+          Text(message),
+        ]
+    )
+                    : Column(
+                        children: [
+                          CachedNetworkImage(
+                            imageUrl: media!,
+                          ),
+                          Text(message),
+                        ]
+    );
   }
 }

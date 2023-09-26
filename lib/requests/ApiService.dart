@@ -1,5 +1,9 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:whatsapp_ui/features/auth/controller/auth_controller.dart';
+import 'package:whatsapp_ui/features/auth/screens/login_screen.dart';
 
 class ApiService {
   final String _baseUrl;
@@ -9,19 +13,17 @@ class ApiService {
   String generateQrCodeEndpoint = "";
 
   final String _messagesGroupEndpoint;
-  String listMessagesEndpoint = "";
-  String listChatMessagesEndpoint = "";
+  String loadMessagesEndpoint = "";
 
-  ApiService() :
+  ApiService()
+      :
         _baseUrl = 'https://horribly-vital-gar.ngrok-free.app',
         _authGroupEndpoint = '/auth',
-        _messagesGroupEndpoint = '/messages'
-  {
+        _messagesGroupEndpoint = '/messages' {
     isLoggedInEndpoint = '$_authGroupEndpoint/logged';
     generateQrCodeEndpoint = '$_authGroupEndpoint/qr';
 
-    listMessagesEndpoint = '$_messagesGroupEndpoint/list';
-    listChatMessagesEndpoint = '$_messagesGroupEndpoint/chat/list';
+    loadMessagesEndpoint = '$_messagesGroupEndpoint/load';
   }
 
   Map<String, String> _defaultHeaders = {
@@ -29,35 +31,67 @@ class ApiService {
     'Content-Type': 'application/json',
   };
 
-  Future<Map<String, dynamic>> get(String endpoint) async {
+  bool checkSuccess(Map<String, dynamic> response) {
+    final success = response['success'];
+    return success;
+  }
+
+  Future<bool> checkIfLoggedIn(BuildContext context, WidgetRef ref,
+      Map<String, dynamic> response) async {
+    final loggedIn = response['loggedIn'];
+    if (!loggedIn) {
+      final authController = ref.read(authControllerProvider);
+      await authController.authRepository.auth.signOut();
+
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        LoginScreen.routeName,
+            (route) => false,
+      );
+
+      return false;
+    }
+    return true;
+  }
+
+  Map<String, dynamic> decodeData(Map<String, dynamic> response) {
+    final data = response['data'];
+    return data;
+  }
+
+  Future<Map<String, dynamic>> get(BuildContext context, WidgetRef ref,
+      String endpoint) async {
     final response = await http.get(
-        Uri.parse('$_baseUrl$endpoint'),
-        headers: _defaultHeaders,
+      Uri.parse('$_baseUrl$endpoint'),
+      headers: _defaultHeaders,
     );
 
     if (response.statusCode == 200) {
-      return json.decode(response.body);
-    } else {
-      print(response.body);
+      final decodedBody = jsonDecode(response.body);
+      return decodeData(decodedBody);
+    }
+    else {
       throw Exception('Failed to get data');
     }
   }
 
-  Future<Map<String, dynamic>> post(String endpoint, Map<String, dynamic> data) async {
+  Future<Map<String, dynamic>> post(BuildContext context, WidgetRef ref, String endpoint, Map<String, dynamic> data) async {
     final response = await http.post(
       Uri.parse('$_baseUrl$endpoint'),
       headers: _defaultHeaders,
       body: json.encode(data),
     );
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      return json.decode(response.body);
-    } else {
-      throw Exception('Failed to post data');
+    if (response.statusCode == 200) {
+      final decodedBody = jsonDecode(response.body);
+      return decodeData(decodedBody);
+    }
+    else {
+      throw Exception('Failed to get data');
     }
   }
 
-  Future<Map<String, dynamic>> put(String endpoint, Map<String, dynamic> data) async {
+  Future<Map<String, dynamic>> put(BuildContext context, WidgetRef ref, String endpoint, Map<String, dynamic> data) async {
     final response = await http.put(
       Uri.parse('$_baseUrl$endpoint'),
       headers: _defaultHeaders,
@@ -65,9 +99,11 @@ class ApiService {
     );
 
     if (response.statusCode == 200) {
-      return json.decode(response.body);
-    } else {
-      throw Exception('Failed to update data');
+      final decodedBody = jsonDecode(response.body);
+      return decodeData(decodedBody);
+    }
+    else {
+      throw Exception('Failed to get data');
     }
   }
 

@@ -2,7 +2,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_dialogs/flutter_dialogs.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:sn_progress_dialog/progress_dialog.dart';
 import 'package:whatsapp_ui/features/auth/controller/auth_controller.dart';
 import 'package:whatsapp_ui/requests/ApiService.dart';
 import 'package:whatsapp_ui/utils/DeviceUtils.dart';
@@ -23,7 +25,7 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
   void initState() {
     super.initState();
 
-    isLoggedIn().then((loggedIn) {
+    isLoggedIn(false).then((loggedIn) {
       if (loggedIn) {
         storeUserData();
       }
@@ -33,25 +35,41 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
     });
   }
 
-  Future<bool> isLoggedIn() async {
-    final ApiService isLoggedInService = ApiService();
+  Future<bool> isLoggedIn(dialog) async {
+    ProgressDialog? progressDialog;
+    if (dialog) {
+      progressDialog = ProgressDialog(context: context);
+      progressDialog.show(max: 1, msg: 'Communicating with the server');
+    }
+
+    final ApiService apiService = ApiService();
 
     final deviceToken = await DeviceUtils.getDeviceId();
 
-    final dataR = await isLoggedInService.get("${isLoggedInService.isLoggedInEndpoint}?deviceToken=$deviceToken");
-    final data = dataR['data'];
+    final data = await apiService.get(context, ref, "${apiService.isLoggedInEndpoint}?deviceToken=$deviceToken");
+    if (!apiService.checkSuccess(data)) {
+      Fluttertoast.showToast(msg: 'Something went wrong');
+      return false;
+    }
     final loggedIn = data['loggedIn'];
+
+    if (dialog) {
+      progressDialog!.close();
+    }
 
     return loggedIn;
   }
 
   void generateQrCode() async {
-    final ApiService generateQrCodeService = ApiService();
+    final ApiService apiService = ApiService();
 
     final deviceToken = await DeviceUtils.getDeviceId();
 
-    final dataR = await generateQrCodeService.get("${generateQrCodeService.generateQrCodeEndpoint}?deviceToken=$deviceToken");
-    final data = dataR['data'];
+    final data = await apiService.get(context, ref, "${apiService.generateQrCodeEndpoint}?deviceToken=$deviceToken");
+    if (!apiService.checkSuccess(data)) {
+      Fluttertoast.showToast(msg: 'Something went wrong');
+      return;
+    }
     final qrCodeUrl = data['qrCodeUrl'];
 
     setState(() {
@@ -75,13 +93,13 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
   }
 
   bool checkingLogin = false;
-  void checkLogin() async {
+  void checkLogin(dialog) async {
     if (checkingLogin) {
       return;
     }
     checkingLogin = true;
 
-    final loggedIn = await isLoggedIn();
+    final loggedIn = await isLoggedIn(dialog);
     if (loggedIn) {
       storeUserData();
     }
@@ -134,12 +152,12 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
               ),
               SizedBox(height: 30),
               ElevatedButton(
-                onPressed: refreshQRCode,
+                onPressed: () => refreshQRCode(),
                 child: Text('Refresh QR Code'),
               ),
               SizedBox(height: 10),
               ElevatedButton(
-                onPressed: checkLogin,
+                onPressed: () => checkLogin(true),
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all(
                     Colors.green

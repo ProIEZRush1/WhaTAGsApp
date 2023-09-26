@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sn_progress_dialog/progress_dialog.dart';
 import 'package:uuid/uuid.dart';
 import 'package:whatsapp_ui/common/enums/message_enum.dart';
 import 'package:whatsapp_ui/common/providers/message_reply_provider.dart';
@@ -34,175 +36,57 @@ class ChatRepository {
     required this.auth,
   });
 
-  void retrieveChats(BuildContext context, WidgetRef ref) {
-    Future(() async {
-      final ApiService listMessagesApiService = ApiService();
-
-      final deviceToken = await DeviceUtils.getDeviceId();
-
-      final dataR = await listMessagesApiService.get("${listMessagesApiService.listMessagesEndpoint}?deviceToken=$deviceToken");
-      final success = dataR['success'];
-
-      if (success) {
-        final data = dataR['data'];
-
-        final loggedIn = data['loggedIn'];
-        if (!loggedIn) {
-          // firebase logout and redirect to login screen
-          await auth.signOut();
-
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            LoginScreen.routeName,
-                (route) => false,
-          );
-        } else {
-          final chats = data['chats'];
-          for (var chat in chats) {
-            final String chatId = chat["chat"]["chatId"]["_serialized"];
-            final bool isGroup = chat["chat"]["isGroup"]!;
-
-            final Map lastMessageMap = chat["chat"]["lastMessage"];
-            final String lastMessage = lastMessageMap["body"];
-            final String lastMessageTimestamp = lastMessageMap["timestamp"];
-
-            final String name = chat["contact"]["name"];
-            final String number = chat["contact"]["number"];
-            final String profilePicUrl = chat["contact"]["profilePicUrl"];
-
-            saveChat(chatId, isGroup, lastMessage, lastMessageTimestamp, name, number, profilePicUrl);
-          }
-        }
-      }
-    });
+  Future<bool> firstTime() async {
+    QuerySnapshot snapshot = await firestore.collection('users').doc(auth.currentUser!.uid).collection('chats').limit(1).get();
+    return snapshot.docs.isEmpty;
   }
 
-  void retrieveChatMessages(BuildContext context, WidgetRef ref, String chatId) {
-    Future(() async {
-      final ApiService listChatMessagesApiService = ApiService();
-
-      final deviceToken = await DeviceUtils.getDeviceId();
-
-      final dataR = await listChatMessagesApiService.get(
-          "${listChatMessagesApiService
-              .listChatMessagesEndpoint}?chatId=$chatId&deviceToken=$deviceToken");
-      final success = dataR['success'];
-
-      if (success) {
-        final data = dataR['data'];
-
-        final loggedIn = data['loggedIn'];
-        if (!loggedIn) {
-          // firebase logout and redirect to login screen
-          await auth.signOut();
-
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            LoginScreen.routeName,
-                (route) => false,
-          );
-        }
-        else {
-          final messages = data['messages'];
-          for (var message in messages) {
-            final String id = message["id"]["_serialized"];
-            final String author = message["author"];
-            final bool fromMe = message["fromMe"];
-            final String body = message["body"];
-            final String timestamp = message["timestamp"];
-            final MessageEnum type = ConvertMessage(message["type"]).toEnum();
-            final String media = message["media"];
-            final bool delivery = message["delivery"];
-            final bool seen = message["seen"];
-            final bool hasQuotedMsg = message["hasQuotedMsg"];
-            final String quotedMessageBody = message["quotedMessageBody"];
-            final MessageEnum quotedMessageType = ConvertMessage(message["quotedMessageType"]).toEnum();
-
-            saveChatMessage(ref, chatId, id, author, fromMe, body, timestamp, type, media, delivery, seen, hasQuotedMsg, quotedMessageBody, quotedMessageType);
-          }
-        }
-      }
-    });
+  Stream<int?> getActualChatLengthStream(BuildContext context, WidgetRef ref) {
+    return firestore
+        .collection('loadedMessages')
+        .doc(auth.currentUser!.uid)
+        .snapshots()
+        .map((snapshot) => snapshot.data()?['actualChatLength'] as int?);
   }
 
-  void saveChat(chatId, isGroup, lastMessageBody, lastMessageTimestamp, name, number, profilePicUrl) async {
-    await firestore.collection('users').doc(auth.currentUser!.uid).collection('chats').doc(chatId).set(
-      Chat(
-          chatId: chatId,
-          isGroup: isGroup,
-          lastMessageBody: lastMessageBody,
-          lastMessageTimestamp: lastMessageTimestamp,
-          name: name,
-          number: number,
-          profilePicUrl: profilePicUrl
-      ).toMap(),
-    );
+  Future<int> getRealChatLength(BuildContext context, WidgetRef ref) async {
+    DocumentSnapshot snapshot = await firestore
+        .collection('loadedMessages')
+        .doc(auth.currentUser!.uid)
+        .get();
+
+    Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
+    return data?['realChatLength'] as int? ?? 0;
   }
 
-  void saveChatMessage(ref, chatId, id, author, fromMe, body, timestamp, type, media, delivery, seen, hasQuotedMsg, quotedMessageBody, quotedMessageType) async {
-    // Upload media base64 to firebase and get url
-    String mediaUrl = "";
-    if (media != "") {
-      mediaUrl = await ref
-          .read(commonFirebaseStorageRepositoryProvider)
-          .storeFileToFirebase('chat/$chatId/$id', await FileUtils.base64ToFile(media, 'chat$chatId$id'));
-    }
-
-    await firestore.collection('users').doc(auth.currentUser!.uid).collection('chats').doc(chatId).collection('messages').add(
-      Message(
-        id: id,
-        author: author,
-        fromMe: fromMe,
-        body: body,
-        timestamp: timestamp,
-        type: type,
-        media: mediaUrl,
-        delivery: delivery,
-        seen: seen,
-        hasQuotedMsg: hasQuotedMsg,
-        quotedMessageBody: quotedMessageBody,
-        quotedMessageType: quotedMessageType
-      ).toMap(),
-    );
+  Future<bool> getHasLoadedAllMessages(BuildContext context, WidgetRef ref) async {
+    return await firestore
+        .collection('loadedMessages')
+        .doc(auth.currentUser!.uid)
+        .get()
+        .then((value) => value.data()?['hasLoadedAllMessages'] as bool? ?? false);
   }
 
-  Stream<List<Chat>> getChatContacts(BuildContext context, WidgetRef ref) {
-    retrieveChats(context, ref);
-
+  Stream<List<Chat>> getChatsStream(BuildContext context, WidgetRef ref) {
     return firestore
         .collection('users')
         .doc(auth.currentUser!.uid)
         .collection('chats')
         .snapshots()
         .asyncMap((event) async {
-      List<Chat> contacts = [];
+      List<Chat> chats = [];
       for (var document in event.docs) {
         var chat = Chat.fromMap(document.data());
-
-        contacts.add(
+        chats.add(
           chat,
         );
       }
-      return contacts;
+      chats.sort((a, b) => b.lastMessage.timestamp.compareTo(a.lastMessage.timestamp));
+      return chats;
     });
   }
 
-  Stream<List<Group>> getChatGroups(BuildContext context, WidgetRef ref){
-    return firestore.collection('groups').snapshots().map((event) {
-      List<Group> groups = [];
-      for (var document in event.docs) {
-        var group = Group.fromMap(document.data());
-        if (group.membersUid.contains(auth.currentUser!.uid)) {
-          groups.add(group);
-        }
-      }
-      return groups;
-    });
-  }
-
-  Stream<List<Message>> getChatStream(BuildContext context, WidgetRef ref, String chatId) {
-    //retrieveChatMessages(context, ref, chatId);
-
+  Stream<List<Message>> getChatMessagesStream(BuildContext context, WidgetRef ref, String chatId) {
     return firestore
         .collection('users')
         .doc(auth.currentUser!.uid)
@@ -212,23 +96,6 @@ class ChatRepository {
         .orderBy('timestamp')
         .snapshots()
         .asyncMap((event) async {
-      List<Message> messages = [];
-      for (var document in event.docs) {
-        //print(Message.fromMap(document.data()));
-        messages.add(Message.fromMap(document.data()));
-      }
-      return messages;
-    });
-  }
-
-  Stream<List<Message>> getGroupChatStream(String groudId) {
-    return firestore
-        .collection('groups')
-        .doc(groudId)
-        .collection('chats')
-        .orderBy('timeSent')
-        .snapshots()
-        .map((event) {
       List<Message> messages = [];
       for (var document in event.docs) {
         messages.add(Message.fromMap(document.data()));

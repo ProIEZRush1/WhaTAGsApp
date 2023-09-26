@@ -27,20 +27,24 @@ class ChatController {
     required this.ref,
   });
 
-  Stream<List<Chat>> chatContacts(BuildContext context, WidgetRef ref) {
-    return chatRepository.getChatContacts(context, ref);
+  Stream<int?> actualChatLengthStream(BuildContext context, WidgetRef ref) {
+    return chatRepository.getActualChatLengthStream(context, ref);
   }
 
-  Stream<List<Group>> chatGroups(BuildContext context, WidgetRef ref) {
-    return chatRepository.getChatGroups(context, ref);
+  Future<int> getRealChatLength(BuildContext context, WidgetRef ref) async {
+    return await chatRepository.getRealChatLength(context, ref);
   }
 
-  Stream<List<Message>> chatStream(BuildContext context, WidgetRef ref, String chatId) {
-    return chatRepository.getChatStream(context, ref, chatId);
+  Future<bool> getHasLoadedAllMessages(BuildContext context, WidgetRef ref) async {
+    return await chatRepository.getHasLoadedAllMessages(context, ref);
   }
 
-  Stream<List<Message>> groupChatStream(String groupId) {
-    return chatRepository.getGroupChatStream(groupId);
+  Stream<List<Chat>> chatsStream(BuildContext context, WidgetRef ref) {
+    return chatRepository.getChatsStream(context, ref);
+  }
+
+  Stream<List<Message>> chatMessagesStream(BuildContext context, WidgetRef ref, String chatId) {
+    return chatRepository.getChatMessagesStream(context, ref, chatId);
   }
 
   void sendTextMessage(
