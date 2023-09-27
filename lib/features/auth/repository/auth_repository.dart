@@ -4,14 +4,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:whatsapp_ui/common/repositories/common_firebase_storage_repository.dart';
-import 'package:whatsapp_ui/common/utils/utils.dart';
-import 'package:whatsapp_ui/features/auth/screens/load_messages_screen.dart';
-import 'package:whatsapp_ui/features/auth/screens/otp_screen.dart';
-import 'package:whatsapp_ui/features/auth/screens/qr_code_screen.dart';
-import 'package:whatsapp_ui/features/auth/screens/user_information_screen.dart';
-import 'package:whatsapp_ui/models/user_model.dart';
-import 'package:whatsapp_ui/mobile_layout_screen.dart';
+import 'package:com.jee.tag.whatagsapp/common/repositories/common_firebase_storage_repository.dart';
+import 'package:com.jee.tag.whatagsapp/common/utils/utils.dart';
+import 'package:com.jee.tag.whatagsapp/features/auth/screens/load_messages_screen.dart';
+import 'package:com.jee.tag.whatagsapp/features/auth/screens/otp_screen.dart';
+import 'package:com.jee.tag.whatagsapp/features/auth/screens/qr_code_screen.dart';
+import 'package:com.jee.tag.whatagsapp/features/auth/screens/user_information_screen.dart';
+import 'package:com.jee.tag.whatagsapp/models/user_model.dart';
+import 'package:com.jee.tag.whatagsapp/mobile_layout_screen.dart';
 
 final authRepositoryProvider = Provider(
   (ref) => AuthRepository(

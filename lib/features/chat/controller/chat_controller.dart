@@ -2,14 +2,14 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:whatsapp_ui/common/enums/message_enum.dart';
-import 'package:whatsapp_ui/common/providers/message_reply_provider.dart';
-import 'package:whatsapp_ui/features/auth/controller/auth_controller.dart';
-import 'package:whatsapp_ui/features/chat/repositories/chat_repository.dart';
-import 'package:whatsapp_ui/models/chat.dart';
-import 'package:whatsapp_ui/models/chat_contact.dart';
-import 'package:whatsapp_ui/models/group.dart';
-import 'package:whatsapp_ui/models/message.dart';
+import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
+import 'package:com.jee.tag.whatagsapp/common/providers/message_reply_provider.dart';
+import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/repositories/chat_repository.dart';
+import 'package:com.jee.tag.whatagsapp/models/chat.dart';
+import 'package:com.jee.tag.whatagsapp/models/chat_contact.dart';
+import 'package:com.jee.tag.whatagsapp/models/group.dart';
+import 'package:com.jee.tag.whatagsapp/models/message.dart';
 
 final chatControllerProvider = Provider((ref) {
   final chatRepository = ref.watch(chatRepositoryProvider);
@@ -49,19 +49,18 @@ class ChatController {
 
   void sendTextMessage(
     BuildContext context,
+    WidgetRef ref,
+    String chatId,
     String text,
     String receiverUserId,
-    bool isGroupChat,
   ) {
-    final messageReply = ref.read(messageReplyProvider);
     ref.read(userDataAuthProvider).whenData(
           (value) => chatRepository.sendTextMessage(
             context: context,
+            ref: ref,
+            chatId: chatId,
             text: text,
             receiverUserId: receiverUserId,
-            senderUser: value!,
-            messageReply: messageReply,
-            isGroupChat: isGroupChat,
           ),
         );
     ref.read(messageReplyProvider.state).update((state) => null);

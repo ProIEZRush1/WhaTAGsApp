@@ -2,28 +2,32 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
-import 'package:whatsapp_ui/features/auth/controller/auth_controller.dart';
-import 'package:whatsapp_ui/features/auth/screens/login_screen.dart';
+import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
+import 'package:com.jee.tag.whatagsapp/features/auth/screens/login_screen.dart';
 
 class ApiService {
   final String _baseUrl;
 
   final String _authGroupEndpoint;
+  String reviveClientEndpoint = "";
   String isLoggedInEndpoint = "";
   String generateQrCodeEndpoint = "";
 
   final String _messagesGroupEndpoint;
   String loadMessagesEndpoint = "";
+  String sendMessageEndpoint = "";
 
   ApiService()
       :
         _baseUrl = 'https://horribly-vital-gar.ngrok-free.app',
         _authGroupEndpoint = '/auth',
         _messagesGroupEndpoint = '/messages' {
+    reviveClientEndpoint = '$_authGroupEndpoint/revive';
     isLoggedInEndpoint = '$_authGroupEndpoint/logged';
     generateQrCodeEndpoint = '$_authGroupEndpoint/qr';
 
     loadMessagesEndpoint = '$_messagesGroupEndpoint/load';
+    sendMessageEndpoint = '$_messagesGroupEndpoint/send';
   }
 
   Map<String, String> _defaultHeaders = {

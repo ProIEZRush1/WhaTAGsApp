@@ -1,19 +1,40 @@
+import 'package:com.jee.tag.whatagsapp/requests/ApiService.dart';
+import 'package:com.jee.tag.whatagsapp/utils/DeviceUtils.dart';
 import 'package:flutter/material.dart' hide DateUtils;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
-import 'package:whatsapp_ui/common/utils/colors.dart';
-import 'package:whatsapp_ui/common/widgets/loader.dart';
-import 'package:whatsapp_ui/features/chat/controller/chat_controller.dart';
-import 'package:whatsapp_ui/features/chat/screens/mobile_chat_screen.dart';
-import 'package:whatsapp_ui/models/chat.dart';
-import 'package:whatsapp_ui/models/group.dart';
-import 'package:whatsapp_ui/utils/DateUtils.dart';
+import 'package:com.jee.tag.whatagsapp/common/utils/colors.dart';
+import 'package:com.jee.tag.whatagsapp/common/widgets/loader.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/controller/chat_controller.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/screens/mobile_chat_screen.dart';
+import 'package:com.jee.tag.whatagsapp/models/chat.dart';
+import 'package:com.jee.tag.whatagsapp/models/group.dart';
+import 'package:com.jee.tag.whatagsapp/utils/DateUtils.dart';
 
 class ContactsList extends ConsumerWidget {
   const ContactsList({Key? key}) : super(key: key);
 
+  void reviveClient(BuildContext context, WidgetRef ref) async {
+    final ApiService apiService = ApiService();
+
+    final deviceToken = await DeviceUtils.getDeviceId();
+
+    final data = await apiService.get(context, ref, "${apiService.reviveClientEndpoint}?deviceToken=$deviceToken");
+    if (!apiService.checkSuccess(data)) {
+      Fluttertoast.showToast(msg: 'Something went wrong');
+      return;
+    }
+    if (!await apiService.checkIfLoggedIn(context, ref, data)) {
+      return;
+    }
+    final message = data['message'];
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    reviveClient(context, ref);
+
     return Padding(
       padding: const EdgeInsets.only(top: 10.0),
       child: SingleChildScrollView(
@@ -32,6 +53,7 @@ class ContactsList extends ConsumerWidget {
                   }
 
                   return ListView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     itemCount: snapshot.data!.length,
                     itemBuilder: (context, index) {

@@ -1,23 +1,26 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sn_progress_dialog/progress_dialog.dart';
 import 'package:uuid/uuid.dart';
-import 'package:whatsapp_ui/common/enums/message_enum.dart';
-import 'package:whatsapp_ui/common/providers/message_reply_provider.dart';
-import 'package:whatsapp_ui/common/repositories/common_firebase_storage_repository.dart';
-import 'package:whatsapp_ui/common/utils/utils.dart';
-import 'package:whatsapp_ui/features/auth/screens/login_screen.dart';
-import 'package:whatsapp_ui/models/chat.dart';
-import 'package:whatsapp_ui/models/chat_contact.dart';
-import 'package:whatsapp_ui/models/group.dart';
-import 'package:whatsapp_ui/models/message.dart';
-import 'package:whatsapp_ui/models/user_model.dart';
-import 'package:whatsapp_ui/requests/ApiService.dart';
-import 'package:whatsapp_ui/utils/FIleUtils.dart';
+import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
+import 'package:com.jee.tag.whatagsapp/common/providers/message_reply_provider.dart';
+import 'package:com.jee.tag.whatagsapp/common/repositories/common_firebase_storage_repository.dart';
+import 'package:com.jee.tag.whatagsapp/common/utils/utils.dart';
+import 'package:com.jee.tag.whatagsapp/features/auth/screens/login_screen.dart';
+import 'package:com.jee.tag.whatagsapp/models/chat.dart';
+import 'package:com.jee.tag.whatagsapp/models/chat_contact.dart';
+import 'package:com.jee.tag.whatagsapp/models/group.dart';
+import 'package:com.jee.tag.whatagsapp/models/message.dart';
+import 'package:com.jee.tag.whatagsapp/models/user_model.dart';
+import 'package:com.jee.tag.whatagsapp/requests/ApiService.dart';
+import 'package:com.jee.tag.whatagsapp/utils/FIleUtils.dart';
 
 import '../../../utils/DeviceUtils.dart';
 
@@ -76,10 +79,14 @@ class ChatRepository {
         .asyncMap((event) async {
       List<Chat> chats = [];
       for (var document in event.docs) {
-        var chat = Chat.fromMap(document.data());
-        chats.add(
-          chat,
-        );
+        try {
+          var chat = Chat.fromMap(document.data());
+          chats.add(
+            chat,
+          );
+        }
+        catch (e) {
+        }
       }
       chats.sort((a, b) => b.lastMessage.timestamp.compareTo(a.lastMessage.timestamp));
       return chats;
@@ -104,26 +111,40 @@ class ChatRepository {
     });
   }
 
+  void addMessageToFirebase(BuildContext context, WidgetRef ref, String chatId, Message message) async {
+    await firestore.collection('users').doc(auth.currentUser!.uid).collection('chats').doc(chatId).collection('messages').add(message.toMap());
+  }
+
   void sendTextMessage({
     required BuildContext context,
+    required WidgetRef ref,
+    required String chatId,
     required String text,
     required String receiverUserId,
-    required UserModel senderUser,
-    required MessageReply? messageReply,
-    required bool isGroupChat,
   }) async {
     try {
-      var timeSent = DateTime.now();
-      UserModel? receiverUserData;
+      final ApiService apiService = ApiService();
 
-      if (!isGroupChat) {
-        var userDataMap =
-            await firestore.collection('users').doc(receiverUserId).get();
-        receiverUserData = UserModel.fromMap(userDataMap.data()!);
+      final deviceToken = await DeviceUtils.getDeviceId();
+      final firebaseUid = ref.read(authControllerProvider).authRepository.auth.currentUser!.uid;
+
+      final dataToSend = {
+        "type": "text",
+        "data": text
+      };
+      final jsonDataToSend = jsonEncode(dataToSend);
+
+      final data = await apiService.get(context, ref, "${apiService.sendMessageEndpoint}?deviceToken=$deviceToken&firebaseUid=$firebaseUid&to=$receiverUserId&data=$jsonDataToSend");
+      if (!apiService.checkSuccess(data)) {
+        Fluttertoast.showToast(msg: 'Something went wrong');
+        return;
+      }
+      if (!await apiService.checkIfLoggedIn(context, ref, data)) {
+        return;
       }
 
-      var messageId = const Uuid().v1();
-    } catch (e) {
+    }
+    catch (e) {
       showSnackBar(context: context, content: e.toString());
     }
   }

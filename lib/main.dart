@@ -1,24 +1,15 @@
-
-import 'dart:convert';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:whatsapp_ui/common/utils/colors.dart';
-import 'package:whatsapp_ui/common/widgets/error.dart';
-import 'package:whatsapp_ui/common/widgets/loader.dart';
-import 'package:whatsapp_ui/features/auth/controller/auth_controller.dart';
-import 'package:whatsapp_ui/features/auth/screens/load_messages_screen.dart';
-import 'package:whatsapp_ui/features/auth/screens/login_screen.dart';
-import 'package:whatsapp_ui/features/chat/controller/chat_controller.dart';
-import 'package:whatsapp_ui/features/landing/screens/landing_screen.dart';
-import 'package:whatsapp_ui/firebase_options.dart';
-import 'package:whatsapp_ui/models/chat.dart';
-import 'package:whatsapp_ui/models/message.dart';
-import 'package:whatsapp_ui/requests/ApiService.dart';
-import 'package:whatsapp_ui/router.dart';
-import 'package:whatsapp_ui/mobile_layout_screen.dart';
-import 'package:whatsapp_ui/utils/DeviceUtils.dart';
+import 'package:com.jee.tag.whatagsapp/common/utils/colors.dart';
+import 'package:com.jee.tag.whatagsapp/common/widgets/loader.dart';
+import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
+import 'package:com.jee.tag.whatagsapp/features/auth/screens/load_messages_screen.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/controller/chat_controller.dart';
+import 'package:com.jee.tag.whatagsapp/features/landing/screens/landing_screen.dart';
+import 'package:com.jee.tag.whatagsapp/firebase_options.dart';
+import 'package:com.jee.tag.whatagsapp/router.dart';
+import 'package:com.jee.tag.whatagsapp/mobile_layout_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

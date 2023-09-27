@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart' hide DateUtils;
 import 'package:swipe_to/swipe_to.dart';
 
-import 'package:whatsapp_ui/common/utils/colors.dart';
-import 'package:whatsapp_ui/common/enums/message_enum.dart';
-import 'package:whatsapp_ui/features/chat/widgets/display_text_image_gif.dart';
-import 'package:whatsapp_ui/utils/DateUtils.dart';
+import 'package:com.jee.tag.whatagsapp/common/utils/colors.dart';
+import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/display_text_image_gif.dart';
+import 'package:com.jee.tag.whatagsapp/utils/DateUtils.dart';
 
 class MyMessageCard extends StatelessWidget {
   final String id;
@@ -92,6 +92,7 @@ class MyMessageCard extends StatelessWidget {
                           ),
                           child: DisplayTextImageGIF(
                             message: quotedMessageBody,
+                            media: type != MessageEnum.text ? media : null,
                             type: quotedMessageType,
                           ),
                         ),

@@ -5,12 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:whatsapp_ui/common/utils/colors.dart';
-import 'package:whatsapp_ui/common/enums/message_enum.dart';
-import 'package:whatsapp_ui/common/providers/message_reply_provider.dart';
-import 'package:whatsapp_ui/common/utils/utils.dart';
-import 'package:whatsapp_ui/features/chat/controller/chat_controller.dart';
-import 'package:whatsapp_ui/features/chat/widgets/message_reply_preview.dart';
+import 'package:com.jee.tag.whatagsapp/common/utils/colors.dart';
+import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
+import 'package:com.jee.tag.whatagsapp/common/providers/message_reply_provider.dart';
+import 'package:com.jee.tag.whatagsapp/common/utils/utils.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/controller/chat_controller.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/message_reply_preview.dart';
 
 class BottomChatField extends ConsumerStatefulWidget {
   final String recieverUserId;
@@ -54,9 +54,10 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
     if (isShowSendButton) {
       ref.read(chatControllerProvider).sendTextMessage(
             context,
+            ref,
+            widget.recieverUserId,
             _messageController.text.trim(),
             widget.recieverUserId,
-            widget.isGroupChat,
           );
       setState(() {
         _messageController.text = '';
@@ -184,20 +185,13 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
                   prefixIcon: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20.0),
                     child: SizedBox(
-                      width: 100,
+                      width: 50,
                       child: Row(
                         children: [
                           IconButton(
                             onPressed: toggleEmojiKeyboardContainer,
                             icon: const Icon(
                               Icons.emoji_emotions,
-                              color: Colors.grey,
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: selectGIF,
-                            icon: const Icon(
-                              Icons.gif,
                               color: Colors.grey,
                             ),
                           ),

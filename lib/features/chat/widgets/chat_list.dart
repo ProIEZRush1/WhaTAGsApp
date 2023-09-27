@@ -1,16 +1,18 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:whatsapp_ui/common/enums/message_enum.dart';
-import 'package:whatsapp_ui/common/providers/message_reply_provider.dart';
-import 'package:whatsapp_ui/common/widgets/loader.dart';
+import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
+import 'package:com.jee.tag.whatagsapp/common/providers/message_reply_provider.dart';
+import 'package:com.jee.tag.whatagsapp/common/widgets/loader.dart';
 
-import 'package:whatsapp_ui/features/chat/controller/chat_controller.dart';
-import 'package:whatsapp_ui/features/chat/widgets/my_message_card.dart';
-import 'package:whatsapp_ui/features/chat/widgets/sender_message_card.dart';
-import 'package:whatsapp_ui/models/message.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/controller/chat_controller.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/my_message_card.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/sender_message_card.dart';
+import 'package:com.jee.tag.whatagsapp/models/message.dart';
 
 class ChatList extends ConsumerStatefulWidget {
   final String recieverUserId;
@@ -27,6 +29,11 @@ class ChatList extends ConsumerStatefulWidget {
 
 class _ChatListState extends ConsumerState<ChatList> {
   final ScrollController messageController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -64,9 +71,10 @@ class _ChatListState extends ConsumerState<ChatList> {
             return Text('No data available');
           }
 
-          SchedulerBinding.instance.addPostFrameCallback((_) {
-            messageController
-                .jumpTo(messageController.position.maxScrollExtent);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            // Delay the scrolling by 100 milliseconds to ensure proper layout
+            messageController.jumpTo(
+                messageController.position.maxScrollExtent * 2,);
           });
 
           return ListView.builder(
@@ -122,6 +130,7 @@ class _ChatListState extends ConsumerState<ChatList> {
                   messageData.type,
                 ),
               );
+
             },
           );
         });

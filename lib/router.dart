@@ -1,18 +1,18 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:whatsapp_ui/common/widgets/error.dart';
-import 'package:whatsapp_ui/features/auth/screens/login_screen.dart';
-import 'package:whatsapp_ui/features/auth/screens/load_messages_screen.dart';
-import 'package:whatsapp_ui/features/auth/screens/otp_screen.dart';
-import 'package:whatsapp_ui/features/auth/screens/qr_code_screen.dart';
-import 'package:whatsapp_ui/features/auth/screens/user_information_screen.dart';
-import 'package:whatsapp_ui/features/group/screens/create_group_screen.dart';
-import 'package:whatsapp_ui/features/select_contacts/screens/select_contacts_screen.dart';
-import 'package:whatsapp_ui/features/chat/screens/mobile_chat_screen.dart';
-import 'package:whatsapp_ui/features/status/screens/confirm_status_screen.dart';
-import 'package:whatsapp_ui/features/status/screens/status_screen.dart';
-import 'package:whatsapp_ui/models/status_model.dart';
+import 'package:com.jee.tag.whatagsapp/common/widgets/error.dart';
+import 'package:com.jee.tag.whatagsapp/features/auth/screens/login_screen.dart';
+import 'package:com.jee.tag.whatagsapp/features/auth/screens/load_messages_screen.dart';
+import 'package:com.jee.tag.whatagsapp/features/auth/screens/otp_screen.dart';
+import 'package:com.jee.tag.whatagsapp/features/auth/screens/qr_code_screen.dart';
+import 'package:com.jee.tag.whatagsapp/features/auth/screens/user_information_screen.dart';
+import 'package:com.jee.tag.whatagsapp/features/group/screens/create_group_screen.dart';
+import 'package:com.jee.tag.whatagsapp/features/select_contacts/screens/select_contacts_screen.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/screens/mobile_chat_screen.dart';
+import 'package:com.jee.tag.whatagsapp/features/status/screens/confirm_status_screen.dart';
+import 'package:com.jee.tag.whatagsapp/features/status/screens/status_screen.dart';
+import 'package:com.jee.tag.whatagsapp/models/status_model.dart';
 
 Route<dynamic> generateRoute(RouteSettings settings) {
   switch (settings.name) {

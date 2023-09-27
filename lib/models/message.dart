@@ -1,6 +1,6 @@
 import 'dart:ffi';
 
-import 'package:whatsapp_ui/common/enums/message_enum.dart';
+import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
 
 class Message {
 

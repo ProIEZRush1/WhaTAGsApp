@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 class Chat {
   final String chatId;
   final bool archived;

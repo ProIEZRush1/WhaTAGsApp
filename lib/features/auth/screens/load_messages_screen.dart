@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:sn_progress_dialog/progress_dialog.dart';
-import 'package:whatsapp_ui/features/auth/controller/auth_controller.dart';
-import 'package:whatsapp_ui/features/chat/controller/chat_controller.dart';
-import 'package:whatsapp_ui/mobile_layout_screen.dart';
-import 'package:whatsapp_ui/requests/ApiService.dart';
-import 'package:whatsapp_ui/utils/DeviceUtils.dart';
+import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/controller/chat_controller.dart';
+import 'package:com.jee.tag.whatagsapp/mobile_layout_screen.dart';
+import 'package:com.jee.tag.whatagsapp/requests/ApiService.dart';
+import 'package:com.jee.tag.whatagsapp/utils/DeviceUtils.dart';
 
 class LoadMessagesScreen extends ConsumerStatefulWidget {
   static const routeName = '/load-messages-screen';

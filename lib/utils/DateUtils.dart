@@ -7,7 +7,7 @@ class DateUtils {
     DateTime today = DateTime(now.year, now.month, now.day);
     DateTime yesterday = today.subtract(Duration(days: 1));
 
-    if (dateTime == today) {
+    if (dateTime.day == today.day && dateTime.month == today.month && dateTime.year == today.year) {
       return DateFormat('h:mm a').format(dateTime);
     } else if (dateTime == yesterday) {
       return 'Yesterday';

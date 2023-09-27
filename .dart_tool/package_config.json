@@ -81,27 +81,33 @@
     },
     {
       "name": "cached_network_image",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/cached_network_image-3.2.3",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/cached_network_image-3.3.0",
       "packageUri": "lib/",
-      "languageVersion": "2.18"
+      "languageVersion": "3.0"
     },
     {
       "name": "cached_network_image_platform_interface",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/cached_network_image_platform_interface-2.0.0",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/cached_network_image_platform_interface-3.0.0",
       "packageUri": "lib/",
-      "languageVersion": "2.18"
+      "languageVersion": "3.0"
     },
     {
       "name": "cached_network_image_web",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/cached_network_image_web-1.0.2",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/cached_network_image_web-1.1.0",
       "packageUri": "lib/",
-      "languageVersion": "2.18"
+      "languageVersion": "3.0"
     },
     {
       "name": "cached_video_player",
       "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/cached_video_player-2.0.4",
       "packageUri": "lib/",
       "languageVersion": "2.14"
+    },
+    {
+      "name": "change_app_package_name",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/change_app_package_name-1.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
     },
     {
       "name": "characters",
@@ -320,10 +326,28 @@
       "languageVersion": "3.0"
     },
     {
-      "name": "flutter_blurhash",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/flutter_blurhash-0.7.0",
+      "name": "flutter_background_service",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/flutter_background_service-5.0.1",
       "packageUri": "lib/",
-      "languageVersion": "2.15"
+      "languageVersion": "2.17"
+    },
+    {
+      "name": "flutter_background_service_android",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/flutter_background_service_android-6.0.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
+    },
+    {
+      "name": "flutter_background_service_ios",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/flutter_background_service_ios-5.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
+    },
+    {
+      "name": "flutter_background_service_platform_interface",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/flutter_background_service_platform_interface-5.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
     },
     {
       "name": "flutter_cache_manager",
@@ -429,7 +453,7 @@
     },
     {
       "name": "image_picker_android",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/image_picker_android-0.8.8",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/image_picker_android-0.8.8+1",
       "packageUri": "lib/",
       "languageVersion": "2.19"
     },
@@ -537,7 +561,7 @@
     },
     {
       "name": "octo_image",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/octo_image-1.0.2",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/octo_image-2.0.0",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -692,6 +716,12 @@
       "languageVersion": "2.19"
     },
     {
+      "name": "simple_vcard_parser",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/simple_vcard_parser-0.2.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
+    },
+    {
       "name": "sky_engine",
       "rootUri": "file:///opt/homebrew/Caskroom/flutter/3.13.2/flutter/bin/cache/pkg/sky_engine",
       "packageUri": "lib/",
@@ -837,7 +867,7 @@
     },
     {
       "name": "win32",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/win32-5.0.8",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/win32-5.0.9",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
@@ -854,13 +884,13 @@
       "languageVersion": "2.19"
     },
     {
-      "name": "whatsapp_ui",
+      "name": "com.jee.tag.whatagsapp",
       "rootUri": "../",
       "packageUri": "lib/",
       "languageVersion": "2.17"
     }
   ],
-  "generated": "2023-09-24T21:35:57.101200Z",
+  "generated": "2023-09-27T19:43:30.815928Z",
   "generator": "pub",
-  "generatorVersion": "3.1.0"
+  "generatorVersion": "3.1.2"
 }

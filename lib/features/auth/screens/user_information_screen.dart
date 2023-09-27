@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:whatsapp_ui/common/utils/utils.dart';
-import 'package:whatsapp_ui/features/auth/controller/auth_controller.dart';
+import 'package:com.jee.tag.whatagsapp/common/utils/utils.dart';
+import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
 
 class UserInformationScreen extends ConsumerStatefulWidget {
   static const String routeName = '/user-information';

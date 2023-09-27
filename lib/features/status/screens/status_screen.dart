@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:story_view/story_view.dart';
-import 'package:whatsapp_ui/common/widgets/loader.dart';
+import 'package:com.jee.tag.whatagsapp/common/widgets/loader.dart';
 
-import 'package:whatsapp_ui/models/status_model.dart';
+import 'package:com.jee.tag.whatagsapp/models/status_model.dart';
 
 class StatusScreen extends StatefulWidget {
   static const String routeName = '/status-screen';

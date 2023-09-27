@@ -1,14 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:whatsapp_ui/common/utils/colors.dart';
-import 'package:whatsapp_ui/common/utils/utils.dart';
-import 'package:whatsapp_ui/features/auth/controller/auth_controller.dart';
-import 'package:whatsapp_ui/features/group/screens/create_group_screen.dart';
-import 'package:whatsapp_ui/features/select_contacts/screens/select_contacts_screen.dart';
-import 'package:whatsapp_ui/features/chat/widgets/contacts_list.dart';
-import 'package:whatsapp_ui/features/status/screens/confirm_status_screen.dart';
-import 'package:whatsapp_ui/features/status/screens/status_contacts_screen.dart';
+import 'package:com.jee.tag.whatagsapp/common/utils/colors.dart';
+import 'package:com.jee.tag.whatagsapp/common/utils/utils.dart';
+import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
+import 'package:com.jee.tag.whatagsapp/features/group/screens/create_group_screen.dart';
+import 'package:com.jee.tag.whatagsapp/features/select_contacts/screens/select_contacts_screen.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/contacts_list.dart';
+import 'package:com.jee.tag.whatagsapp/features/status/screens/confirm_status_screen.dart';
 
 class MobileLayoutScreen extends ConsumerStatefulWidget {
   const MobileLayoutScreen({Key? key}) : super(key: key);

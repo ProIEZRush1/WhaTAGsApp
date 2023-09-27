@@ -58,7 +58,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyAu_Xgi5N_-uOED-lHL-PxZbM44h5r3Ieo',
-    appId: '1:797644769847:android:a9faca26c19928ecd00db2',
+    appId: '1:797644769847:android:7252fdb238c02966d00db2',
     messagingSenderId: '797644769847',
     projectId: 'tag1-3a41d',
     storageBucket: 'tag1-3a41d.appspot.com',
@@ -66,10 +66,11 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyD6kaFS6MJZgzrugkL-Gd9orOrAVRj2n1Y',
-    appId: '1:797644769847:ios:9208d876f91684ded00db2',
+    appId: '1:797644769847:ios:eead89082b904f66d00db2',
     messagingSenderId: '797644769847',
     projectId: 'tag1-3a41d',
     storageBucket: 'tag1-3a41d.appspot.com',
-    iosBundleId: 'com.example.whatsappUi',
+    iosClientId: '797644769847-agni7lh2sg7hgn2r47v5rgt84cod4abm.apps.googleusercontent.com',
+    iosBundleId: 'com.jee.tag.whatagsapp',
   );
 }

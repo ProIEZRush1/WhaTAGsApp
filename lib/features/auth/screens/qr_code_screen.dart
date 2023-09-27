@@ -5,10 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sn_progress_dialog/progress_dialog.dart';
-import 'package:whatsapp_ui/features/auth/controller/auth_controller.dart';
-import 'package:whatsapp_ui/requests/ApiService.dart';
-import 'package:whatsapp_ui/utils/DeviceUtils.dart';
-import 'package:whatsapp_ui/utils/FIleUtils.dart';
+import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
+import 'package:com.jee.tag.whatagsapp/requests/ApiService.dart';
+import 'package:com.jee.tag.whatagsapp/utils/DeviceUtils.dart';
+import 'package:com.jee.tag.whatagsapp/utils/FIleUtils.dart';
 
 class QRCodeScreen extends ConsumerStatefulWidget {
   static const String routeName = '/qr-code';

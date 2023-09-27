@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:whatsapp_ui/features/auth/controller/auth_controller.dart';
+import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
 
-import 'package:whatsapp_ui/features/status/repository/status_repository.dart';
-import 'package:whatsapp_ui/models/status_model.dart';
+import 'package:com.jee.tag.whatagsapp/features/status/repository/status_repository.dart';
+import 'package:com.jee.tag.whatagsapp/models/status_model.dart';
 
 final statusControllerProvider = Provider((ref) {
   final statusRepository = ref.read(statusRepositoryProvider);
