@@ -6,11 +6,13 @@
 // @dart = 2.17
 
 import 'dart:io'; // flutter_ignore: dart_io_import.
+import 'package:flutter_background_service_android/flutter_background_service_android.dart';
 import 'package:image_picker_android/image_picker_android.dart';
 import 'package:path_provider_android/path_provider_android.dart';
 import 'package:shared_preferences_android/shared_preferences_android.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:video_player_android/video_player_android.dart';
+import 'package:flutter_background_service_ios/flutter_background_service_ios.dart';
 import 'package:image_picker_ios/image_picker_ios.dart';
 import 'package:path_provider_foundation/path_provider_foundation.dart';
 import 'package:shared_preferences_foundation/shared_preferences_foundation.dart';
@@ -38,6 +40,15 @@ class _PluginRegistrant {
   @pragma('vm:entry-point')
   static void register() {
     if (Platform.isAndroid) {
+      try {
+        FlutterBackgroundServiceAndroid.registerWith();
+      } catch (err) {
+        print(
+          '`flutter_background_service_android` threw an error: $err. '
+          'The app may not function as expected until you remove this plugin from pubspec.yaml'
+        );
+      }
+
       try {
         ImagePickerAndroid.registerWith();
       } catch (err) {
@@ -84,6 +95,15 @@ class _PluginRegistrant {
       }
 
     } else if (Platform.isIOS) {
+      try {
+        FlutterBackgroundServiceIOS.registerWith();
+      } catch (err) {
+        print(
+          '`flutter_background_service_ios` threw an error: $err. '
+          'The app may not function as expected until you remove this plugin from pubspec.yaml'
+        );
+      }
+
       try {
         ImagePickerIOS.registerWith();
       } catch (err) {
