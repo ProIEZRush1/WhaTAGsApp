@@ -133,6 +133,7 @@ class DisplayTextImageGIF extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(type);
     if (type == MessageEnum.text) {
       return buildTextMessage();
     } else if (type == MessageEnum.audio) {

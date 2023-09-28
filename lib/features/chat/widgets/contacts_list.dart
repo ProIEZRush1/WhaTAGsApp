@@ -1,3 +1,4 @@
+import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
 import 'package:com.jee.tag.whatagsapp/requests/ApiService.dart';
 import 'package:com.jee.tag.whatagsapp/utils/DeviceUtils.dart';
 import 'package:flutter/material.dart' hide DateUtils;
@@ -16,11 +17,25 @@ class ContactsList extends ConsumerWidget {
   const ContactsList({Key? key}) : super(key: key);
 
   void reviveClient(BuildContext context, WidgetRef ref) async {
-    final ApiService apiService = ApiService();
+    /*final ApiService apiService = ApiService();
 
     final deviceToken = await DeviceUtils.getDeviceId();
 
     final data = await apiService.get(context, ref, "${apiService.reviveClientEndpoint}?deviceToken=$deviceToken");
+    if (!apiService.checkSuccess(data)) {
+      Fluttertoast.showToast(msg: 'Something went wrong');
+      return;
+    }
+    if (!await apiService.checkIfLoggedIn(context, ref, data)) {
+      return;
+    }
+    final message = data['message'];*/
+
+    final ApiService apiService = ApiService();
+    final deviceToken = await DeviceUtils.getDeviceId();
+    final firebaseUid = ref.read(authControllerProvider).authRepository.auth.currentUser!.uid;
+
+    final data = await apiService.get(context, ref, "${apiService.loadMessagesEndpoint}?deviceToken=$deviceToken&firebaseUid=$firebaseUid");
     if (!apiService.checkSuccess(data)) {
       Fluttertoast.showToast(msg: 'Something went wrong');
       return;
@@ -33,7 +48,11 @@ class ContactsList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    reviveClient(context, ref);
+    try {
+      reviveClient(context, ref);
+    }
+    catch (e) {
+    }
 
     return Padding(
       padding: const EdgeInsets.only(top: 10.0),

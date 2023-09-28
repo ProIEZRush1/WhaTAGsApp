@@ -45,8 +45,9 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
     final ApiService apiService = ApiService();
 
     final deviceToken = await DeviceUtils.getDeviceId();
+    final firebaseUid = ref.read(authControllerProvider).authRepository.auth.currentUser!.uid;
 
-    final data = await apiService.get(context, ref, "${apiService.isLoggedInEndpoint}?deviceToken=$deviceToken");
+    final data = await apiService.get(context, ref, "${apiService.isLoggedInEndpoint}?deviceToken=$deviceToken&firebaseUid=$firebaseUid");
     if (!apiService.checkSuccess(data)) {
       Fluttertoast.showToast(msg: 'Something went wrong');
       return false;

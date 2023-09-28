@@ -55,7 +55,7 @@ class _LoadMessagesScreenState extends ConsumerState<LoadMessagesScreen> {
       if (actualLength != null) {
         progressDialog.update(value: actualLength); // Assuming your progressDialog has an update method
 
-        if (actualLength == realChatLength) {
+        if (actualLength >= realChatLength) {
           progressDialog.close();
 
           final hasLoadedAllMessages = await controller.getHasLoadedAllMessages(context, ref);
