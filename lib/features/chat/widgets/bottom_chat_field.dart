@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:com.jee.tag.whatagsapp/utils/DeviceUtils.dart';
+import 'package:com.jee.tag.whatagsapp/utils/EncryptionUtils.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -51,12 +53,17 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
   }
 
   void sendTextMessage() async {
+    final deviceToken = await DeviceUtils.getDeviceId();
+    final key = EncryptionUtils.deriveKeyFromPassword(deviceToken, "salt");
+    final encryptedText = EncryptionUtils.encrypt(_messageController.text, key);
+    print(encryptedText);
+
     if (isShowSendButton) {
       ref.read(chatControllerProvider).sendTextMessage(
             context,
             ref,
             widget.recieverUserId,
-            _messageController.text.trim(),
+            encryptedText,
             widget.recieverUserId,
           );
       setState(() {

@@ -51,7 +51,7 @@ class MyApp extends ConsumerWidget {
             future: hasLoadedAllMessages(context, ref),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return CircularProgressIndicator(); // Show a loading indicator while waiting
+                return const CircularProgressIndicator(); // Show a loading indicator while waiting
               } else if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}'); // Handle errors if necessary
               } else if (!snapshot.data!) {

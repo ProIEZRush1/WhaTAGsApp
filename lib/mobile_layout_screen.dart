@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:com.jee.tag.whatagsapp/utils/EncryptionUtils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:com.jee.tag.whatagsapp/common/utils/colors.dart';
@@ -8,6 +9,7 @@ import 'package:com.jee.tag.whatagsapp/features/group/screens/create_group_scree
 import 'package:com.jee.tag.whatagsapp/features/select_contacts/screens/select_contacts_screen.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/contacts_list.dart';
 import 'package:com.jee.tag.whatagsapp/features/status/screens/confirm_status_screen.dart';
+import 'package:pointycastle/asymmetric/api.dart';
 
 class MobileLayoutScreen extends ConsumerStatefulWidget {
   const MobileLayoutScreen({Key? key}) : super(key: key);
@@ -57,7 +59,7 @@ class _MobileLayoutScreenState extends ConsumerState<MobileLayoutScreen>
           backgroundColor: appBarColor,
           centerTitle: false,
           title: const Text(
-            'WhatsApp',
+            'WhaTAGsApp',
             style: TextStyle(
               fontSize: 20,
               color: Colors.grey,
@@ -124,11 +126,15 @@ class _MobileLayoutScreenState extends ConsumerState<MobileLayoutScreen>
             } else {
               File? pickedImage = await pickImageFromGallery(context);
               if (pickedImage != null) {
-                Navigator.pushNamed(
+                if(context.mounted)
+                {
+                    Navigator.pushNamed(
                   context,
                   ConfirmStatusScreen.routeName,
                   arguments: pickedImage,
                 );
+                }
+                
               }
             }
           },

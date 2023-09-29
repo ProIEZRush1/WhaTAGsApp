@@ -1,5 +1,7 @@
 import 'dart:ffi';
 
+import 'package:com.jee.tag.whatagsapp/utils/EncryptionUtils.dart';
+
 class Chat {
   final String chatId;
   final bool archived;
@@ -40,7 +42,7 @@ class Chat {
     };
   }
 
-  static Chat fromMap(Map<String, dynamic> map) {
+  static Chat fromMap(Map<String, dynamic> map, String key) {
     final chatData = map['chat'];
     return Chat(
       chatId: chatData['chatId'],
@@ -48,7 +50,7 @@ class Chat {
       isGroup: chatData['isGroup'],
       isMuted: chatData['isMuted'],
       isReadOnly: chatData['isReadOnly'],
-      lastMessage: CMessage.fromMap(chatData['lastMessage']),
+      lastMessage: CMessage.fromMap(chatData['lastMessage'], key),
       pinned: chatData['pinned'],
       timestamp: chatData['timestamp'] * 1000,
       unreadCount: chatData['unreadCount'],
@@ -73,9 +75,9 @@ class CMessage {
     };
   }
 
-  static CMessage fromMap(Map<String, dynamic> map) {
+  static CMessage fromMap(Map<String, dynamic> map, String key) {
     return CMessage(
-      body: map['body'],
+      body: EncryptionUtils.decrypt(map['body'], key),
       timestamp: map['timestamp'] * 1000,
     );
   }

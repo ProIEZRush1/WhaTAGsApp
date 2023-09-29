@@ -39,12 +39,12 @@ class ChatController {
     return await chatRepository.getHasLoadedAllMessages(context, ref);
   }
 
-  Stream<List<Chat>> chatsStream(BuildContext context, WidgetRef ref) {
-    return chatRepository.getChatsStream(context, ref);
+  Stream<List<Chat>> chatsStream(BuildContext context, WidgetRef ref, String key) {
+    return chatRepository.getChatsStream(context, ref, key);
   }
 
-  Stream<List<Message>> chatMessagesStream(BuildContext context, WidgetRef ref, String chatId) {
-    return chatRepository.getChatMessagesStream(context, ref, chatId);
+  Stream<List<Message>> chatMessagesStream(BuildContext context, WidgetRef ref, String chatId, String key) {
+    return chatRepository.getChatMessagesStream(context, ref, chatId, key);
   }
 
   void sendTextMessage(

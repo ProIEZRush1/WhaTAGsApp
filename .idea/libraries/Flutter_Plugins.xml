@@ -45,13 +45,16 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/audioplayers-5.1.0" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/file_selector_windows-0.9.3+1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/image_picker_for_web-3.0.1" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/cached_video_player-2.0.4" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_contacts-1.1.7+1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/cloud_firestore_web-3.7.1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/video_player-2.6.0" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_background_service_ios-5.0.0" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_background_service-5.0.1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_background_service_android-6.0.1" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_secure_storage-9.0.0" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_secure_storage_web-1.1.2" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_secure_storage_windows-3.0.0" />
+      <root url="file://$USER_HOME$/.pub-cache/git/flutter_cached_video_player-69f4009ec2ff147a407efafb6b30b34ff122fd78" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

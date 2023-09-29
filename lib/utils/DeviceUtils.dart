@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 
 class DeviceUtils {
 
-  static Future<String?> getDeviceId() async {
+  static Future<String> getDeviceId() async {
     if (kIsWeb) {
       // Importing this way might not be efficient but it's a workaround
       var uuid = Uuid();

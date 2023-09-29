@@ -19,16 +19,17 @@ class LoadMessagesScreen extends ConsumerStatefulWidget {
 }
 
 class _LoadMessagesScreenState extends ConsumerState<LoadMessagesScreen> {
-
   void loadMessages() async {
     final ApiService apiService = ApiService();
     final deviceToken = await DeviceUtils.getDeviceId();
-    final firebaseUid = ref.read(authControllerProvider).authRepository.auth.currentUser!.uid;
+    final firebaseUid =
+        ref.read(authControllerProvider).authRepository.auth.currentUser!.uid;
 
     final ProgressDialog apiProgressDialog = ProgressDialog(context: context);
     apiProgressDialog.show(max: 1, msg: 'Communicating with the server');
 
-    final data = await apiService.get(context, ref, "${apiService.loadMessagesEndpoint}?deviceToken=$deviceToken&firebaseUid=$firebaseUid");
+    final data = await apiService.get(context, ref,
+        "${apiService.loadMessagesEndpoint}?deviceToken=$deviceToken&firebaseUid=$firebaseUid");
     if (!apiService.checkSuccess(data)) {
       Fluttertoast.showToast(msg: 'Something went wrong');
       return;
@@ -45,7 +46,8 @@ class _LoadMessagesScreenState extends ConsumerState<LoadMessagesScreen> {
     progressDialog.update(value: 0);
 
     final controller = ref.read(chatControllerProvider);
-    Stream<int?> actualChatLengthStream = controller.actualChatLengthStream(context, ref);
+    Stream<int?> actualChatLengthStream =
+        controller.actualChatLengthStream(context, ref);
     int realChatLength = await controller.getRealChatLength(context, ref);
     progressDialog.show(max: realChatLength, msg: 'Loading chats');
 
@@ -53,16 +55,21 @@ class _LoadMessagesScreenState extends ConsumerState<LoadMessagesScreen> {
     StreamSubscription<int?>? subscription;
     subscription = actualChatLengthStream.listen((actualLength) async {
       if (actualLength != null) {
-        progressDialog.update(value: actualLength); // Assuming your progressDialog has an update method
+        progressDialog.update(
+            value:
+                actualLength); // Assuming your progressDialog has an update method
 
-        if (actualLength >= realChatLength) {
+        if (actualLength >= 2) {
           progressDialog.close();
 
-          final hasLoadedAllMessages = await controller.getHasLoadedAllMessages(context, ref);
+          final hasLoadedAllMessages =
+              await controller.getHasLoadedAllMessages(context, ref);
           if (hasLoadedAllMessages) {
-            Navigator.push(context, MaterialPageRoute(
-              builder: (context) => const MobileLayoutScreen(),
-            ));
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MobileLayoutScreen(),
+                ));
           }
         }
       }

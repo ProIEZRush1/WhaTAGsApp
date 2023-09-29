@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:com.jee.tag.whatagsapp/utils/DeviceUtils.dart';
+import 'package:com.jee.tag.whatagsapp/utils/EncryptionUtils.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -57,82 +59,98 @@ class _ChatListState extends ConsumerState<ChatList> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<List<Message>>(
-        stream: ref
-                .read(chatControllerProvider)
-                .chatMessagesStream(context, ref, widget.recieverUserId),
-        builder: (context, snapshot) {
+    return FutureBuilder<String>(
+        future: DeviceUtils
+            .getDeviceId(), // Make sure to have this function return a Future<String>
+        builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Loader();
+            return CircularProgressIndicator();
+          } else if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          } else {
+            // Your main build logic here using snapshot.data
+            return StreamBuilder<List<Message>>(
+                stream: ref.read(chatControllerProvider).chatMessagesStream(
+                    context,
+                    ref,
+                    widget.recieverUserId,
+                    EncryptionUtils.deriveKeyFromPassword(
+                        snapshot.data!, "salt")),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Loader();
+                  }
+
+                  if (!snapshot.hasData || snapshot.data == null) {
+                    // Handle the case where snapshot.data is null
+                    return Text('No data available');
+                  }
+
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    // Delay the scrolling by 100 milliseconds to ensure proper layout
+                    Future.delayed(Duration(milliseconds: 100), () {
+                      messageController
+                          .jumpTo(messageController.position.maxScrollExtent);
+                    });
+                  });
+
+                  return ListView.builder(
+                    controller: messageController,
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (context, index) {
+                      final messageData = snapshot.data![index];
+
+                      if (!messageData.seen && !messageData.fromMe) {
+                        ref.read(chatControllerProvider).setChatMessageSeen(
+                              context,
+                              widget.recieverUserId,
+                              messageData.id,
+                            );
+                      }
+                      if (messageData.fromMe) {
+                        return MyMessageCard(
+                          id: messageData.id,
+                          author: messageData.author,
+                          fromMe: messageData.fromMe,
+                          body: messageData.body,
+                          timestamp: messageData.timestamp,
+                          type: messageData.type,
+                          media: messageData.media,
+                          delivery: messageData.delivery,
+                          seen: messageData.seen,
+                          hasQuotedMsg: messageData.hasQuotedMsg,
+                          quotedMessageBody: messageData.quotedMessageBody,
+                          quotedMessageType: messageData.quotedMessageType,
+                          onLeftSwipe: () => onMessageSwipe(
+                            messageData.body,
+                            true,
+                            messageData.type,
+                          ),
+                        );
+                      }
+                      return SenderMessageCard(
+                        id: messageData.id,
+                        author: messageData.author,
+                        fromMe: messageData.fromMe,
+                        body: messageData.body,
+                        timestamp: messageData.timestamp,
+                        type: messageData.type,
+                        media: messageData.media,
+                        delivery: messageData.delivery,
+                        seen: messageData.seen,
+                        hasQuotedMsg: messageData.hasQuotedMsg,
+                        quotedMessageBody: messageData.quotedMessageBody,
+                        quotedMessageType: messageData.quotedMessageType,
+                        onRightSwipe: () => onMessageSwipe(
+                          messageData.body,
+                          false,
+                          messageData.type,
+                        ),
+                      );
+                    },
+                  );
+                });
           }
-
-          if (!snapshot.hasData || snapshot.data == null) {
-            // Handle the case where snapshot.data is null
-            return Text('No data available');
-          }
-
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            // Delay the scrolling by 100 milliseconds to ensure proper layout
-            messageController.jumpTo(
-                messageController.position.maxScrollExtent * 2,);
-          });
-
-          return ListView.builder(
-            controller: messageController,
-            itemCount: snapshot.data!.length,
-            itemBuilder: (context, index) {
-              final messageData = snapshot.data![index];
-
-              if (!messageData.seen && !messageData.fromMe) {
-                ref.read(chatControllerProvider).setChatMessageSeen(
-                      context,
-                      widget.recieverUserId,
-                      messageData.id,
-                    );
-              }
-              if (messageData.fromMe) {
-                return MyMessageCard(
-                    id: messageData.id,
-                    author: messageData.author,
-                    fromMe: messageData.fromMe,
-                    body: messageData.body,
-                    timestamp: messageData.timestamp,
-                    type: messageData.type,
-                    media: messageData.media,
-                    delivery: messageData.delivery,
-                    seen: messageData.seen,
-                    hasQuotedMsg: messageData.hasQuotedMsg,
-                    quotedMessageBody: messageData.quotedMessageBody,
-                    quotedMessageType: messageData.quotedMessageType,
-                    onLeftSwipe: () => onMessageSwipe(
-                      messageData.body,
-                      true,
-                      messageData.type,
-                    ),
-                );
-              }
-              return SenderMessageCard(
-                id: messageData.id,
-                author: messageData.author,
-                fromMe: messageData.fromMe,
-                body: messageData.body,
-                timestamp: messageData.timestamp,
-                type: messageData.type,
-                media: messageData.media,
-                delivery: messageData.delivery,
-                seen: messageData.seen,
-                hasQuotedMsg: messageData.hasQuotedMsg,
-                quotedMessageBody: messageData.quotedMessageBody,
-                quotedMessageType: messageData.quotedMessageType,
-                onRightSwipe: () => onMessageSwipe(
-                  messageData.body,
-                  false,
-                  messageData.type,
-                ),
-              );
-
-            },
-          );
         });
   }
 }

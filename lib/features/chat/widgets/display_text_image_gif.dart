@@ -58,7 +58,7 @@ class DisplayTextImageGIF extends StatelessWidget {
 
   Widget buildVideoMessage() {
     return VideoPlayerItem(
-      videoUrl: media!,
+      videoUrl: media != null ? media! : "",
     );
   }
 
@@ -66,7 +66,7 @@ class DisplayTextImageGIF extends StatelessWidget {
     return Column(
       children: [
         CachedNetworkImage(
-          imageUrl: media!,
+          imageUrl: media != null ? media! : "",
         ),
         Text(message),
       ],
@@ -74,13 +74,11 @@ class DisplayTextImageGIF extends StatelessWidget {
   }
 
   Widget buildImageMessage() {
-    return Column(
-      children: [
-        CachedNetworkImage(
-          imageUrl: media != null ? media! : "HOLA",
-        )
-      ]
-    );
+    return Column(children: [
+      CachedNetworkImage(
+        imageUrl: media != null ? media! : "",
+      )
+    ]);
   }
 
   Widget buildVCardMessage() {
@@ -115,25 +113,20 @@ class DisplayTextImageGIF extends StatelessWidget {
             if (vCard.typedTelephone.firstOrNull != null)
               ListTile(
                 leading: Icon(Icons.phone),
-                title: Text(
-                    vCard.typedTelephone.first[0],
-                  style: TextStyle(
-                    fontSize: 10
-                  )
-                ),
+                title: Text(vCard.typedTelephone.first[0],
+                    style: TextStyle(fontSize: 10)),
               ),
             // You can add more details like address, organization, etc.
           ],
         ),
-        onTap: () {
-        },
+        onTap: () {},
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    print(type);
+    //print(type);
     if (type == MessageEnum.text) {
       return buildTextMessage();
     } else if (type == MessageEnum.audio) {
@@ -142,14 +135,11 @@ class DisplayTextImageGIF extends StatelessWidget {
       return buildVideoMessage();
     } else if (type == MessageEnum.gif) {
       return buildGIFMessage();
-    }
-    else if (type == MessageEnum.image) {
+    } else if (type == MessageEnum.image) {
       return buildImageMessage();
-    }
-    else if (type == MessageEnum.vcard) {
+    } else if (type == MessageEnum.vcard) {
       return buildVCardMessage();
-    }
-    else {
+    } else {
       return Column(
         children: [
           Text(message),

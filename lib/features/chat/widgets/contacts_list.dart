@@ -1,6 +1,7 @@
 import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
 import 'package:com.jee.tag.whatagsapp/requests/ApiService.dart';
 import 'package:com.jee.tag.whatagsapp/utils/DeviceUtils.dart';
+import 'package:com.jee.tag.whatagsapp/utils/EncryptionUtils.dart';
 import 'package:flutter/material.dart' hide DateUtils;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -48,93 +49,100 @@ class ContactsList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    try {
-      reviveClient(context, ref);
-    }
-    catch (e) {
-    }
+    reviveClient(context, ref);
+    return FutureBuilder<String>(
+      future: DeviceUtils.getDeviceId(),  // Make sure to have this function return a Future<String>
+      builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          // Your main build logic here using snapshot.data
+          return Padding(
+              padding: const EdgeInsets.only(top: 10.0),
+              child: SingleChildScrollView(
+                  child: Column(
+                      children: [
+                  StreamBuilder<List<Chat>>(
+                      stream: ref.watch(chatControllerProvider).chatsStream(context, ref, EncryptionUtils.deriveKeyFromPassword(snapshot.data!, "salt")),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Loader();
+                }
 
-    return Padding(
-      padding: const EdgeInsets.only(top: 10.0),
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            StreamBuilder<List<Chat>>(
-                stream: ref.watch(chatControllerProvider).chatsStream(context, ref),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Loader();
-                  }
+                if (!snapshot.hasData || snapshot.data == null) {
+                  // Handle the case where snapshot.data is null
+                  return Text('No data available');
+                }
 
-                  if (!snapshot.hasData || snapshot.data == null) {
-                    // Handle the case where snapshot.data is null
-                    return Text('No data available');
-                  }
+                return ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: snapshot.data!.length,
+                  itemBuilder: (context, index) {
+                    var chatContactData = snapshot.data![index];
 
-                  return ListView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (context, index) {
-                      var chatContactData = snapshot.data![index];
-
-                      return Column(
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              Navigator.pushNamed(
-                                context,
-                                MobileChatScreen.routeName,
-                                arguments: {
-                                  'name': chatContactData.contact.name,
-                                  'uid': chatContactData.chatId,
-                                  'isGroupChat': false,
-                                  'profilePic': chatContactData.contact.profilePicUrl,
-                                },
-                              );
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 8.0),
-                              child: ListTile(
-                                title: Text(
-                                  chatContactData.contact.name,
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                  ),
+                    return Column(
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            Navigator.pushNamed(
+                              context,
+                              MobileChatScreen.routeName,
+                              arguments: {
+                                'name': chatContactData.contact.name,
+                                'uid': chatContactData.chatId,
+                                'isGroupChat': false,
+                                'profilePic': chatContactData.contact.profilePicUrl,
+                              },
+                            );
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: ListTile(
+                              title: Text(
+                                chatContactData.contact.name,
+                                style: const TextStyle(
+                                  fontSize: 18,
                                 ),
-                                subtitle: Padding(
-                                  padding: const EdgeInsets.only(top: 6.0),
-                                  child: Text(
-                                    chatContactData.lastMessage.body,
-                                    style: const TextStyle(fontSize: 15),
-                                    maxLines: 2,
-                                  ),
+                              ),
+                              subtitle: Padding(
+                                padding: const EdgeInsets.only(top: 6.0),
+                                child: Text(
+                                  chatContactData.lastMessage.body,
+                                  style: const TextStyle(fontSize: 15),
+                                  maxLines: 2,
                                 ),
-                                leading: CircleAvatar(
-                                  backgroundImage: NetworkImage(
-                                    chatContactData.contact.profilePicUrl,
-                                  ),
-                                  radius: 30,
+                              ),
+                              leading: CircleAvatar(
+                                backgroundImage: NetworkImage(
+                                  chatContactData.contact.profilePicUrl,
                                 ),
-                                trailing: Text(
-                                  DateUtils.formatDate(DateTime.fromMicrosecondsSinceEpoch(chatContactData.lastMessage.timestamp)),
-                                  style: const TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 13,
-                                  ),
+                                radius: 30,
+                              ),
+                              trailing: Text(
+                                DateUtils.formatDate(DateTime.fromMicrosecondsSinceEpoch(chatContactData.lastMessage.timestamp)),
+                                style: const TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 13,
                                 ),
                               ),
                             ),
                           ),
-                          const Divider(color: dividerColor, indent: 85),
-                        ],
-                      );
-                    },
-                  );
-                }),
-          ],
+                        ),
+                        const Divider(color: dividerColor, indent: 85),
+                      ],
+                    );
+                  },
+                );
+              }),
+        ],
         ),
-      ),
+        ),
+        );
+        }
+      },
     );
   }
 }

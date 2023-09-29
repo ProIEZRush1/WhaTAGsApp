@@ -1,6 +1,7 @@
 import 'dart:ffi';
 
 import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
+import 'package:com.jee.tag.whatagsapp/utils/EncryptionUtils.dart';
 
 class Message {
 
@@ -48,12 +49,12 @@ class Message {
     };
   }
 
-  factory Message.fromMap(Map<String, dynamic> map) {
+  factory Message.fromMap(Map<String, dynamic> map, String deviceToken) {
     return Message(
       id: map['id'],
       author: map['author'],
       fromMe: map['fromMe'],
-      body: map['body'],
+      body: EncryptionUtils.decrypt(map['body'], deviceToken),
       timestamp: map['timestamp'] * 1000,
       type: ConvertMessage(map['type']).toEnum(),
       media: map['media'] != null ? map['media'][0] : '',

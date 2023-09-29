@@ -40,7 +40,12 @@ class ChatRepository {
   });
 
   Future<bool> firstTime() async {
-    QuerySnapshot snapshot = await firestore.collection('users').doc(auth.currentUser!.uid).collection('chats').limit(1).get();
+    QuerySnapshot snapshot = await firestore
+        .collection('users')
+        .doc(auth.currentUser!.uid)
+        .collection('chats')
+        .limit(1)
+        .get();
     return snapshot.docs.isEmpty;
   }
 
@@ -62,15 +67,18 @@ class ChatRepository {
     return data?['realChatLength'] as int? ?? 0;
   }
 
-  Future<bool> getHasLoadedAllMessages(BuildContext context, WidgetRef ref) async {
+  Future<bool> getHasLoadedAllMessages(
+      BuildContext context, WidgetRef ref) async {
     return await firestore
         .collection('loadedMessages')
         .doc(auth.currentUser!.uid)
         .get()
-        .then((value) => value.data()?['hasLoadedAllMessages'] as bool? ?? false);
+        .then(
+            (value) => value.data()?['hasLoadedAllMessages'] as bool? ?? false);
   }
 
-  Stream<List<Chat>> getChatsStream(BuildContext context, WidgetRef ref) {
+  Stream<List<Chat>> getChatsStream(
+      BuildContext context, WidgetRef ref, String key) {
     return firestore
         .collection('users')
         .doc(auth.currentUser!.uid)
@@ -80,20 +88,20 @@ class ChatRepository {
       List<Chat> chats = [];
       for (var document in event.docs) {
         try {
-          var chat = Chat.fromMap(document.data());
+          final chat = Chat.fromMap(document.data(), key);
           chats.add(
             chat,
           );
-        }
-        catch (e) {
-        }
+        } catch (e) {}
       }
-      chats.sort((a, b) => b.lastMessage.timestamp.compareTo(a.lastMessage.timestamp));
+      chats.sort(
+          (a, b) => b.lastMessage.timestamp.compareTo(a.lastMessage.timestamp));
       return chats;
     });
   }
 
-  Stream<List<Message>> getChatMessagesStream(BuildContext context, WidgetRef ref, String chatId) {
+  Stream<List<Message>> getChatMessagesStream(
+      BuildContext context, WidgetRef ref, String chatId, String key) {
     return firestore
         .collection('users')
         .doc(auth.currentUser!.uid)
@@ -105,14 +113,28 @@ class ChatRepository {
         .asyncMap((event) async {
       List<Message> messages = [];
       for (var document in event.docs) {
-        messages.add(Message.fromMap(document.data()));
+        try {
+          final message = Message.fromMap(document.data(), key);
+          messages.add(
+            message,
+          );
+        } catch (e) {
+          print(e);
+        }
       }
       return messages;
     });
   }
 
-  void addMessageToFirebase(BuildContext context, WidgetRef ref, String chatId, Message message) async {
-    await firestore.collection('users').doc(auth.currentUser!.uid).collection('chats').doc(chatId).collection('messages').add(message.toMap());
+  void addMessageToFirebase(BuildContext context, WidgetRef ref, String chatId,
+      Message message) async {
+    await firestore
+        .collection('users')
+        .doc(auth.currentUser!.uid)
+        .collection('chats')
+        .doc(chatId)
+        .collection('messages')
+        .add(message.toMap());
   }
 
   void sendTextMessage({
@@ -126,15 +148,15 @@ class ChatRepository {
       final ApiService apiService = ApiService();
 
       final deviceToken = await DeviceUtils.getDeviceId();
-      final firebaseUid = ref.read(authControllerProvider).authRepository.auth.currentUser!.uid;
+      final firebaseUid =
+          ref.read(authControllerProvider).authRepository.auth.currentUser!.uid;
 
-      final dataToSend = {
-        "type": "text",
-        "data": text
-      };
-      final jsonDataToSend = jsonEncode(dataToSend);
+      final dataToSend = {"type": "text", "data": text};
+      final jsonDataToSend = Uri.encodeComponent(jsonEncode(dataToSend));
+      print(jsonDataToSend);
 
-      final data = await apiService.get(context, ref, "${apiService.sendMessageEndpoint}?deviceToken=$deviceToken&firebaseUid=$firebaseUid&to=$receiverUserId&data=$jsonDataToSend");
+      final data = await apiService.get(context, ref,
+          "${apiService.sendMessageEndpoint}?deviceToken=$deviceToken&firebaseUid=$firebaseUid&to=$receiverUserId&data=$jsonDataToSend");
       if (!apiService.checkSuccess(data)) {
         Fluttertoast.showToast(msg: 'Something went wrong');
         return;
@@ -142,9 +164,7 @@ class ChatRepository {
       if (!await apiService.checkIfLoggedIn(context, ref, data)) {
         return;
       }
-
-    }
-    catch (e) {
+    } catch (e) {
       showSnackBar(context: context, content: e.toString());
     }
   }
@@ -195,7 +215,6 @@ class ChatRepository {
         default:
           contactMsg = 'GIF';
       }
-
     } catch (e) {
       showSnackBar(context: context, content: e.toString());
     }
