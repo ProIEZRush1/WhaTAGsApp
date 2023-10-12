@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:com.jee.tag.whatagsapp/mobile_layout_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dialogs/flutter_dialogs.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +13,7 @@ import 'package:com.jee.tag.whatagsapp/utils/FIleUtils.dart';
 
 class QRCodeScreen extends ConsumerStatefulWidget {
   static const String routeName = '/qr-code';
+
   const QRCodeScreen({Key? key}) : super(key: key);
 
   @override
@@ -19,7 +21,11 @@ class QRCodeScreen extends ConsumerStatefulWidget {
 }
 
 class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
-  Image qrCodeImage = const Image(image: AssetImage("assets/loading.gif"), width: 300, height: 300,);
+  Image qrCodeImage = const Image(
+    image: AssetImage("assets/loading.gif"),
+    width: 300,
+    height: 300,
+  );
 
   @override
   void initState() {
@@ -28,8 +34,7 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
     isLoggedIn(false).then((loggedIn) {
       if (loggedIn) {
         storeUserData();
-      }
-      else {
+      } else {
         generateQrCode();
       }
     });
@@ -45,9 +50,11 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
     final ApiService apiService = ApiService();
 
     final deviceToken = await DeviceUtils.getDeviceId();
-    final firebaseUid = ref.read(authControllerProvider).authRepository.auth.currentUser!.uid;
+    final firebaseUid =
+        ref.read(authControllerProvider).authRepository.auth.currentUser!.uid;
 
-    final data = await apiService.get(context, ref, "${apiService.isLoggedInEndpoint}?deviceToken=$deviceToken&firebaseUid=$firebaseUid");
+    final data = await apiService.get(context, ref,
+        "${apiService.isLoggedInEndpoint}?deviceToken=$deviceToken&firebaseUid=$firebaseUid");
     if (!apiService.checkSuccess(data)) {
       Fluttertoast.showToast(msg: 'Something went wrong');
       return false;
@@ -65,8 +72,11 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
     final ApiService apiService = ApiService();
 
     final deviceToken = await DeviceUtils.getDeviceId();
+    final firebaseUid =
+        ref.read(authControllerProvider).authRepository.auth.currentUser!.uid;
 
-    final data = await apiService.get(context, ref, "${apiService.generateQrCodeEndpoint}?deviceToken=$deviceToken");
+    final data = await apiService.get(context, ref,
+        "${apiService.generateQrCodeEndpoint}?deviceToken=$deviceToken&firebaseUid=$firebaseUid");
     if (!apiService.checkSuccess(data)) {
       Fluttertoast.showToast(msg: 'Something went wrong');
       return;
@@ -74,26 +84,52 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
     final qrCodeUrl = data['qrCodeUrl'];
 
     setState(() {
-      qrCodeImage = Image.network(qrCodeUrl);
+      qrCodeImage =
+          Image.network('$qrCodeUrl?${DateTime.now().toIso8601String()}');
     });
   }
 
   void storeUserData() async {
     ref.read(authControllerProvider).saveUserDataToFirebase(
-      context,
-      "",
-      null,
-    );
+          context,
+          "",
+          null,
+        );
   }
 
-  void refreshQRCode() {
+  void refreshQRCode() async {
     setState(() {
-      qrCodeImage = const Image(image: AssetImage("assets/loading.gif"), width: 300, height: 300,);
+      qrCodeImage = const Image(
+        image: AssetImage("assets/loading.gif"),
+        width: 300,
+        height: 300,
+      );
     });
+
+    final loggedIn = await isLoggedIn(false);
+    if (loggedIn) {
+      // Generate dialog
+      showPlatformDialog(
+          context: context,
+          builder: (context) => BasicDialogAlert(
+                  title: Text('Logged in'),
+                  content: Text(
+                      "You are already logged in, click the 'Check Login' button"),
+                  actions: <Widget>[
+                    BasicDialogAction(
+                        title: Text('Ok'),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        })
+                  ]));
+      return;
+    }
+
     generateQrCode();
   }
 
   bool checkingLogin = false;
+
   void checkLogin(dialog) async {
     if (checkingLogin) {
       return;
@@ -102,22 +138,30 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
 
     final loggedIn = await isLoggedIn(dialog);
     if (loggedIn) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const MobileLayoutScreen(),
+        ),
+        (route) => false,
+      );
+
       storeUserData();
-    }
-    else {
+    } else {
       // Create dialog
-      showPlatformDialog(context: context, builder: (context) => BasicDialogAlert(
-        title: Text('Login not detected'),
-        content: Text('Your login has not been detected. Please try again'),
-        actions: <Widget>[
-          BasicDialogAction(
-            title: Text('Ok'),
-            onPressed: () {
-              Navigator.pop(context);
-            }
-          )
-        ]
-      ));
+      showPlatformDialog(
+          context: context,
+          builder: (context) => BasicDialogAlert(
+                  title: Text('Login not detected'),
+                  content: Text(
+                      'Your login has not been detected. Please try again'),
+                  actions: <Widget>[
+                    BasicDialogAction(
+                        title: Text('Ok'),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        })
+                  ]));
     }
     checkingLogin = false;
   }
@@ -149,7 +193,8 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
               ),
               SizedBox(height: 30),
               Expanded(
-                child: qrCodeImage, // Replace with your image URL or use an asset
+                child:
+                    qrCodeImage, // Replace with your image URL or use an asset
               ),
               SizedBox(height: 30),
               ElevatedButton(
@@ -160,10 +205,7 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
               ElevatedButton(
                 onPressed: () => checkLogin(true),
                 style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(
-                    Colors.green
-                  )
-                ),
+                    backgroundColor: MaterialStateProperty.all(Colors.green)),
                 child: Text('Check Login'),
               ),
             ],

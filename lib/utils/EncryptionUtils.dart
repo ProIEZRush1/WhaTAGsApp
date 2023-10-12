@@ -25,12 +25,17 @@ class EncryptionUtils {
   }
 
   static String decrypt(String encryptedText, String keyS) {
-    Uint8List keyBytes = base64Decode(keyS);
-    final key = Key(keyBytes);
-    final iv = IV.fromBase64(encryptedText.substring(0, 24));
-    final cipherText = Encrypted.fromBase64(encryptedText.substring(24));
-    final encrypter = Encrypter(AES(key, mode: AESMode.cbc, padding: 'PKCS7'));
-    final decrypted = encrypter.decrypt(cipherText, iv: iv);
-    return decrypted;
+    try {
+      Uint8List keyBytes = base64Decode(keyS);
+      final key = Key(keyBytes);
+      final iv = IV.fromBase64(encryptedText.substring(0, 24));
+      final cipherText = Encrypted.fromBase64(encryptedText.substring(24));
+      final encrypter =
+          Encrypter(AES(key, mode: AESMode.cbc, padding: 'PKCS7'));
+      final decrypted = encrypter.decrypt(cipherText, iv: iv);
+      return decrypted;
+    } catch (e) {
+      return encryptedText;
+    }
   }
 }

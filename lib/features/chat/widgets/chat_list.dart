@@ -19,6 +19,7 @@ import 'package:com.jee.tag.whatagsapp/models/message.dart';
 class ChatList extends ConsumerStatefulWidget {
   final String recieverUserId;
   final bool isGroupChat;
+
   const ChatList({
     Key? key,
     required this.recieverUserId,
@@ -60,8 +61,8 @@ class _ChatListState extends ConsumerState<ChatList> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<String>(
-        future: DeviceUtils
-            .getDeviceId(), // Make sure to have this function return a Future<String>
+        future: DeviceUtils.getDeviceId(),
+        // Make sure to have this function return a Future<String>
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return CircularProgressIndicator();
@@ -69,7 +70,7 @@ class _ChatListState extends ConsumerState<ChatList> {
             return Text('Error: ${snapshot.error}');
           } else {
             // Your main build logic here using snapshot.data
-            return StreamBuilder<List<Message>>(
+            return StreamBuilder<List<Map<String, dynamic>>>(
                 stream: ref.read(chatControllerProvider).chatMessagesStream(
                     context,
                     ref,
@@ -94,57 +95,85 @@ class _ChatListState extends ConsumerState<ChatList> {
                     });
                   });
 
+                  ref.read(chatControllerProvider).setChatSeen(
+                        context,
+                        widget.recieverUserId,
+                      );
+
                   return ListView.builder(
                     controller: messageController,
                     itemCount: snapshot.data!.length,
                     itemBuilder: (context, index) {
                       final messageData = snapshot.data![index];
 
-                      if (!messageData.seen && !messageData.fromMe) {
-                        ref.read(chatControllerProvider).setChatMessageSeen(
-                              context,
-                              widget.recieverUserId,
-                              messageData.id,
-                            );
+                      if (messageData["information"] == null) {
+                        return Container();
                       }
-                      if (messageData.fromMe) {
+
+                      final information = messageData["information"];
+                      final status = information["status"];
+                      final fromMe = information["fromMe"];
+
+                      final id = messageData["key"]["id"];
+                      final body = information["body"] ?? "";
+                      final timestamp = (information["timestamp"] ?? 0) * 1000;
+                      final type = information["type"];
+                      final media = information["media"];
+                      final url = information["url"] ?? "";
+                      final delivery = status == 3;
+                      final seen = status == 4;
+                      final hasQuotedMsg = false;
+                      final quotedMessageBody = "";
+                      final quotedMessageType = "";
+
+                      if (type == null || fromMe == null) {
+                        return Container();
+                      }
+
+                      final update = messageData["update"];
+                      if (update != null) {
+                        if (update["starred"] == true) {
+                          return Container();
+                        }
+                      }
+
+                      if (fromMe) {
                         return MyMessageCard(
-                          id: messageData.id,
-                          author: messageData.author,
-                          fromMe: messageData.fromMe,
-                          body: messageData.body,
-                          timestamp: messageData.timestamp,
-                          type: messageData.type,
-                          media: messageData.media,
-                          delivery: messageData.delivery,
-                          seen: messageData.seen,
-                          hasQuotedMsg: messageData.hasQuotedMsg,
-                          quotedMessageBody: messageData.quotedMessageBody,
-                          quotedMessageType: messageData.quotedMessageType,
+                          id: id,
+                          body: body,
+                          timestamp: timestamp,
+                          type: ConvertMessage(type).toEnum(),
+                          media: media,
+                          url: url,
+                          delivery: delivery,
+                          seen: seen,
+                          hasQuotedMsg: hasQuotedMsg,
+                          quotedMessageBody: quotedMessageBody,
+                          quotedMessageType:
+                              ConvertMessage(quotedMessageType).toEnum(),
                           onLeftSwipe: () => onMessageSwipe(
-                            messageData.body,
+                            body,
                             true,
-                            messageData.type,
+                            ConvertMessage(type).toEnum(),
                           ),
                         );
                       }
                       return SenderMessageCard(
-                        id: messageData.id,
-                        author: messageData.author,
-                        fromMe: messageData.fromMe,
-                        body: messageData.body,
-                        timestamp: messageData.timestamp,
-                        type: messageData.type,
-                        media: messageData.media,
-                        delivery: messageData.delivery,
-                        seen: messageData.seen,
-                        hasQuotedMsg: messageData.hasQuotedMsg,
-                        quotedMessageBody: messageData.quotedMessageBody,
-                        quotedMessageType: messageData.quotedMessageType,
+                        id: id,
+                        body: body,
+                        timestamp: timestamp,
+                        type: ConvertMessage(type).toEnum(),
+                        media: media,
+                        url: url,
+                        delivery: delivery,
+                        hasQuotedMsg: hasQuotedMsg,
+                        quotedMessageBody: quotedMessageBody,
+                        quotedMessageType:
+                            ConvertMessage(quotedMessageType).toEnum(),
                         onRightSwipe: () => onMessageSwipe(
-                          messageData.body,
+                          body,
                           false,
-                          messageData.type,
+                          ConvertMessage(type).toEnum(),
                         ),
                       );
                     },

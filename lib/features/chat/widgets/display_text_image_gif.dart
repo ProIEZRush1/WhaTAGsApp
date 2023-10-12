@@ -1,10 +1,13 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/video_player_item.dart';
+import 'package:flutter/rendering.dart';
 import 'package:simple_vcard_parser/simple_vcard_parser.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DisplayTextImageGIF extends StatelessWidget {
   final String message;
@@ -18,13 +21,68 @@ class DisplayTextImageGIF extends StatelessWidget {
     required this.type,
   }) : super(key: key);
 
-  Widget buildTextMessage() {
-    return Text(
-      message,
-      style: const TextStyle(
-        fontSize: 16,
-      ),
+  Widget buildTextMessage(BuildContext context) {
+    final RegExp linkRegExp = RegExp(
+      r"((https?:\/\/)|www\.)[a-zA-Z0-9-._~:/?#[\]@!$&'()*+,;=%]+",
     );
+
+    final Iterable<RegExpMatch> matches = linkRegExp.allMatches(message);
+    if (matches.isEmpty) {
+      return Text(message);
+    } else {
+      List<TextSpan> textSpans = [];
+      int lastMatchEnd = 0;
+
+      for (var match in matches) {
+        textSpans
+            .add(TextSpan(text: message.substring(lastMatchEnd, match.start)));
+        textSpans.add(
+          TextSpan(
+            text: message.substring(match.start, match.end),
+            style: const TextStyle(
+                color: Colors.blue, decoration: TextDecoration.underline),
+            recognizer: TapGestureRecognizer()
+              ..onTapDown = (details) {
+                final renderObject = context.findRenderObject();
+                if (renderObject is RenderParagraph) {
+                  renderObject.text.style!
+                      .merge(const TextStyle(color: Colors.lightBlue));
+                }
+              }
+              ..onTapUp = (details) async {
+                String url = message.substring(match.start, match.end);
+                if (!url.startsWith('http')) {
+                  url = 'http://$url';
+                }
+                if (await canLaunch(url)) {
+                  await launch(url);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Could not launch $url')),
+                  );
+                }
+                final renderObject = context.findRenderObject();
+                if (renderObject is RenderParagraph) {
+                  renderObject.text.style!
+                      .merge(const TextStyle(color: Colors.blue));
+                }
+              },
+          ),
+        );
+        lastMatchEnd = match.end;
+      }
+
+      if (lastMatchEnd < message.length) {
+        textSpans.add(TextSpan(text: message.substring(lastMatchEnd)));
+      }
+
+      return RichText(
+        text: TextSpan(
+          style: TextStyle(color: Colors.black, fontSize: 16),
+          children: textSpans,
+        ),
+      );
+    }
   }
 
   Widget buildAudioMessage() {
@@ -128,7 +186,7 @@ class DisplayTextImageGIF extends StatelessWidget {
   Widget build(BuildContext context) {
     //print(type);
     if (type == MessageEnum.text) {
-      return buildTextMessage();
+      return buildTextMessage(context);
     } else if (type == MessageEnum.audio) {
       return buildAudioMessage();
     } else if (type == MessageEnum.video) {

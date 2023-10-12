@@ -26,6 +26,12 @@
       "languageVersion": "2.19"
     },
     {
+      "name": "app_settings",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/app_settings-5.1.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
       "name": "args",
       "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/args-2.4.2",
       "packageUri": "lib/",
@@ -334,6 +340,24 @@
     {
       "name": "firebase_core_web",
       "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/firebase_core_web-2.8.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
+      "name": "firebase_messaging",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/firebase_messaging-14.6.8",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
+      "name": "firebase_messaging_platform_interface",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/firebase_messaging_platform_interface-4.5.7",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
+      "name": "firebase_messaging_web",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/firebase_messaging_web-3.5.7",
       "packageUri": "lib/",
       "languageVersion": "2.18"
     },
@@ -902,6 +926,54 @@
       "languageVersion": "2.17"
     },
     {
+      "name": "url_launcher",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/url_launcher-6.1.14",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "url_launcher_android",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/url_launcher_android-6.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.19"
+    },
+    {
+      "name": "url_launcher_ios",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/url_launcher_ios-6.1.5",
+      "packageUri": "lib/",
+      "languageVersion": "2.19"
+    },
+    {
+      "name": "url_launcher_linux",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/url_launcher_linux-3.0.6",
+      "packageUri": "lib/",
+      "languageVersion": "2.19"
+    },
+    {
+      "name": "url_launcher_macos",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/url_launcher_macos-3.0.7",
+      "packageUri": "lib/",
+      "languageVersion": "2.19"
+    },
+    {
+      "name": "url_launcher_platform_interface",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/url_launcher_platform_interface-2.1.5",
+      "packageUri": "lib/",
+      "languageVersion": "2.19"
+    },
+    {
+      "name": "url_launcher_web",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/url_launcher_web-2.0.20",
+      "packageUri": "lib/",
+      "languageVersion": "3.1"
+    },
+    {
+      "name": "url_launcher_windows",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/url_launcher_windows-3.0.8",
+      "packageUri": "lib/",
+      "languageVersion": "2.19"
+    },
+    {
       "name": "uuid",
       "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/uuid-3.0.7",
       "packageUri": "lib/",
@@ -974,7 +1046,7 @@
       "languageVersion": "2.17"
     }
   ],
-  "generated": "2023-09-29T18:56:58.132083Z",
+  "generated": "2023-10-12T02:52:09.636709Z",
   "generator": "pub",
   "generatorVersion": "3.1.2"
 }

@@ -26,10 +26,6 @@ void main() async {
 class MyApp extends ConsumerWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  Future<bool> hasLoadedAllMessages(BuildContext context, WidgetRef ref) async {
-    return await ref.read(chatControllerProvider).getHasLoadedAllMessages(context, ref);
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
@@ -46,26 +42,16 @@ class MyApp extends ConsumerWidget {
         data: (user) {
           if (user == null) {
             return const LandingScreen();
+          } else {
+            return const MobileLayoutScreen();
           }
-          return FutureBuilder<bool>(
-            future: hasLoadedAllMessages(context, ref),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const CircularProgressIndicator(); // Show a loading indicator while waiting
-              } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}'); // Handle errors if necessary
-              } else if (!snapshot.data!) {
-                return const LoadMessagesScreen();
-              } else {
-                return const MobileLayoutScreen();
-              }
-            },
-          );
-        }, error: (Object error, StackTrace stackTrace) {
-            throw error;
-      }, loading: () {
-        return Loader();
-      },
+        },
+        error: (Object error, StackTrace stackTrace) {
+          throw error;
+        },
+        loading: () {
+          return Loader();
+        },
         // ... (handle other states if necessary)
       ),
     );

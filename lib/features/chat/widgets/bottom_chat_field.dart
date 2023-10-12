@@ -17,6 +17,7 @@ import 'package:com.jee.tag.whatagsapp/features/chat/widgets/message_reply_previ
 class BottomChatField extends ConsumerStatefulWidget {
   final String recieverUserId;
   final bool isGroupChat;
+
   const BottomChatField({
     Key? key,
     required this.recieverUserId,
@@ -56,7 +57,6 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
     final deviceToken = await DeviceUtils.getDeviceId();
     final key = EncryptionUtils.deriveKeyFromPassword(deviceToken, "salt");
     final encryptedText = EncryptionUtils.encrypt(_messageController.text, key);
-    print(encryptedText);
 
     if (isShowSendButton) {
       ref.read(chatControllerProvider).sendTextMessage(
@@ -142,6 +142,7 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
   }
 
   void showKeyboard() => focusNode.requestFocus();
+
   void hideKeyboard() => focusNode.unfocus();
 
   void toggleEmojiKeyboardContainer() {

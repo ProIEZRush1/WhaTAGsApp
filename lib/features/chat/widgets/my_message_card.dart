@@ -8,12 +8,11 @@ import 'package:com.jee.tag.whatagsapp/utils/DateUtils.dart';
 
 class MyMessageCard extends StatelessWidget {
   final String id;
-  final String author;
-  final bool fromMe;
   final String body;
   final int timestamp;
   final MessageEnum type;
-  final String media;
+  final bool media;
+  final String url;
   final bool delivery;
   final bool seen;
   final bool hasQuotedMsg;
@@ -24,12 +23,11 @@ class MyMessageCard extends StatelessWidget {
   const MyMessageCard({
     Key? key,
     required this.id,
-    required this.author,
-    required this.fromMe,
     required this.body,
     required this.timestamp,
     required this.type,
     required this.media,
+    required this.url,
     required this.delivery,
     required this.seen,
     required this.hasQuotedMsg,
@@ -92,7 +90,7 @@ class MyMessageCard extends StatelessWidget {
                           ),
                           child: DisplayTextImageGIF(
                             message: quotedMessageBody,
-                            media: type != MessageEnum.text ? media : null,
+                            media: media ? url : null,
                             type: quotedMessageType,
                           ),
                         ),
@@ -100,7 +98,7 @@ class MyMessageCard extends StatelessWidget {
                       ],
                       DisplayTextImageGIF(
                         message: body,
-                        media: type != MessageEnum.text ? media : null,
+                        media: media ? url : null,
                         type: type,
                       ),
                     ],
@@ -112,7 +110,7 @@ class MyMessageCard extends StatelessWidget {
                   child: Row(
                     children: [
                       Text(
-                        DateUtils.formatDate(DateTime.fromMicrosecondsSinceEpoch(timestamp)),
+                        DateUtils.formatDate(timestamp),
                         style: const TextStyle(
                           fontSize: 13,
                           color: Colors.white60,
@@ -122,7 +120,9 @@ class MyMessageCard extends StatelessWidget {
                         width: 5,
                       ),
                       Icon(
-                        seen ? Icons.done_all : Icons.done,
+                        seen
+                            ? Icons.done_all
+                            : (delivery ? Icons.done_all : Icons.done),
                         size: 20,
                         color: seen ? Colors.blue : Colors.white60,
                       ),

@@ -37,7 +37,7 @@
                 <string>Editor</string>
                 <key>CFBundleURLSchemes</key>
                 <array>
-                    <string>app-1-797644769847-ios-eead89082b904f66d00db2</string>
+                    <string>app-1-797644769847-ios-7713b07f0e4d14a5d00db2</string>
                 </array>
             </dict>
 	</array>
@@ -76,5 +76,11 @@
     <string>Needs to hear recordings</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+    <array>
+    <string>remote-notification</string>
+    </array>
+    <key>CFBundleTypeRole</key>
+    <string>Editor</string>
 </dict>
 </plist>

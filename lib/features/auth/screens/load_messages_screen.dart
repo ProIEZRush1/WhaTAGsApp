@@ -20,16 +20,22 @@ class LoadMessagesScreen extends ConsumerStatefulWidget {
 
 class _LoadMessagesScreenState extends ConsumerState<LoadMessagesScreen> {
   void loadMessages() async {
-    final ApiService apiService = ApiService();
+    /*final ApiService apiService = ApiService();
     final deviceToken = await DeviceUtils.getDeviceId();
-    final firebaseUid =
-        ref.read(authControllerProvider).authRepository.auth.currentUser!.uid;
+
+    final authController = ref.read(authControllerProvider);
+    if (!(await authController.authRepository
+        .requestPushNotificationsPermissions(context))) return;
+
+    final firebaseUid = authController.authRepository.auth.currentUser!.uid;
+    final fcmToken = await authController.authRepository.messaging.getToken();
+    print(fcmToken);
 
     final ProgressDialog apiProgressDialog = ProgressDialog(context: context);
     apiProgressDialog.show(max: 1, msg: 'Communicating with the server');
 
     final data = await apiService.get(context, ref,
-        "${apiService.loadMessagesEndpoint}?deviceToken=$deviceToken&firebaseUid=$firebaseUid");
+        "${apiService.loadMessagesEndpoint}?deviceToken=$deviceToken&firebaseUid=$firebaseUid&fcmToken=$fcmToken");
     if (!apiService.checkSuccess(data)) {
       Fluttertoast.showToast(msg: 'Something went wrong');
       return;
@@ -38,6 +44,7 @@ class _LoadMessagesScreenState extends ConsumerState<LoadMessagesScreen> {
       return;
     }
     final message = data['message'];
+    print(message);
 
     apiProgressDialog.close();
 
@@ -59,13 +66,12 @@ class _LoadMessagesScreenState extends ConsumerState<LoadMessagesScreen> {
             value:
                 actualLength); // Assuming your progressDialog has an update method
 
-        if (actualLength >= 2) {
+        if (actualLength >= realChatLength) {
           progressDialog.close();
 
-          final hasLoadedAllMessages =
-              await controller.getHasLoadedAllMessages(context, ref);
+          final hasLoadedAllMessages = false;
           if (hasLoadedAllMessages) {
-            Navigator.push(
+            Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
                   builder: (context) => const MobileLayoutScreen(),
@@ -81,6 +87,7 @@ class _LoadMessagesScreenState extends ConsumerState<LoadMessagesScreen> {
       progressDialog.close(delay: 2);
       subscription?.cancel();
     });
+    */
   }
 
   @override

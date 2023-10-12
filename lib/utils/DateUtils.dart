@@ -1,13 +1,15 @@
 import 'package:intl/intl.dart';
 
 class DateUtils {
-
-  static String formatDate(DateTime dateTime) {
+  static String formatDate(int timestamp) {
+    DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp);
     DateTime now = DateTime.now();
     DateTime today = DateTime(now.year, now.month, now.day);
     DateTime yesterday = today.subtract(Duration(days: 1));
-
-    if (dateTime.day == today.day && dateTime.month == today.month && dateTime.year == today.year) {
+    
+    if (dateTime.day == today.day &&
+        dateTime.month == today.month &&
+        dateTime.year == today.year) {
       return DateFormat('h:mm a').format(dateTime);
     } else if (dateTime == yesterday) {
       return 'Yesterday';
@@ -15,5 +17,4 @@ class DateUtils {
       return DateFormat('dd/MM/yyyy').format(dateTime);
     }
   }
-
 }

@@ -22,28 +22,19 @@ final chatControllerProvider = Provider((ref) {
 class ChatController {
   final ChatRepository chatRepository;
   final ProviderRef ref;
+
   ChatController({
     required this.chatRepository,
     required this.ref,
   });
 
-  Stream<int?> actualChatLengthStream(BuildContext context, WidgetRef ref) {
-    return chatRepository.getActualChatLengthStream(context, ref);
+  Stream<List<Map<String, dynamic>>> chatsStream(
+      BuildContext context, WidgetRef ref, String key) {
+    return chatRepository.getChatsStreamJson(context, ref, key);
   }
 
-  Future<int> getRealChatLength(BuildContext context, WidgetRef ref) async {
-    return await chatRepository.getRealChatLength(context, ref);
-  }
-
-  Future<bool> getHasLoadedAllMessages(BuildContext context, WidgetRef ref) async {
-    return await chatRepository.getHasLoadedAllMessages(context, ref);
-  }
-
-  Stream<List<Chat>> chatsStream(BuildContext context, WidgetRef ref, String key) {
-    return chatRepository.getChatsStream(context, ref, key);
-  }
-
-  Stream<List<Message>> chatMessagesStream(BuildContext context, WidgetRef ref, String chatId, String key) {
+  Stream<List<Map<String, dynamic>>> chatMessagesStream(
+      BuildContext context, WidgetRef ref, String chatId, String key) {
     return chatRepository.getChatMessagesStream(context, ref, chatId, key);
   }
 
@@ -113,15 +104,13 @@ class ChatController {
     ref.read(messageReplyProvider.state).update((state) => null);
   }
 
-  void setChatMessageSeen(
+  void setChatSeen(
     BuildContext context,
     String receiverUserId,
-    String messageId,
   ) {
-    chatRepository.setChatMessageSeen(
+    chatRepository.setChatSeen(
       context,
       receiverUserId,
-      messageId,
     );
   }
 }

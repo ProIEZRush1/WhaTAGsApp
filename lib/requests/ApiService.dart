@@ -15,19 +15,17 @@ class ApiService {
   String generateQrCodeEndpoint = "";
 
   final String _messagesGroupEndpoint;
-  String loadMessagesEndpoint = "";
   String sendMessageEndpoint = "";
 
   ApiService()
       : _dio = Dio(),
-        _baseUrl = 'http://159.65.221.91',
+        _baseUrl = 'https://horribly-vital-gar.ngrok-free.app',
         _authGroupEndpoint = '/auth',
         _messagesGroupEndpoint = '/messages' {
     reviveClientEndpoint = '$_authGroupEndpoint/revive';
     isLoggedInEndpoint = '$_authGroupEndpoint/logged';
     generateQrCodeEndpoint = '$_authGroupEndpoint/qr';
 
-    loadMessagesEndpoint = '$_messagesGroupEndpoint/load';
     sendMessageEndpoint = '$_messagesGroupEndpoint/send';
 
     // Add default headers here if needed

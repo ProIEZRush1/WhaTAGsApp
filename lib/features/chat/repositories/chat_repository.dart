@@ -1,42 +1,48 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
+import 'package:com.jee.tag.whatagsapp/utils/EncryptionUtils.dart';
+import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sn_progress_dialog/progress_dialog.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
 import 'package:com.jee.tag.whatagsapp/common/providers/message_reply_provider.dart';
 import 'package:com.jee.tag.whatagsapp/common/repositories/common_firebase_storage_repository.dart';
 import 'package:com.jee.tag.whatagsapp/common/utils/utils.dart';
-import 'package:com.jee.tag.whatagsapp/features/auth/screens/login_screen.dart';
 import 'package:com.jee.tag.whatagsapp/models/chat.dart';
-import 'package:com.jee.tag.whatagsapp/models/chat_contact.dart';
-import 'package:com.jee.tag.whatagsapp/models/group.dart';
 import 'package:com.jee.tag.whatagsapp/models/message.dart';
 import 'package:com.jee.tag.whatagsapp/models/user_model.dart';
 import 'package:com.jee.tag.whatagsapp/requests/ApiService.dart';
-import 'package:com.jee.tag.whatagsapp/utils/FIleUtils.dart';
 
 import '../../../utils/DeviceUtils.dart';
 
 final chatRepositoryProvider = Provider(
   (ref) => ChatRepository(
-    firestore: FirebaseFirestore.instance,
-    auth: FirebaseAuth.instance,
-  ),
+      firestore: FirebaseFirestore.instance,
+      auth: FirebaseAuth.instance,
+      storage: FirebaseStorage.instance,
+      messaging: FirebaseMessaging.instance),
 );
 
 class ChatRepository {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
+  final FirebaseStorage storage;
+  final FirebaseMessaging messaging;
+
   ChatRepository({
     required this.firestore,
     required this.auth,
+    required this.storage,
+    required this.messaging,
   });
 
   Future<bool> firstTime() async {
@@ -49,35 +55,7 @@ class ChatRepository {
     return snapshot.docs.isEmpty;
   }
 
-  Stream<int?> getActualChatLengthStream(BuildContext context, WidgetRef ref) {
-    return firestore
-        .collection('loadedMessages')
-        .doc(auth.currentUser!.uid)
-        .snapshots()
-        .map((snapshot) => snapshot.data()?['actualChatLength'] as int?);
-  }
-
-  Future<int> getRealChatLength(BuildContext context, WidgetRef ref) async {
-    DocumentSnapshot snapshot = await firestore
-        .collection('loadedMessages')
-        .doc(auth.currentUser!.uid)
-        .get();
-
-    Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
-    return data?['realChatLength'] as int? ?? 0;
-  }
-
-  Future<bool> getHasLoadedAllMessages(
-      BuildContext context, WidgetRef ref) async {
-    return await firestore
-        .collection('loadedMessages')
-        .doc(auth.currentUser!.uid)
-        .get()
-        .then(
-            (value) => value.data()?['hasLoadedAllMessages'] as bool? ?? false);
-  }
-
-  Stream<List<Chat>> getChatsStream(
+  Stream<List<Map<String, dynamic>>> getChatsStreamJson(
       BuildContext context, WidgetRef ref, String key) {
     return firestore
         .collection('users')
@@ -85,56 +63,113 @@ class ChatRepository {
         .collection('chats')
         .snapshots()
         .asyncMap((event) async {
-      List<Chat> chats = [];
+      var decryptFutures = <Future<Map<String, dynamic>>>[];
+
       for (var document in event.docs) {
-        try {
-          final chat = Chat.fromMap(document.data(), key);
-          chats.add(
-            chat,
-          );
-        } catch (e) {}
+        decryptFutures.add(_processDocument(document, key));
       }
-      chats.sort(
-          (a, b) => b.lastMessage.timestamp.compareTo(a.lastMessage.timestamp));
+
+      // Await all decryption tasks to complete
+      List<Map<String, dynamic>> chats = await Future.wait(decryptFutures);
+      chats = chats.where((chat) => chat.isNotEmpty).toList();
+      chats.sort((a, b) => b['lastMessage']['timestamp']
+          .compareTo(a['lastMessage']['timestamp']));
+
       return chats;
     });
   }
 
-  Stream<List<Message>> getChatMessagesStream(
+  Future<Map<String, dynamic>> _processDocument(
+      DocumentSnapshot document, String key) async {
+    try {
+      final chat = document.data() as Map<String, dynamic>;
+
+      // Decrypt all strings in the chat map
+      final decryptedChat = deepDecrypt(chat, key);
+
+      // Check if id contains @g.us
+      final chatId = decryptedChat['id'];
+
+      decryptedChat["lastMessage"] =
+          deepDecrypt(decryptedChat['lastMessage'], key);
+      if (chatId.contains('@g.us') || chatId.contains('@s.whatsapp.net')) {
+        return decryptedChat;
+      }
+    } catch (e) {
+      print(e);
+    }
+    return {}; // return an empty map if there's an error or the condition fails
+  }
+
+  Stream<List<Map<String, dynamic>>> getChatMessagesStream(
       BuildContext context, WidgetRef ref, String chatId, String key) {
+    final String userId = auth.currentUser!.uid;
+
     return firestore
         .collection('users')
-        .doc(auth.currentUser!.uid)
+        .doc(userId)
         .collection('chats')
         .doc(chatId)
         .collection('messages')
-        .orderBy('timestamp')
         .snapshots()
         .asyncMap((event) async {
-      List<Message> messages = [];
+      var decryptFutures = <Future<Map<String, dynamic>>>[];
+
       for (var document in event.docs) {
-        try {
-          final message = Message.fromMap(document.data(), key);
-          messages.add(
-            message,
-          );
-        } catch (e) {
-          print(e);
-        }
+        decryptFutures.add(_processMessageDocument(document, key));
       }
-      return messages;
+
+      // Await all decryption tasks to complete
+      List<Map<String, dynamic>> messages = await Future.wait(decryptFutures);
+      messages = messages.where((message) => message.isNotEmpty).toList();
+      try {
+        messages.sort(
+            (a, b) => b['messageTimestamp'].compareTo(a['messageTimestamp']));
+      } catch (e) {}
+
+      return messages.reversed.toList();
     });
   }
 
-  void addMessageToFirebase(BuildContext context, WidgetRef ref, String chatId,
-      Message message) async {
-    await firestore
-        .collection('users')
-        .doc(auth.currentUser!.uid)
-        .collection('chats')
-        .doc(chatId)
-        .collection('messages')
-        .add(message.toMap());
+  Future<Map<String, dynamic>> _processMessageDocument(
+      DocumentSnapshot document, String key) async {
+    var messageData = document.data() as Map<String, dynamic>;
+
+    // Assuming deepDecrypt is a function that decrypts necessary fields
+    final decryptedMessageData = deepDecrypt(messageData, key);
+
+    return decryptedMessageData;
+  }
+
+  dynamic deepDecrypt(dynamic obj, String key) {
+    try {
+      if (obj == null) {
+        return obj; // Return the object as is if it's null
+      }
+
+      if (obj is List) {
+        // Recursively decrypt each item if the obj is an array
+        return obj.map((item) => deepDecrypt(item, key)).toList();
+      }
+
+      if (obj is Map<String, dynamic>) {
+        // Recursively decrypt each value if the obj is an object
+        Map<String, dynamic> newObj = {};
+        obj.forEach((k, v) {
+          if (v is String) {
+            newObj[k] =
+                EncryptionUtils.decrypt(v, key); // Decrypt string values
+          } else {
+            newObj[k] = deepDecrypt(v, key);
+          }
+        });
+        return newObj;
+      }
+
+      return obj; // Return the object as is if it's not an object/array
+    } catch (e) {
+      return obj;
+    }
   }
 
   void sendTextMessage({
@@ -153,7 +188,6 @@ class ChatRepository {
 
       final dataToSend = {"type": "text", "data": text};
       final jsonDataToSend = Uri.encodeComponent(jsonEncode(dataToSend));
-      print(jsonDataToSend);
 
       final data = await apiService.get(context, ref,
           "${apiService.sendMessageEndpoint}?deviceToken=$deviceToken&firebaseUid=$firebaseUid&to=$receiverUserId&data=$jsonDataToSend");
@@ -244,31 +278,26 @@ class ChatRepository {
     }
   }
 
-  void setChatMessageSeen(
-    BuildContext context,
-    String receiverUserId,
-    String messageId,
-  ) async {
-    try {
-      await firestore
-          .collection('users')
-          .doc(auth.currentUser!.uid)
-          .collection('chats')
-          .doc(receiverUserId)
-          .collection('messages')
-          .doc(messageId)
-          .update({'isSeen': true});
+  void setChatSeen(BuildContext context, String chatId) async {
+    final chatDoc = firestore
+        .collection('users')
+        .doc(auth.currentUser!.uid)
+        .collection('chats')
+        .doc(chatId);
 
-      await firestore
-          .collection('users')
-          .doc(receiverUserId)
-          .collection('chats')
-          .doc(auth.currentUser!.uid)
-          .collection('messages')
-          .doc(messageId)
-          .update({'isSeen': true});
-    } catch (e) {
-      showSnackBar(context: context, content: e.toString());
+    await chatDoc.update({'unreadCount': 0});
+
+    final messagesCollection = chatDoc.collection('messages');
+    final messages = await messagesCollection.get();
+    for (final message in messages.docs) {
+      final data = message.data();
+      final information = data['information'];
+      final status = information['status'];
+      if (status == 0) {
+        await messagesCollection.doc(message.id).update({
+          'information.status': 4,
+        });
+      }
     }
   }
 }

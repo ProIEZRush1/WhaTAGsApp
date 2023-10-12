@@ -8,6 +8,7 @@ import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.
 
 class LoginScreen extends ConsumerStatefulWidget {
   static const routeName = '/login-screen';
+
   const LoginScreen({Key? key}) : super(key: key);
 
   @override
@@ -27,6 +28,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   void pickCountry() {
     showCountryPicker(
         context: context,
+        favorite: ["mx", "us"],
         onSelect: (Country _country) {
           setState(() {
             country = _country;

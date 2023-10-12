@@ -7,7 +7,7 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:797644769847:android:7252fdb238c02966d00db2",
+        "mobilesdk_app_id": "1:797644769847:android:588ad80584f8b1c1d00db2",
         "android_client_info": {
           "package_name": "com.jee.tag.whatagsapp"
         }
@@ -34,7 +34,7 @@
               "client_id": "797644769847-agni7lh2sg7hgn2r47v5rgt84cod4abm.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.jee.tag.whatagsapp"
+                "bundle_id": "com.ech.tag.whatagsapp"
               }
             }
           ]
