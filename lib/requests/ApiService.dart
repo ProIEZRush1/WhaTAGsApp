@@ -16,6 +16,7 @@ class ApiService {
 
   final String _messagesGroupEndpoint;
   String sendMessageEndpoint = "";
+  String markAllAsReadEndpoint = "";
 
   ApiService()
       : _dio = Dio(),
@@ -27,6 +28,7 @@ class ApiService {
     generateQrCodeEndpoint = '$_authGroupEndpoint/qr';
 
     sendMessageEndpoint = '$_messagesGroupEndpoint/send';
+    markAllAsReadEndpoint = '$_messagesGroupEndpoint/markAllAsRead';
 
     // Add default headers here if needed
     _dio.options.headers['ngrok-skip-browser-warning'] = 'true';

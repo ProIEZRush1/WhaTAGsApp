@@ -73,15 +73,11 @@ class AuthRepository {
     });
   }
 
-  Future<UserModel?> getCurrentUserData() async {
+  Future<Map<String, dynamic>?> getCurrentUserData() async {
     var userData =
         await firestore.collection('users').doc(auth.currentUser?.uid).get();
 
-    UserModel? user;
-    if (userData.data() != null) {
-      user = UserModel.fromMap(userData.data()!);
-    }
-    return user;
+    return userData.data();
   }
 
   void signInWithPhone(BuildContext context, String phoneNumber) async {
@@ -131,35 +127,18 @@ class AuthRepository {
   }
 
   void saveUserDataToFirebase({
-    required String name,
-    required File? profilePic,
     required ProviderRef ref,
     required BuildContext context,
   }) async {
     try {
       String uid = auth.currentUser!.uid;
-      String photoUrl =
-          'https://png.pngitem.com/pimgs/s/649-6490124_katie-notopoulos-katienotopoulos-i-write-about-tech-round.png';
 
-      if (profilePic != null) {
-        photoUrl = await ref
-            .read(commonFirebaseStorageRepositoryProvider)
-            .storeFileToFirebase(
-              'profilePic/$uid',
-              profilePic,
-            );
-      }
+      var user = {
+        "uid": uid,
+        "phoneNumber": auth.currentUser!.phoneNumber!,
+      };
 
-      var user = UserModel(
-        name: name,
-        uid: uid,
-        profilePic: photoUrl,
-        isOnline: true,
-        phoneNumber: auth.currentUser!.phoneNumber!,
-        groupId: [],
-      );
-
-      await firestore.collection('users').doc(uid).set(user.toMap());
+      await firestore.collection('users').doc(uid).set(user);
     } catch (e) {
       showSnackBar(context: context, content: e.toString());
     }

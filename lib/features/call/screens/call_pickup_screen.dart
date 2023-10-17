@@ -7,6 +7,7 @@ import 'package:com.jee.tag.whatagsapp/models/call.dart';
 
 class CallPickupScreen extends ConsumerWidget {
   final Widget scaffold;
+
   const CallPickupScreen({
     Key? key,
     required this.scaffold,
@@ -38,12 +39,12 @@ class CallPickupScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 50),
                     CircleAvatar(
-                      backgroundImage: NetworkImage(call.callerPic),
+                      backgroundImage: NetworkImage("call.callerPic"),
                       radius: 60,
                     ),
                     const SizedBox(height: 50),
                     Text(
-                      call.callerName,
+                      "call.callerName",
                       style: const TextStyle(
                         fontSize: 25,
                         color: Colors.white,

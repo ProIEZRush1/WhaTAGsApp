@@ -20,6 +20,7 @@ class CallController {
   final CallRepository callRepository;
   final ProviderRef ref;
   final FirebaseAuth auth;
+
   CallController({
     required this.callRepository,
     required this.ref,
@@ -34,8 +35,6 @@ class CallController {
       String callId = const Uuid().v1();
       Call senderCallData = Call(
         callerId: auth.currentUser!.uid,
-        callerName: value!.name,
-        callerPic: value.profilePic,
         receiverId: receiverUid,
         receiverName: receiverName,
         receiverPic: receiverProfilePic,
@@ -45,8 +44,6 @@ class CallController {
 
       Call recieverCallData = Call(
         callerId: auth.currentUser!.uid,
-        callerName: value.name,
-        callerPic: value.profilePic,
         receiverId: receiverUid,
         receiverName: receiverName,
         receiverPic: receiverProfilePic,

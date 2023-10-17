@@ -3,13 +3,13 @@
   "packages": [
     {
       "name": "_flutterfire_internals",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/_flutterfire_internals-1.3.6",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/_flutterfire_internals-1.3.7",
       "packageUri": "lib/",
       "languageVersion": "2.18"
     },
     {
       "name": "agora_rtc_engine",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/agora_rtc_engine-6.2.2",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/agora_rtc_engine-6.2.3",
       "packageUri": "lib/",
       "languageVersion": "2.14"
     },
@@ -51,43 +51,43 @@
     },
     {
       "name": "audioplayers",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/audioplayers-5.1.0",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/audioplayers-5.2.0",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
     {
       "name": "audioplayers_android",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/audioplayers_android-4.0.1",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/audioplayers_android-4.0.2",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
     {
       "name": "audioplayers_darwin",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/audioplayers_darwin-5.0.1",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/audioplayers_darwin-5.0.2",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
     {
       "name": "audioplayers_linux",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/audioplayers_linux-3.0.0",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/audioplayers_linux-3.1.0",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
     {
       "name": "audioplayers_platform_interface",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/audioplayers_platform_interface-6.0.0",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/audioplayers_platform_interface-6.1.0",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
     {
       "name": "audioplayers_web",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/audioplayers_web-4.0.0",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/audioplayers_web-4.1.0",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
     {
       "name": "audioplayers_windows",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/audioplayers_windows-3.0.0",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/audioplayers_windows-3.1.0",
       "packageUri": "lib/",
       "languageVersion": "3.0"
     },
@@ -141,19 +141,19 @@
     },
     {
       "name": "cloud_firestore",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/cloud_firestore-4.9.2",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/cloud_firestore-4.9.3",
       "packageUri": "lib/",
       "languageVersion": "2.18"
     },
     {
       "name": "cloud_firestore_platform_interface",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/cloud_firestore_platform_interface-5.16.1",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/cloud_firestore_platform_interface-5.16.2",
       "packageUri": "lib/",
       "languageVersion": "2.18"
     },
     {
       "name": "cloud_firestore_web",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/cloud_firestore_web-3.7.1",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/cloud_firestore_web-3.7.2",
       "packageUri": "lib/",
       "languageVersion": "2.18"
     },
@@ -177,7 +177,7 @@
     },
     {
       "name": "cross_file",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/cross_file-0.3.3+5",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/cross_file-0.3.3+6",
       "packageUri": "lib/",
       "languageVersion": "2.19"
     },
@@ -219,7 +219,7 @@
     },
     {
       "name": "device_info_plus",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/device_info_plus-9.0.3",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/device_info_plus-9.1.0",
       "packageUri": "lib/",
       "languageVersion": "2.18"
     },
@@ -237,7 +237,7 @@
     },
     {
       "name": "emoji_picker_flutter",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/emoji_picker_flutter-1.6.1",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/emoji_picker_flutter-1.6.2",
       "packageUri": "lib/",
       "languageVersion": "2.17"
     },
@@ -279,9 +279,9 @@
     },
     {
       "name": "file",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/file-6.1.4",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/file-7.0.0",
       "packageUri": "lib/",
-      "languageVersion": "2.12"
+      "languageVersion": "3.0"
     },
     {
       "name": "file_selector_linux",
@@ -309,25 +309,25 @@
     },
     {
       "name": "firebase_auth",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/firebase_auth-4.10.0",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/firebase_auth-4.10.1",
       "packageUri": "lib/",
       "languageVersion": "2.18"
     },
     {
       "name": "firebase_auth_platform_interface",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/firebase_auth_platform_interface-6.19.0",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/firebase_auth_platform_interface-6.19.1",
       "packageUri": "lib/",
       "languageVersion": "2.18"
     },
     {
       "name": "firebase_auth_web",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/firebase_auth_web-5.8.1",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/firebase_auth_web-5.8.2",
       "packageUri": "lib/",
       "languageVersion": "2.18"
     },
     {
       "name": "firebase_core",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/firebase_core-2.16.0",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/firebase_core-2.17.0",
       "packageUri": "lib/",
       "languageVersion": "2.18"
     },
@@ -345,37 +345,37 @@
     },
     {
       "name": "firebase_messaging",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/firebase_messaging-14.6.8",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/firebase_messaging-14.6.9",
       "packageUri": "lib/",
       "languageVersion": "2.18"
     },
     {
       "name": "firebase_messaging_platform_interface",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/firebase_messaging_platform_interface-4.5.7",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/firebase_messaging_platform_interface-4.5.8",
       "packageUri": "lib/",
       "languageVersion": "2.18"
     },
     {
       "name": "firebase_messaging_web",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/firebase_messaging_web-3.5.7",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/firebase_messaging_web-3.5.8",
       "packageUri": "lib/",
       "languageVersion": "2.18"
     },
     {
       "name": "firebase_storage",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/firebase_storage-11.2.7",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/firebase_storage-11.2.8",
       "packageUri": "lib/",
       "languageVersion": "2.18"
     },
     {
       "name": "firebase_storage_platform_interface",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/firebase_storage_platform_interface-4.4.6",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/firebase_storage_platform_interface-4.4.7",
       "packageUri": "lib/",
       "languageVersion": "2.18"
     },
     {
       "name": "firebase_storage_web",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/firebase_storage_web-3.6.7",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/firebase_storage_web-3.6.8",
       "packageUri": "lib/",
       "languageVersion": "2.18"
     },
@@ -428,6 +428,12 @@
       "languageVersion": "2.17"
     },
     {
+      "name": "flutter_isolate",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/flutter_isolate-2.0.4",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "flutter_lints",
       "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/flutter_lints-2.0.3",
       "packageUri": "lib/",
@@ -447,7 +453,7 @@
     },
     {
       "name": "flutter_riverpod",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/flutter_riverpod-2.4.0",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/flutter_riverpod-2.4.4",
       "packageUri": "lib/",
       "languageVersion": "2.17"
     },
@@ -520,6 +526,18 @@
     {
       "name": "fluttertoast",
       "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/fluttertoast-8.2.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "hive",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/hive-2.2.3",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "hive_flutter",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/hive_flutter-1.1.0",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -597,7 +615,7 @@
     },
     {
       "name": "iris_method_channel",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/iris_method_channel-1.2.0",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/iris_method_channel-2.0.0-dev.3",
       "packageUri": "lib/",
       "languageVersion": "2.14"
     },
@@ -729,7 +747,7 @@
     },
     {
       "name": "permission_handler_platform_interface",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/permission_handler_platform_interface-3.11.5",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/permission_handler_platform_interface-3.12.0",
       "packageUri": "lib/",
       "languageVersion": "2.14"
     },
@@ -741,7 +759,7 @@
     },
     {
       "name": "platform",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/platform-3.1.2",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/platform-3.1.3",
       "packageUri": "lib/",
       "languageVersion": "2.19"
     },
@@ -771,7 +789,7 @@
     },
     {
       "name": "riverpod",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/riverpod-2.4.0",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/riverpod-2.4.4",
       "packageUri": "lib/",
       "languageVersion": "2.17"
     },
@@ -782,8 +800,20 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "share_plus",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/share_plus-7.2.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
+      "name": "share_plus_platform_interface",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/share_plus_platform_interface-3.3.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
       "name": "shared_preferences",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/shared_preferences-2.2.1",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/shared_preferences-2.2.2",
       "packageUri": "lib/",
       "languageVersion": "2.19"
     },
@@ -801,7 +831,7 @@
     },
     {
       "name": "shared_preferences_linux",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/shared_preferences_linux-2.3.1",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/shared_preferences_linux-2.3.2",
       "packageUri": "lib/",
       "languageVersion": "2.19"
     },
@@ -819,7 +849,7 @@
     },
     {
       "name": "shared_preferences_windows",
-      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/shared_preferences_windows-2.3.1",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/shared_preferences_windows-2.3.2",
       "packageUri": "lib/",
       "languageVersion": "2.19"
     },
@@ -1046,7 +1076,7 @@
       "languageVersion": "2.17"
     }
   ],
-  "generated": "2023-10-12T02:52:09.636709Z",
+  "generated": "2023-10-17T03:28:26.653179Z",
   "generator": "pub",
   "generatorVersion": "3.1.2"
 }

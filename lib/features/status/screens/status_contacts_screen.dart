@@ -35,11 +35,11 @@ class StatusContactsScreen extends ConsumerWidget {
                     padding: const EdgeInsets.only(bottom: 8.0),
                     child: ListTile(
                       title: Text(
-                        statusData.username,
+                        "statusData.username",
                       ),
                       leading: CircleAvatar(
                         backgroundImage: NetworkImage(
-                          statusData.profilePic,
+                          "statusData.profilePic",
                         ),
                         radius: 30,
                       ),

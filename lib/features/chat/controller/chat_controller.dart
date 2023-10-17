@@ -38,23 +38,9 @@ class ChatController {
     return chatRepository.getChatMessagesStream(context, ref, chatId, key);
   }
 
-  void sendTextMessage(
-    BuildContext context,
-    WidgetRef ref,
-    String chatId,
-    String text,
-    String receiverUserId,
-  ) {
-    ref.read(userDataAuthProvider).whenData(
-          (value) => chatRepository.sendTextMessage(
-            context: context,
-            ref: ref,
-            chatId: chatId,
-            text: text,
-            receiverUserId: receiverUserId,
-          ),
-        );
-    ref.read(messageReplyProvider.state).update((state) => null);
+  void sendTextMessage(BuildContext context, WidgetRef ref, String deviceId,
+      String chatId, String text) {
+    chatRepository.sendTextMessage(context, ref, deviceId, chatId, text);
   }
 
   void sendFileMessage(
@@ -70,7 +56,7 @@ class ChatController {
             context: context,
             file: file,
             receiverUserId: receiverUserId,
-            senderUserData: value!,
+            senderUserData: value!["user"],
             messageEnum: messageEnum,
             ref: ref,
             messageReply: messageReply,
@@ -96,7 +82,7 @@ class ChatController {
             context: context,
             gifUrl: newgifUrl,
             receiverUserId: receiverUserId,
-            senderUser: value!,
+            senderUser: value!["user"],
             messageReply: messageReply,
             isGroupChat: isGroupChat,
           ),
@@ -105,12 +91,12 @@ class ChatController {
   }
 
   void setChatSeen(
-    BuildContext context,
-    String receiverUserId,
-  ) {
+      BuildContext context, WidgetRef ref, String deviceId, String chatId) {
     chatRepository.setChatSeen(
       context,
-      receiverUserId,
+      ref,
+      deviceId,
+      chatId,
     );
   }
 }

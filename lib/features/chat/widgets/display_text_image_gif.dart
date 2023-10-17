@@ -27,29 +27,31 @@ class DisplayTextImageGIF extends StatelessWidget {
     );
 
     final Iterable<RegExpMatch> matches = linkRegExp.allMatches(message);
+    final TextStyle defaultStyle = TextStyle(color: Colors.white, fontSize: 16);
+    final TextStyle linkStyle = TextStyle(
+      color: Colors.blue,
+      fontSize: 16,
+      decoration: TextDecoration.underline,
+    );
+
     if (matches.isEmpty) {
-      return Text(message);
+      return Text(message, style: defaultStyle);
     } else {
       List<TextSpan> textSpans = [];
       int lastMatchEnd = 0;
 
       for (var match in matches) {
-        textSpans
-            .add(TextSpan(text: message.substring(lastMatchEnd, match.start)));
+        textSpans.add(
+          TextSpan(
+              text: message.substring(lastMatchEnd, match.start),
+              style: defaultStyle),
+        );
         textSpans.add(
           TextSpan(
             text: message.substring(match.start, match.end),
-            style: const TextStyle(
-                color: Colors.blue, decoration: TextDecoration.underline),
+            style: linkStyle,
             recognizer: TapGestureRecognizer()
-              ..onTapDown = (details) {
-                final renderObject = context.findRenderObject();
-                if (renderObject is RenderParagraph) {
-                  renderObject.text.style!
-                      .merge(const TextStyle(color: Colors.lightBlue));
-                }
-              }
-              ..onTapUp = (details) async {
+              ..onTap = () async {
                 String url = message.substring(match.start, match.end);
                 if (!url.startsWith('http')) {
                   url = 'http://$url';
@@ -61,11 +63,6 @@ class DisplayTextImageGIF extends StatelessWidget {
                     SnackBar(content: Text('Could not launch $url')),
                   );
                 }
-                final renderObject = context.findRenderObject();
-                if (renderObject is RenderParagraph) {
-                  renderObject.text.style!
-                      .merge(const TextStyle(color: Colors.blue));
-                }
               },
           ),
         );
@@ -73,12 +70,13 @@ class DisplayTextImageGIF extends StatelessWidget {
       }
 
       if (lastMatchEnd < message.length) {
-        textSpans.add(TextSpan(text: message.substring(lastMatchEnd)));
+        textSpans.add(
+          TextSpan(text: message.substring(lastMatchEnd), style: defaultStyle),
+        );
       }
 
       return RichText(
         text: TextSpan(
-          style: TextStyle(color: Colors.black, fontSize: 16),
           children: textSpans,
         ),
       );

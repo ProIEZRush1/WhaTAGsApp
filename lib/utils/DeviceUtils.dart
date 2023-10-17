@@ -4,7 +4,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 
 class DeviceUtils {
-
+  @pragma("vm:entry-point")
   static Future<String> getDeviceId() async {
     if (kIsWeb) {
       // Importing this way might not be efficient but it's a workaround
@@ -28,5 +28,4 @@ class DeviceUtils {
     }
     return "";
   }
-
 }

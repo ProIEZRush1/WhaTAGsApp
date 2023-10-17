@@ -13,7 +13,6 @@ class SenderMessageCard extends StatelessWidget {
   final MessageEnum type;
   final bool media;
   final String url;
-  final bool delivery;
   final bool hasQuotedMsg;
   final String quotedMessageBody;
   final MessageEnum quotedMessageType;
@@ -27,7 +26,6 @@ class SenderMessageCard extends StatelessWidget {
     required this.type,
     required this.media,
     required this.url,
-    required this.delivery,
     required this.hasQuotedMsg,
     required this.quotedMessageBody,
     required this.quotedMessageType,

@@ -21,6 +21,7 @@ class MobileLayoutScreen extends ConsumerStatefulWidget {
 class _MobileLayoutScreenState extends ConsumerState<MobileLayoutScreen>
     with WidgetsBindingObserver, TickerProviderStateMixin {
   late TabController tabBarController;
+
   @override
   void initState() {
     super.initState();
@@ -113,7 +114,7 @@ class _MobileLayoutScreenState extends ConsumerState<MobileLayoutScreen>
         ),
         body: TabBarView(
           controller: tabBarController,
-          children: const [
+          children: [
             ContactsList(),
             //StatusContactsScreen(),
             Text('Calls are comming soon'),
@@ -126,15 +127,13 @@ class _MobileLayoutScreenState extends ConsumerState<MobileLayoutScreen>
             } else {
               File? pickedImage = await pickImageFromGallery(context);
               if (pickedImage != null) {
-                if(context.mounted)
-                {
-                    Navigator.pushNamed(
-                  context,
-                  ConfirmStatusScreen.routeName,
-                  arguments: pickedImage,
-                );
+                if (context.mounted) {
+                  Navigator.pushNamed(
+                    context,
+                    ConfirmStatusScreen.routeName,
+                    arguments: pickedImage,
+                  );
                 }
-                
               }
             }
           },

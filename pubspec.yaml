@@ -55,10 +55,13 @@ dependencies:
   flutter_background_service: ^5.0.1
   flutter_contacts: ^1.1.5
   flutter_dialogs: ^3.0.0
+  flutter_isolate: ^2.0.4
   flutter_riverpod: ^2.0.0-dev.9
   flutter_secure_storage: ^9.0.0
   flutter_sound: ^9.2.13
   fluttertoast: ^8.2.2
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
   http: ^1.1.0
   image_picker: ^1.0.4
   intl: ^0.18.1
@@ -66,6 +69,7 @@ dependencies:
   path_provider: ^2.0.11
   permission_handler: ^10.4.5
   pointycastle: ^3.7.3
+  share_plus: ^7.2.1
   shared_preferences: ^2.2.1
   simple_vcard_parser: ^0.2.0
   sn_progress_dialog: ^1.1.3

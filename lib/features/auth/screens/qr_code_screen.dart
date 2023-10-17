@@ -1,10 +1,13 @@
 import 'dart:io';
+import 'package:com.jee.tag.whatagsapp/features/chat/repositories/chat_database.dart';
 import 'package:com.jee.tag.whatagsapp/mobile_layout_screen.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dialogs/flutter_dialogs.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:sn_progress_dialog/progress_dialog.dart';
 import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
 import 'package:com.jee.tag.whatagsapp/requests/ApiService.dart';
@@ -26,6 +29,8 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
     width: 300,
     height: 300,
   );
+  String? qrCodeLocalPath;
+  bool qrCodeLoading = true;
 
   @override
   void initState() {
@@ -51,10 +56,16 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
 
     final deviceToken = await DeviceUtils.getDeviceId();
     final firebaseUid =
-        ref.read(authControllerProvider).authRepository.auth.currentUser!.uid;
+        ref
+            .read(authControllerProvider)
+            .authRepository
+            .auth
+            .currentUser!
+            .uid;
 
     final data = await apiService.get(context, ref,
-        "${apiService.isLoggedInEndpoint}?deviceToken=$deviceToken&firebaseUid=$firebaseUid");
+        "${apiService
+            .isLoggedInEndpoint}?deviceToken=$deviceToken&firebaseUid=$firebaseUid");
     if (!apiService.checkSuccess(data)) {
       Fluttertoast.showToast(msg: 'Something went wrong');
       return false;
@@ -69,32 +80,68 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
   }
 
   void generateQrCode() async {
+    qrCodeLoading = true;
+
     final ApiService apiService = ApiService();
 
     final deviceToken = await DeviceUtils.getDeviceId();
     final firebaseUid =
-        ref.read(authControllerProvider).authRepository.auth.currentUser!.uid;
+        ref
+            .read(authControllerProvider)
+            .authRepository
+            .auth
+            .currentUser!
+            .uid;
 
     final data = await apiService.get(context, ref,
-        "${apiService.generateQrCodeEndpoint}?deviceToken=$deviceToken&firebaseUid=$firebaseUid");
+        "${apiService
+            .generateQrCodeEndpoint}?deviceToken=$deviceToken&firebaseUid=$firebaseUid");
     if (!apiService.checkSuccess(data)) {
       Fluttertoast.showToast(msg: 'Something went wrong');
       return;
     }
     final qrCodeUrl = data['qrCodeUrl'];
 
+    // Download the image from the URL
+    final dio = Dio();
+    final response = await dio.get(qrCodeUrl,
+        options: Options(responseType: ResponseType.bytes));
+    final tempDir = await getTemporaryDirectory();
+    final filePath = '${tempDir.path}/{$deviceToken}.png';
+    final file = File(filePath);
+
+    // Write the image into a file in the temporary directory
+    await file.writeAsBytes(response.data);
+
     setState(() {
-      qrCodeImage =
-          Image.network('$qrCodeUrl?${DateTime.now().toIso8601String()}');
+      qrCodeImage = Image.file(File(filePath));
+      qrCodeLocalPath = filePath;
+      qrCodeLoading = false;
     });
   }
 
+  void shareQRCode() {
+    if (qrCodeLoading) {
+      showPlatformDialog(
+          context: context,
+          builder: (context) =>
+              BasicDialogAlert(
+                  title: const Text('QR Code not generated'),
+                  content: const Text('Please generate the QR Code first'),
+                  actions: <Widget>[
+                    BasicDialogAction(
+                        title: const Text('Ok'),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        })
+                  ]));
+    } else {
+      Share.shareXFiles([XFile(qrCodeLocalPath!)]);
+    }
+  }
+
   void storeUserData() async {
-    ref.read(authControllerProvider).saveUserDataToFirebase(
-          context,
-          "",
-          null,
-        );
+    ref.read(authControllerProvider).saveUserDataToFirebase(context);
   }
 
   void refreshQRCode() async {
@@ -104,6 +151,8 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
         width: 300,
         height: 300,
       );
+      qrCodeLocalPath = null;
+      qrCodeLoading = true;
     });
 
     final loggedIn = await isLoggedIn(false);
@@ -111,17 +160,22 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
       // Generate dialog
       showPlatformDialog(
           context: context,
-          builder: (context) => BasicDialogAlert(
-                  title: Text('Logged in'),
-                  content: Text(
+          builder: (context) =>
+              BasicDialogAlert(
+                  title: const Text('Logged in'),
+                  content: const Text(
                       "You are already logged in, click the 'Check Login' button"),
                   actions: <Widget>[
                     BasicDialogAction(
-                        title: Text('Ok'),
+                        title: const Text('Ok'),
                         onPressed: () {
                           Navigator.pop(context);
                         })
                   ]));
+
+      setState(() {
+        qrCodeLoading = false;
+      });
       return;
     }
 
@@ -138,12 +192,15 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
 
     final loggedIn = await isLoggedIn(dialog);
     if (loggedIn) {
+      final ChatDatabase chatDatabase = ChatDatabase();
+      chatDatabase.deleteAll();
+
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
           builder: (context) => const MobileLayoutScreen(),
         ),
-        (route) => false,
+            (route) => false,
       );
 
       storeUserData();
@@ -151,13 +208,14 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
       // Create dialog
       showPlatformDialog(
           context: context,
-          builder: (context) => BasicDialogAlert(
-                  title: Text('Login not detected'),
-                  content: Text(
+          builder: (context) =>
+              BasicDialogAlert(
+                  title: const Text('Login not detected'),
+                  content: const Text(
                       'Your login has not been detected. Please try again'),
                   actions: <Widget>[
                     BasicDialogAction(
-                        title: Text('Ok'),
+                        title: const Text('Ok'),
                         onPressed: () {
                           Navigator.pop(context);
                         })
@@ -168,22 +226,20 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
     return Scaffold(
       body: SafeArea(
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
+              const Text(
                 'WhaTAGsApp',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Text(
                 'The Kosher WhatsApp',
                 style: TextStyle(
@@ -191,22 +247,33 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
                   color: Colors.grey[600],
                 ),
               ),
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
+              ElevatedButton(
+                onPressed: () => shareQRCode(),
+                style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Colors.blue)),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.share),
+                  ],
+                ),
+              ),
               Expanded(
                 child:
-                    qrCodeImage, // Replace with your image URL or use an asset
+                qrCodeImage, // Replace with your image URL or use an asset
               ),
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () => refreshQRCode(),
-                child: Text('Refresh QR Code'),
+                child: const Text('Refresh QR Code'),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () => checkLogin(true),
                 style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all(Colors.green)),
-                child: Text('Check Login'),
+                child: const Text('Check Login'),
               ),
             ],
           ),

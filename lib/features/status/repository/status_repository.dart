@@ -24,6 +24,7 @@ class StatusRepository {
   final FirebaseFirestore firestore;
   final FirebaseAuth auth;
   final ProviderRef ref;
+
   StatusRepository({
     required this.firestore,
     required this.auth,
@@ -31,9 +32,6 @@ class StatusRepository {
   });
 
   void uploadStatus({
-    required String username,
-    required String profilePic,
-    required String phoneNumber,
     required File statusImage,
     required BuildContext context,
   }) async {
@@ -97,11 +95,8 @@ class StatusRepository {
 
       Status status = Status(
         uid: uid,
-        username: username,
-        phoneNumber: phoneNumber,
         photoUrl: statusImageUrls,
         createdAt: DateTime.now(),
-        profilePic: profilePic,
         statusId: statusId,
         whoCanSee: uidWhoCanSee,
       );

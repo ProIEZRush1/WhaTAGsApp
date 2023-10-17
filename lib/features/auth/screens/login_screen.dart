@@ -1,3 +1,5 @@
+import 'dart:isolate';
+
 import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,9 +31,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     showCountryPicker(
         context: context,
         favorite: ["mx", "us"],
-        onSelect: (Country _country) {
+        onSelect: (Country country) {
           setState(() {
-            country = _country;
+            this.country = country;
           });
         });
   }
@@ -65,26 +67,37 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             children: [
               const Text('WhatsApp will need to verify your phone number.'),
               const SizedBox(height: 10),
-              TextButton(
+              ElevatedButton(
                 onPressed: pickCountry,
-                child: const Text('Pick Country'),
+                child: const Row(
+                  children: [
+                    Icon(Icons.flag),
+                    SizedBox(width: 8),
+                    Text('Pick Country')
+                  ],
+                ),
               ),
               const SizedBox(height: 5),
-              Row(
-                children: [
-                  if (country != null) Text('+${country!.phoneCode}'),
-                  const SizedBox(width: 10),
-                  SizedBox(
-                    width: size.width * 0.7,
-                    child: TextField(
-                      keyboardType: TextInputType.phone,
-                      controller: phoneController,
-                      decoration: const InputDecoration(
-                        hintText: 'phone number',
+              Card(
+                elevation: 4,
+                child: Row(
+                  children: [
+                    if (country != null) Text('+${country!.phoneCode}'),
+                    const SizedBox(width: 10),
+                    SizedBox(
+                      width: size.width * 0.7,
+                      child: TextField(
+                        keyboardType: TextInputType.phone,
+                        controller: phoneController,
+                        decoration: const InputDecoration(
+                          hintText: 'phone number',
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.all(8),
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               SizedBox(height: size.height * 0.6),
               SizedBox(

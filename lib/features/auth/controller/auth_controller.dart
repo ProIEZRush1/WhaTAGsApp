@@ -18,13 +18,14 @@ final userDataAuthProvider = FutureProvider((ref) {
 class AuthController {
   final AuthRepository authRepository;
   final ProviderRef ref;
+
   AuthController({
     required this.authRepository,
     required this.ref,
   });
 
-  Future<UserModel?> getUserData() async {
-    UserModel? user = await authRepository.getCurrentUserData();
+  Future<Map<String, dynamic>?> getUserData() async {
+    Map<String, dynamic>? user = await authRepository.getCurrentUserData();
     return user;
   }
 
@@ -40,11 +41,8 @@ class AuthController {
     );
   }
 
-  void saveUserDataToFirebase(
-      BuildContext context, String name, File? profilePic) {
+  void saveUserDataToFirebase(BuildContext context) {
     authRepository.saveUserDataToFirebase(
-      name: name,
-      profilePic: profilePic,
       ref: ref,
       context: context,
     );

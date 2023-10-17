@@ -17,6 +17,7 @@ final statusControllerProvider = Provider((ref) {
 class StatusController {
   final StatusRepository statusRepository;
   final ProviderRef ref;
+
   StatusController({
     required this.statusRepository,
     required this.ref,
@@ -25,9 +26,6 @@ class StatusController {
   void addStatus(File file, BuildContext context) {
     ref.watch(userDataAuthProvider).whenData((value) {
       statusRepository.uploadStatus(
-        username: value!.name,
-        profilePic: value.profilePic,
-        phoneNumber: value.phoneNumber,
         statusImage: file,
         context: context,
       );

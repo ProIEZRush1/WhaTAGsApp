@@ -5,6 +5,7 @@ import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
+import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:com.jee.tag.whatagsapp/common/utils/colors.dart';
@@ -54,20 +55,23 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
   }
 
   void sendTextMessage() async {
-    final deviceToken = await DeviceUtils.getDeviceId();
-    final key = EncryptionUtils.deriveKeyFromPassword(deviceToken, "salt");
+    var box = await Hive.openBox('config');
+
+    String deviceId = box.get('lastDeviceId') ?? "";
+    final key = box.get('lastEncryptionKey') ?? "";
     final encryptedText = EncryptionUtils.encrypt(_messageController.text, key);
 
     if (isShowSendButton) {
       ref.read(chatControllerProvider).sendTextMessage(
             context,
             ref,
+            deviceId,
             widget.recieverUserId,
             encryptedText,
-            widget.recieverUserId,
           );
       setState(() {
         _messageController.text = '';
+        print("ADIOS");
       });
     } else {
       var tempDir = await getTemporaryDirectory();

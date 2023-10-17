@@ -6,6 +6,7 @@ import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.
 
 class UserInformationScreen extends ConsumerStatefulWidget {
   static const String routeName = '/user-information';
+
   const UserInformationScreen({Key? key}) : super(key: key);
 
   @override
@@ -34,8 +35,6 @@ class _UserInformationScreenState extends ConsumerState<UserInformationScreen> {
     if (name.isNotEmpty) {
       ref.read(authControllerProvider).saveUserDataToFirebase(
             context,
-            name,
-            image,
           );
     }
   }

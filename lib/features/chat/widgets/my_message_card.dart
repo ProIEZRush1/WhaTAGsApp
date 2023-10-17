@@ -13,6 +13,7 @@ class MyMessageCard extends StatelessWidget {
   final MessageEnum type;
   final bool media;
   final String url;
+  final bool sent;
   final bool delivery;
   final bool seen;
   final bool hasQuotedMsg;
@@ -28,6 +29,7 @@ class MyMessageCard extends StatelessWidget {
     required this.type,
     required this.media,
     required this.url,
+    required this.sent,
     required this.delivery,
     required this.seen,
     required this.hasQuotedMsg,
@@ -119,13 +121,7 @@ class MyMessageCard extends StatelessWidget {
                       const SizedBox(
                         width: 5,
                       ),
-                      Icon(
-                        seen
-                            ? Icons.done_all
-                            : (delivery ? Icons.done_all : Icons.done),
-                        size: 20,
-                        color: seen ? Colors.blue : Colors.white60,
-                      ),
+                      getSentIcon(20, seen ? Colors.blue : Colors.white60),
                     ],
                   ),
                 ),
@@ -134,6 +130,28 @@ class MyMessageCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Icon getSentIcon(double size, Color color) {
+    if (!sent) {
+      return Icon(
+        Icons.lock_clock,
+        size: size,
+        color: color,
+      );
+    }
+    if (!delivery) {
+      return Icon(
+        Icons.done,
+        size: size,
+        color: color,
+      );
+    }
+    return Icon(
+      Icons.done_all,
+      size: size,
+      color: color,
     );
   }
 }

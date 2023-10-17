@@ -10,12 +10,17 @@ import 'package:com.jee.tag.whatagsapp/features/landing/screens/landing_screen.d
 import 'package:com.jee.tag.whatagsapp/firebase_options.dart';
 import 'package:com.jee.tag.whatagsapp/router.dart';
 import 'package:com.jee.tag.whatagsapp/mobile_layout_screen.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  final directory = await getApplicationDocumentsDirectory();
+  await Hive.initFlutter(directory.path);
   runApp(
     const ProviderScope(
       child: MyApp(),
