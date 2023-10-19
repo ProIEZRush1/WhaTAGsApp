@@ -190,26 +190,23 @@ class ChatRepository {
   dynamic deepDecrypt(dynamic obj, String key) {
     try {
       if (obj == null) {
-        return obj; // Return the object as is if it's null
+        return obj;
       }
 
       if (obj is List) {
-        // Recursively decrypt each item if the obj is an array
         return obj.map((item) => deepDecrypt(item, key)).toList();
       }
 
       if (obj is Map<String, dynamic>) {
-        // Recursively decrypt each value if the obj is an object
         Map<String, dynamic> newObj = {};
         obj.forEach((k, v) {
+          decryptionCache.clear();
           if (v is String) {
-            // Check if value is in cache
             if (decryptionCache.containsKey(v)) {
               newObj[k] = decryptionCache[v];
             } else {
-              newObj[k] =
-                  EncryptionUtils.decrypt(v, key); // Decrypt string values
-              decryptionCache[v] = newObj[k]; // Cache decrypted value
+              newObj[k] = EncryptionUtils.decrypt(v, key);
+              decryptionCache[v] = newObj[k];
             }
           } else {
             newObj[k] = deepDecrypt(v, key);
@@ -218,7 +215,7 @@ class ChatRepository {
         return newObj;
       }
 
-      return obj; // Return the object as is if it's not an object/array
+      return obj;
     } catch (e) {
       return obj;
     }

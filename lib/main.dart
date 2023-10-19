@@ -55,7 +55,7 @@ class MyApp extends ConsumerWidget {
           throw error;
         },
         loading: () {
-          return Loader();
+          return const Loader();
         },
         // ... (handle other states if necessary)
       ),

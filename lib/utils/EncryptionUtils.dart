@@ -35,6 +35,7 @@ class EncryptionUtils {
       final decrypted = encrypter.decrypt(cipherText, iv: iv);
       return decrypted;
     } catch (e) {
+      print(e);
       return encryptedText;
     }
   }
