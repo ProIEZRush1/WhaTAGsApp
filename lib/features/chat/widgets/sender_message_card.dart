@@ -1,18 +1,26 @@
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/ImageProperties.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/vcardProperties.dart';
 import 'package:flutter/material.dart' hide DateUtils;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:swipe_to/swipe_to.dart';
 
 import 'package:com.jee.tag.whatagsapp/common/utils/colors.dart';
 import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
-import 'package:com.jee.tag.whatagsapp/features/chat/widgets/display_text_image_gif.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/message.dart';
 import 'package:com.jee.tag.whatagsapp/utils/DateUtils.dart';
 
 class SenderMessageCard extends StatelessWidget {
+  final WidgetRef ref;
+  final String chatId;
   final String id;
   final String body;
   final int timestamp;
   final MessageEnum type;
   final bool media;
-  final String url;
+
+  final ImageProperties? imageProperties;
+  final VCardProperties? vCardProperties;
+
   final bool hasQuotedMsg;
   final String quotedMessageBody;
   final MessageEnum quotedMessageType;
@@ -20,12 +28,15 @@ class SenderMessageCard extends StatelessWidget {
 
   const SenderMessageCard({
     Key? key,
+    required this.ref,
+    required this.chatId,
     required this.id,
     required this.body,
     required this.timestamp,
     required this.type,
     required this.media,
-    required this.url,
+    this.imageProperties,
+    this.vCardProperties,
     required this.hasQuotedMsg,
     required this.quotedMessageBody,
     required this.quotedMessageType,
@@ -84,17 +95,26 @@ class SenderMessageCard extends StatelessWidget {
                               ),
                             ),
                           ),
-                          child: DisplayTextImageGIF(
+                          child: Message(
+                            ref: ref,
+                            chatId: chatId,
+                            messageId: id,
                             message: quotedMessageBody,
                             type: quotedMessageType,
+                            imageProperties: imageProperties,
+                            vCardProperties: vCardProperties,
                           ),
                         ),
                         const SizedBox(height: 8),
                       ],
-                      DisplayTextImageGIF(
+                      Message(
+                        ref: ref,
+                        chatId: chatId,
+                        messageId: id,
                         message: body,
-                        media: media ? url : null,
                         type: type,
+                        imageProperties: imageProperties,
+                        vCardProperties: vCardProperties,
                       ),
                     ],
                   ),

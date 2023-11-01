@@ -1,7 +1,11 @@
+import 'dart:typed_data';
+
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/ImageProperties.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/vcardProperties.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:com.jee.tag.whatagsapp/common/providers/message_reply_provider.dart';
-import 'package:com.jee.tag.whatagsapp/features/chat/widgets/display_text_image_gif.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/message.dart';
 
 class MessageReplyPreview extends ConsumerWidget {
   const MessageReplyPreview({Key? key}) : super(key: key);
@@ -46,10 +50,22 @@ class MessageReplyPreview extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 8),
-          DisplayTextImageGIF(
-            message: messageReply.message,
-            type: messageReply.messageEnum,
-          ),
+          Message(
+              ref: ref,
+              chatId: "",
+              messageId: "",
+              message: messageReply.message,
+              type: messageReply.messageEnum,
+              imageProperties: ImageProperties(
+                height: 0,
+                width: 0,
+                mimetype: "",
+                jpegThumbnail: Uint8List.fromList([]),
+              ),
+              vCardProperties: VCardProperties(
+                displayName: "",
+                vcard: "",
+              )),
         ],
       ),
     );

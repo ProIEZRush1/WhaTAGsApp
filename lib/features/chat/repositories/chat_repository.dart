@@ -1,30 +1,16 @@
 import 'dart:convert';
-import 'dart:developer';
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/repositories/chat_database.dart';
 import 'package:com.jee.tag.whatagsapp/utils/EncryptionUtils.dart';
-import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:hive/hive.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:uuid/uuid.dart';
-import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
-import 'package:com.jee.tag.whatagsapp/common/providers/message_reply_provider.dart';
-import 'package:com.jee.tag.whatagsapp/common/repositories/common_firebase_storage_repository.dart';
 import 'package:com.jee.tag.whatagsapp/common/utils/utils.dart';
-import 'package:com.jee.tag.whatagsapp/models/chat.dart';
-import 'package:com.jee.tag.whatagsapp/models/message.dart';
-import 'package:com.jee.tag.whatagsapp/models/user_model.dart';
 import 'package:com.jee.tag.whatagsapp/requests/ApiService.dart';
-
-import '../../../utils/DeviceUtils.dart';
 
 final chatRepositoryProvider = Provider(
   (ref) => ChatRepository(
@@ -112,6 +98,7 @@ class ChatRepository {
 
       decryptedChat["lastMessage"] =
           deepDecrypt(decryptedChat['lastMessage'], key);
+
       return decryptedChat;
     } catch (e) {
       print(e);
@@ -244,81 +231,6 @@ class ChatRepository {
         }
         apiService.checkIfLoggedIn(context, ref, data);
       });
-    } catch (e) {
-      showSnackBar(context: context, content: e.toString());
-    }
-  }
-
-  void sendFileMessage({
-    required BuildContext context,
-    required File file,
-    required String receiverUserId,
-    required UserModel senderUserData,
-    required ProviderRef ref,
-    required MessageEnum messageEnum,
-    required MessageReply? messageReply,
-    required bool isGroupChat,
-  }) async {
-    try {
-      var timeSent = DateTime.now();
-      var messageId = const Uuid().v1();
-
-      String imageUrl = await ref
-          .read(commonFirebaseStorageRepositoryProvider)
-          .storeFileToFirebase(
-            'chat/${messageEnum.type}/${senderUserData.uid}/$receiverUserId/$messageId',
-            file,
-          );
-
-      UserModel? receiverUserData;
-      if (!isGroupChat) {
-        var userDataMap =
-            await firestore.collection('users').doc(receiverUserId).get();
-        receiverUserData = UserModel.fromMap(userDataMap.data()!);
-      }
-
-      String contactMsg;
-
-      switch (messageEnum) {
-        case MessageEnum.image:
-          contactMsg = '📷 Photo';
-          break;
-        case MessageEnum.video:
-          contactMsg = '📸 Video';
-          break;
-        case MessageEnum.audio:
-          contactMsg = '🎵 Audio';
-          break;
-        case MessageEnum.gif:
-          contactMsg = 'GIF';
-          break;
-        default:
-          contactMsg = 'GIF';
-      }
-    } catch (e) {
-      showSnackBar(context: context, content: e.toString());
-    }
-  }
-
-  void sendGIFMessage({
-    required BuildContext context,
-    required String gifUrl,
-    required String receiverUserId,
-    required UserModel senderUser,
-    required MessageReply? messageReply,
-    required bool isGroupChat,
-  }) async {
-    try {
-      var timeSent = DateTime.now();
-      UserModel? receiverUserData;
-
-      if (!isGroupChat) {
-        var userDataMap =
-            await firestore.collection('users').doc(receiverUserId).get();
-        receiverUserData = UserModel.fromMap(userDataMap.data()!);
-      }
-
-      var messageId = const Uuid().v1();
     } catch (e) {
       showSnackBar(context: context, content: e.toString());
     }

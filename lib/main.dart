@@ -57,7 +57,6 @@ class MyApp extends ConsumerWidget {
         loading: () {
           return const Loader();
         },
-        // ... (handle other states if necessary)
       ),
     );
   }

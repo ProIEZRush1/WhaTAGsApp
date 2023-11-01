@@ -1,6 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:com.jee.tag.whatagsapp/features/chat/repositories/chat_database.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/ImageProperties.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/vcardProperties.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -43,6 +47,8 @@ class _ChatListState extends ConsumerState<ChatList> {
   void dispose() {
     super.dispose();
     messageController.dispose();
+
+    deviceId = null;
   }
 
   void onMessageSwipe(
@@ -59,13 +65,14 @@ class _ChatListState extends ConsumerState<ChatList> {
         );
   }
 
+  String? deviceId;
   List<Map<String, dynamic>>? cachedStreamData;
   Stream<List<Map<String, dynamic>>>? stream;
 
   Future<Map<String, String>> getDeviceIdAndKeyFromHive() async {
     var box = await Hive.openBox('config');
 
-    String deviceId = box.get('lastDeviceId') ?? "";
+    deviceId = box.get('lastDeviceId') ?? "";
     String key = box.get('lastEncryptionKey') ?? "";
 
     final ChatDatabase chatDatabase = ChatDatabase();
@@ -75,14 +82,7 @@ class _ChatListState extends ConsumerState<ChatList> {
         .read(chatControllerProvider)
         .chatMessagesStream(context, ref, widget.recieverUserId, key);
 
-    ref.read(chatControllerProvider).setChatSeen(
-          context,
-          ref,
-          deviceId,
-          widget.recieverUserId,
-        );
-
-    return {"deviceId": deviceId, "key": key};
+    return {"deviceId": deviceId!, "key": key};
   }
 
   @override
@@ -113,6 +113,15 @@ class _ChatListState extends ConsumerState<ChatList> {
                     return Text('No data available');
                   }
 
+                  if (deviceId != null) {
+                    ref.read(chatControllerProvider).setChatSeen(
+                          context,
+                          ref,
+                          deviceId!,
+                          widget.recieverUserId,
+                        );
+                  }
+
                   return getListView(streamSnapshot.data);
                 });
           }
@@ -141,7 +150,39 @@ class _ChatListState extends ConsumerState<ChatList> {
         final timestamp = (information["timestamp"] ?? 0) * 1000;
         final type = information["type"];
         final media = information["media"];
-        final url = information["url"] ?? "";
+
+        ImageProperties? imageProperties;
+        if (information["jpegThumbnail"] != null) {
+          double? heightValue = (information["height"] is num)
+              ? (information["height"] as num).toDouble()
+              : null;
+          double? widthValue = (information["width"] is num)
+              ? (information["width"] as num).toDouble()
+              : null;
+
+          // Convert keys to a list and sort them
+          var sortedKeys = information["jpegThumbnail"].keys.toList()
+            ..sort((a, b) =>
+                int.parse(a.toString()).compareTo(int.parse(b.toString())));
+
+          // Retrieve values based on sorted keys
+          List<int> sortedValues = sortedKeys
+              .map((key) => information["jpegThumbnail"][key])
+              .toList()
+              .cast<int>();
+
+          imageProperties = ImageProperties(
+            height: heightValue ?? 0.0,
+            width: widthValue ?? 0.0,
+            mimetype: information["mimetype"],
+            jpegThumbnail: Uint8List.fromList(sortedValues),
+          );
+        }
+
+        final vcardProperties = VCardProperties(
+            displayName: information["displayName"] ?? "",
+            vcard: information["vcard"] ?? "");
+
         final sent = status != 1;
         final delivery = status == 3 || status == 4;
         final seen = status == 4;
@@ -162,12 +203,15 @@ class _ChatListState extends ConsumerState<ChatList> {
 
         if (fromMe) {
           return MyMessageCard(
+            ref: ref,
+            chatId: widget.recieverUserId,
             id: id,
             body: body,
             timestamp: timestamp,
             type: ConvertMessage(type).toEnum(),
             media: media,
-            url: url,
+            imageProperties: imageProperties,
+            vCardProperties: vcardProperties,
             sent: sent,
             delivery: delivery,
             seen: seen,
@@ -182,12 +226,15 @@ class _ChatListState extends ConsumerState<ChatList> {
           );
         }
         return SenderMessageCard(
+          ref: ref,
+          chatId: widget.recieverUserId,
           id: id,
           body: body,
           timestamp: timestamp,
           type: ConvertMessage(type).toEnum(),
           media: media,
-          url: url,
+          imageProperties: imageProperties,
+          vCardProperties: vcardProperties,
           hasQuotedMsg: hasQuotedMsg,
           quotedMessageBody: quotedMessageBody,
           quotedMessageType: ConvertMessage(quotedMessageType).toEnum(),

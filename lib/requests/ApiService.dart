@@ -17,10 +17,12 @@ class ApiService {
   final String _messagesGroupEndpoint;
   String sendMessageEndpoint = "";
   String markAllAsReadEndpoint = "";
+  String downloadMessageEndpoint = "";
 
   ApiService()
       : _dio = Dio(),
         _baseUrl = 'https://horribly-vital-gar.ngrok-free.app',
+        //_baseUrl = 'https://whatsapp.tag.org',
         _authGroupEndpoint = '/auth',
         _messagesGroupEndpoint = '/messages' {
     reviveClientEndpoint = '$_authGroupEndpoint/revive';
@@ -29,6 +31,7 @@ class ApiService {
 
     sendMessageEndpoint = '$_messagesGroupEndpoint/send';
     markAllAsReadEndpoint = '$_messagesGroupEndpoint/markAllAsRead';
+    downloadMessageEndpoint = '$_messagesGroupEndpoint/download';
 
     // Add default headers here if needed
     _dio.options.headers['ngrok-skip-browser-warning'] = 'true';

@@ -43,53 +43,6 @@ class ChatController {
     chatRepository.sendTextMessage(context, ref, deviceId, chatId, text);
   }
 
-  void sendFileMessage(
-    BuildContext context,
-    File file,
-    String receiverUserId,
-    MessageEnum messageEnum,
-    bool isGroupChat,
-  ) {
-    final messageReply = ref.read(messageReplyProvider);
-    ref.read(userDataAuthProvider).whenData(
-          (value) => chatRepository.sendFileMessage(
-            context: context,
-            file: file,
-            receiverUserId: receiverUserId,
-            senderUserData: value!["user"],
-            messageEnum: messageEnum,
-            ref: ref,
-            messageReply: messageReply,
-            isGroupChat: isGroupChat,
-          ),
-        );
-    ref.read(messageReplyProvider.state).update((state) => null);
-  }
-
-  void sendGIFMessage(
-    BuildContext context,
-    String gifUrl,
-    String receiverUserId,
-    bool isGroupChat,
-  ) {
-    final messageReply = ref.read(messageReplyProvider);
-    int gifUrlPartIndex = gifUrl.lastIndexOf('-') + 1;
-    String gifUrlPart = gifUrl.substring(gifUrlPartIndex);
-    String newgifUrl = 'https://i.giphy.com/media/$gifUrlPart/200.gif';
-
-    ref.read(userDataAuthProvider).whenData(
-          (value) => chatRepository.sendGIFMessage(
-            context: context,
-            gifUrl: newgifUrl,
-            receiverUserId: receiverUserId,
-            senderUser: value!["user"],
-            messageReply: messageReply,
-            isGroupChat: isGroupChat,
-          ),
-        );
-    ref.read(messageReplyProvider.state).update((state) => null);
-  }
-
   void setChatSeen(
       BuildContext context, WidgetRef ref, String deviceId, String chatId) {
     chatRepository.setChatSeen(
