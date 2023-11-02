@@ -51,18 +51,17 @@ class _ChatListState extends ConsumerState<ChatList> {
     deviceId = null;
   }
 
-  void onMessageSwipe(
-    String message,
-    bool isMe,
-    MessageEnum messageEnum,
-  ) {
+  void onMessageSwipe(String message,
+      bool isMe,
+      MessageEnum messageEnum,) {
     ref.read(messageReplyProvider.state).update(
-          (state) => MessageReply(
+          (state) =>
+          MessageReply(
             message,
             isMe,
             messageEnum,
           ),
-        );
+    );
   }
 
   String? deviceId;
@@ -103,7 +102,7 @@ class _ChatListState extends ConsumerState<ChatList> {
                   if (streamSnapshot.connectionState ==
                       ConnectionState.waiting) {
                     return (cachedStreamData == null ||
-                            cachedStreamData!.isEmpty
+                        cachedStreamData!.isEmpty
                         ? const Loader()
                         : getListView(cachedStreamData));
                   }
@@ -115,11 +114,11 @@ class _ChatListState extends ConsumerState<ChatList> {
 
                   if (deviceId != null) {
                     ref.read(chatControllerProvider).setChatSeen(
-                          context,
-                          ref,
-                          deviceId!,
-                          widget.recieverUserId,
-                        );
+                      context,
+                      ref,
+                      deviceId!,
+                      widget.recieverUserId,
+                    );
                   }
 
                   return getListView(streamSnapshot.data);
@@ -176,12 +175,16 @@ class _ChatListState extends ConsumerState<ChatList> {
             width: widthValue ?? 0.0,
             mimetype: information["mimetype"],
             jpegThumbnail: Uint8List.fromList(sortedValues),
+            caption: information["caption"],
           );
         }
 
-        final vcardProperties = VCardProperties(
-            displayName: information["displayName"] ?? "",
-            vcard: information["vcard"] ?? "");
+        VCardProperties? vcardProperties;
+        if (information["vCard"] != null) {
+          vcardProperties = VCardProperties(
+              displayName: information["displayName"] ?? "",
+              vcard: information["vcard"] ?? "");
+        }
 
         final sent = status != 1;
         final delivery = status == 3 || status == 4;
@@ -218,11 +221,12 @@ class _ChatListState extends ConsumerState<ChatList> {
             hasQuotedMsg: hasQuotedMsg,
             quotedMessageBody: quotedMessageBody,
             quotedMessageType: ConvertMessage(quotedMessageType).toEnum(),
-            onLeftSwipe: () => onMessageSwipe(
-              body,
-              true,
-              ConvertMessage(type).toEnum(),
-            ),
+            onLeftSwipe: () =>
+                onMessageSwipe(
+                  body,
+                  true,
+                  ConvertMessage(type).toEnum(),
+                ),
           );
         }
         return SenderMessageCard(
@@ -238,11 +242,12 @@ class _ChatListState extends ConsumerState<ChatList> {
           hasQuotedMsg: hasQuotedMsg,
           quotedMessageBody: quotedMessageBody,
           quotedMessageType: ConvertMessage(quotedMessageType).toEnum(),
-          onRightSwipe: () => onMessageSwipe(
-            body,
-            false,
-            ConvertMessage(type).toEnum(),
-          ),
+          onRightSwipe: () =>
+              onMessageSwipe(
+                body,
+                false,
+                ConvertMessage(type).toEnum(),
+              ),
         );
       },
     );

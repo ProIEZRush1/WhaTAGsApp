@@ -29,34 +29,28 @@ class MessageUtils {
     var box = await Hive.openBox('config');
     String deviceToken = box.get('lastDeviceId') ?? "";
     final firebaseUid =
-        ref
-            .read(authControllerProvider)
-            .authRepository
-            .auth
-            .currentUser!
-            .uid;
+        ref.read(authControllerProvider).authRepository.auth.currentUser!.uid;
 
     try {
       var value = await apiService.get(
         context,
         ref,
-        "${apiService
-            .downloadMessageEndpoint}?deviceToken=$deviceToken&firebaseUid=$firebaseUid&chatId=$chatId&messageId=$messageId",
+        "${apiService.downloadMessageEndpoint}?deviceToken=$deviceToken&firebaseUid=$firebaseUid&chatId=$chatId&messageId=$messageId",
       );
 
       if (apiService.checkSuccess(value)) {
         Uint8List uint8list =
-        Uint8List.fromList(List<int>.from(value['buffer']['data']));
+            Uint8List.fromList(List<int>.from(value['buffer']['data']));
         String savedPath =
-        await saveFileToPermanentLocation(type, messageId, uint8list);
+            await saveFileToPermanentLocation(type, messageId, uint8list);
 
         box.put('localFilePath_$messageId', savedPath);
         downloadSuccess = true;
       } else {
         Fluttertoast.showToast(msg: 'Something went wrong');
       }
-    } finally {
-      Navigator.of(context, rootNavigator: true).pop();
+    } catch (e) {
+      Fluttertoast.showToast(msg: 'Something went wrong');
     }
 
     return downloadSuccess;
@@ -77,8 +71,8 @@ class MessageUtils {
     }
   }
 
-  static Future<String> saveFileToPermanentLocation(MessageEnum type,
-      String messageId, Uint8List buffer) async {
+  static Future<String> saveFileToPermanentLocation(
+      MessageEnum type, String messageId, Uint8List buffer) async {
     final directory = await getApplicationDocumentsDirectory();
     final fileExtension = getFileExtension(type);
     final filePath = '${directory.path}/$messageId$fileExtension';

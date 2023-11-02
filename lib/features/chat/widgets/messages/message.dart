@@ -69,13 +69,15 @@ class _MessageState extends State<Message> {
     switch (type) {
       case MessageEnum.image:
         return ImageMessage(
-            ref: ref,
-            chatId: chatId,
-            messageId: messageId,
-            height: imageProperties!.height,
-            width: imageProperties!.width,
-            mimetype: imageProperties!.mimetype,
-            jpegThumbnail: imageProperties!.jpegThumbnail);
+          ref: ref,
+          chatId: chatId,
+          messageId: messageId,
+          height: imageProperties!.height,
+          width: imageProperties!.width,
+          mimetype: imageProperties!.mimetype,
+          jpegThumbnail: imageProperties!.jpegThumbnail,
+          caption: imageProperties!.caption,
+        );
       case MessageEnum.audio:
         break;
       case MessageEnum.video:

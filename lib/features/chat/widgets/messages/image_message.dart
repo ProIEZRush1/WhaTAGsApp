@@ -5,7 +5,7 @@ import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/message_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:photo_view/photo_view.dart';
 
 class ImageMessage extends StatefulWidget {
   final WidgetRef ref;
@@ -15,6 +15,7 @@ class ImageMessage extends StatefulWidget {
   final double width;
   final String mimetype;
   final Uint8List jpegThumbnail;
+  final String? caption;
 
   const ImageMessage(
       {Key? key,
@@ -24,7 +25,8 @@ class ImageMessage extends StatefulWidget {
       required this.height,
       required this.width,
       required this.mimetype,
-      required this.jpegThumbnail})
+      required this.jpegThumbnail,
+      this.caption})
       : super(key: key);
 
   @override
@@ -45,6 +47,7 @@ class _ImageMessageState extends State<ImageMessage> {
   late double width;
   late String mimetype;
   late Uint8List jpegThumbnail;
+  late String? caption;
 
   @override
   void initState() {
@@ -57,6 +60,7 @@ class _ImageMessageState extends State<ImageMessage> {
     width = widget.width;
     mimetype = widget.mimetype;
     jpegThumbnail = widget.jpegThumbnail;
+    caption = widget.caption;
 
     _checkImageDownloaded();
   }
@@ -64,9 +68,16 @@ class _ImageMessageState extends State<ImageMessage> {
   _checkImageDownloaded() async {
     _localFilePath = await MessageUtils.getLocalFilePath(messageId);
     if (_localFilePath != null) {
-      setState(() {
-        _imageDownloaded = true;
-      });
+      File imageFile = File(_localFilePath!);
+      if (await imageFile.exists()) {
+        setState(() {
+          _imageDownloaded = true;
+        });
+      } else {
+        setState(() {
+          _imageDownloaded = false;
+        });
+      }
     }
   }
 
@@ -85,50 +96,84 @@ class _ImageMessageState extends State<ImageMessage> {
 
   @override
   Widget build(BuildContext context) {
-    double previewWidth, previewHeight;
-
-    // Calculate the aspect ratio of the original image
-    double aspectRatio = height / width;
-
-    if (width > height) {
-      // Landscape or square image
-      previewWidth = maxPreviewWidth;
-      previewHeight = previewWidth * aspectRatio;
-    } else {
-      // Portrait image
-      previewHeight = maxPreviewHeight;
-      previewWidth = previewHeight / aspectRatio;
-    }
-
-    if (_imageDownloaded) {
-      return Image.file(File(_localFilePath!));
-    } else {
-      return Stack(
-        children: [
-          Image.memory(
-            jpegThumbnail,
-            fit: BoxFit.cover,
-            height: previewHeight,
-            width: previewWidth,
-            errorBuilder: (BuildContext context, Object exception,
-                StackTrace? stackTrace) {
-              print('Error Handler: $exception');
-              return const Text('Error occurred!');
-            },
-          ),
-          Center(
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.file_download),
-                  onPressed: _downloadAndDisplayImage,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: () {
+            if (_imageDownloaded) {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return Dialog(
+                      backgroundColor: Colors.transparent,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Center(
+                            child: SizedBox(
+                              width: width / 3,
+                              height: height / 3,
+                              child: PhotoView(
+                                imageProvider: FileImage(File(_localFilePath!)),
+                                minScale: PhotoViewComputedScale.contained,
+                                maxScale: PhotoViewComputedScale.covered * 2,
+                                backgroundDecoration: const BoxDecoration(
+                                    color: Colors.transparent),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ));
+                },
+              );
+            }
+          },
+          child: _imageDownloaded
+              ? Image.file(
+                  File(_localFilePath!),
+                  fit: BoxFit.cover,
+                  height: height / 3,
+                  width: width / 3,
+                )
+              : Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Image.memory(
+                      jpegThumbnail,
+                      fit: BoxFit.cover,
+                      height: height / 3,
+                      width: width / 3,
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.5),
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.file_download,
+                            color: Colors.green),
+                        onPressed: _downloadAndDisplayImage,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+        ),
+        if (caption != null)
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              caption!,
+              textAlign: TextAlign.left,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16.0,
+                fontWeight: FontWeight.w400,
+              ),
             ),
           ),
-        ],
-      );
-    }
+      ],
+    );
   }
 }
