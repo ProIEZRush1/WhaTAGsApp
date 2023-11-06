@@ -37,12 +37,12 @@ class _ContactsListState extends ConsumerState<ContactsList> {
   Stream<List<Map<String, dynamic>>>? stream;
   List<Map<String, dynamic>>? cachedStreamData;
 
-  Future<Map<String, dynamic>>? data;
+  Future<Map<String, dynamic>>? valuesData;
 
   @override
   void initState() {
     super.initState();
-    data = _initializeData();
+    valuesData = _initializeData();
   }
 
   Future<Map<String, dynamic>> _initializeData() async {
@@ -55,7 +55,7 @@ class _ContactsListState extends ConsumerState<ContactsList> {
 
     // Same for lastEncryptionKey
     lastEncryptionKey = box.get('lastEncryptionKey') ??
-        EncryptionUtils.deriveKeyFromPassword(lastDeviceId!, "salt");
+        await EncryptionUtils.deriveKeyFromPassword(lastDeviceId!, "salt");
     box.put('lastEncryptionKey', lastEncryptionKey);
 
     if (await FlutterContacts.requestPermission()) {
@@ -150,7 +150,7 @@ class _ContactsListState extends ConsumerState<ContactsList> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Map<String, dynamic>>(
-      future: data,
+      future: valuesData,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -224,13 +224,26 @@ class _ContactsListState extends ConsumerState<ContactsList> {
                     ),
                   ),
                   subtitle: Padding(
-                    padding: const EdgeInsets.only(top: 6.0),
-                    child: Text(
-                      chatContactData["lastMessage"]["body"] ?? "",
-                      style: const TextStyle(fontSize: 15),
-                      maxLines: 2,
-                    ),
-                  ),
+                      padding: const EdgeInsets.only(top: 6.0),
+                      child: FutureBuilder(
+                          future: EncryptionUtils.decrypt(
+                              chatContactData["lastMessage"]["body"],
+                              lastEncryptionKey!),
+                          builder: (context, bodySnapshot) {
+                            if (bodySnapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Loader();
+                            }
+                            if (bodySnapshot.hasError) {
+                              return Text('Error: ${bodySnapshot.error}');
+                            }
+
+                            return Text(
+                              bodySnapshot.data.toString(),
+                              style: const TextStyle(fontSize: 15),
+                              maxLines: 2,
+                            );
+                          })),
                   leading: CircleAvatar(
                     backgroundImage: NetworkImage(
                       chatContactData["profilePicUrl"],

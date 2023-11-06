@@ -59,19 +59,14 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
 
     String deviceId = box.get('lastDeviceId') ?? "";
     final key = box.get('lastEncryptionKey') ?? "";
-    final encryptedText = EncryptionUtils.encrypt(_messageController.text, key);
+    final encryptedText =
+        await EncryptionUtils.encrypt(_messageController.text, key);
 
     if (isShowSendButton) {
       ref.read(chatControllerProvider).sendTextMessage(
-        context,
-        ref,
-        deviceId,
-        widget.recieverUserId,
-        encryptedText,
-      );
+          context, ref, deviceId, widget.recieverUserId, encryptedText, key);
       setState(() {
         _messageController.text = '';
-        print("ADIOS");
       });
     } else {
       var tempDir = await getTemporaryDirectory();
@@ -94,10 +89,10 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
     }
   }
 
-  void sendFileMessage(File file,
-      MessageEnum messageEnum,) {
-
-  }
+  void sendFileMessage(
+    File file,
+    MessageEnum messageEnum,
+  ) {}
 
   void selectImage() async {
     File? image = await pickImageFromGallery(context);
@@ -115,9 +110,7 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
 
   void selectGIF() async {
     final gif = await pickGIF(context);
-    if (gif != null) {
-
-    }
+    if (gif != null) {}
   }
 
   void hideEmojiContainer() {
@@ -246,8 +239,8 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
                     isShowSendButton
                         ? Icons.send
                         : isRecording
-                        ? Icons.close
-                        : Icons.mic,
+                            ? Icons.close
+                            : Icons.mic,
                     color: Colors.white,
                   ),
                   onTap: sendTextMessage,
@@ -258,22 +251,22 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
         ),
         isShowEmojiContainer
             ? SizedBox(
-          height: 310,
-          child: EmojiPicker(
-            onEmojiSelected: ((category, emoji) {
-              setState(() {
-                _messageController.text =
-                    _messageController.text + emoji.emoji;
-              });
+                height: 310,
+                child: EmojiPicker(
+                  onEmojiSelected: ((category, emoji) {
+                    setState(() {
+                      _messageController.text =
+                          _messageController.text + emoji.emoji;
+                    });
 
-              if (!isShowSendButton) {
-                setState(() {
-                  isShowSendButton = true;
-                });
-              }
-            }),
-          ),
-        )
+                    if (!isShowSendButton) {
+                      setState(() {
+                        isShowSendButton = true;
+                      });
+                    }
+                  }),
+                ),
+              )
             : const SizedBox(),
       ],
     );

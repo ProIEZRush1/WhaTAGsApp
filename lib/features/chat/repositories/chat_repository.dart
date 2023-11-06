@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'package:async/async.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/repositories/chat_database.dart';
@@ -11,6 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:com.jee.tag.whatagsapp/common/utils/utils.dart';
 import 'package:com.jee.tag.whatagsapp/requests/ApiService.dart';
+import 'package:rxdart/rxdart.dart';
 
 final chatRepositoryProvider = Provider(
   (ref) => ChatRepository(
@@ -35,7 +38,7 @@ class ChatRepository {
 
   final chatDatabase = ChatDatabase();
 
-  Stream<List<Map<String, dynamic>>> getChatsStreamJson(
+  Stream<List<Map<String, dynamic>>> getChatsStream(
       BuildContext context, WidgetRef ref, String key) {
     return firestore
         .collection('users')
@@ -46,17 +49,10 @@ class ChatRepository {
       // Step 1: Retrieve existing chats from local database
       List<Map<String, dynamic>> existingChats = await chatDatabase.getChats();
 
-      var decryptFutures = <Future<Map<String, dynamic>>>[];
-
+      List<Map<String, dynamic>> changedChats = [];
       for (var document in event.docChanges) {
-        decryptFutures.add(_processDocument(document, key));
+        changedChats.add(document.doc.data() ?? {});
       }
-
-      // Step 2: Await all decryption tasks to complete
-      List<Map<String, dynamic>> changedChats =
-          await Future.wait(decryptFutures);
-
-      // Filter out empty chats
       changedChats = changedChats.where((chat) => chat.isNotEmpty).toList();
 
       // Merge changes into existing chats
@@ -71,7 +67,7 @@ class ChatRepository {
         }
       }
 
-      // Step 3: Sort and save merged chats to local database
+      // Sort and save merged chats to local database
       existingChats.sort((a, b) {
         return b['lastMessage']['timestamp']
             .compareTo(a['lastMessage']['timestamp']);
@@ -79,138 +75,82 @@ class ChatRepository {
 
       await chatDatabase.saveChats(existingChats);
 
-      // Step 4: Return the merged chats
+      // Return the merged chats
       return existingChats;
     });
   }
 
-  Future<Map<String, dynamic>> _processDocument(
-      DocumentChange document, String key) async {
-    try {
-      final chat = document.doc.data() as Map<String, dynamic>;
-
-      // Decrypt all strings in the chat map
-      final decryptedChat = deepDecrypt(chat, key);
-
-      if (decryptedChat["lastMessage"]["body"] == null) {
-        return {};
-      }
-
-      decryptedChat["lastMessage"] =
-          deepDecrypt(decryptedChat['lastMessage'], key);
-
-      return decryptedChat;
-    } catch (e) {
-      print(e);
-    }
-    return {}; // return an empty map if there's an error or the condition fails
-  }
-
-  Stream<List<Map<String, dynamic>>> getChatMessagesStream(
-      BuildContext context, WidgetRef ref, String chatId, String key) {
+  Future<void> removeSentId(String chatId, String messageId) async {
     final String userId = auth.currentUser!.uid;
-
-    return firestore
+    await firestore
         .collection('users')
         .doc(userId)
         .collection('messages')
         .doc(chatId)
         .collection('messages')
-        .snapshots(includeMetadataChanges: false)
-        .asyncMap((event) async {
-      // Step 1: Retrieve existing messages from local database
-      List<Map<String, dynamic>> existingMessages =
-          await chatDatabase.getMessages(chatId);
-
-      var decryptFutures = <Future<Map<String, dynamic>>>[];
-
-      for (var document in event.docChanges) {
-        decryptFutures.add(_processMessageDocument(document, key));
-      }
-
-      // Step 2: Await all decryption tasks to complete
-      List<Map<String, dynamic>> changedMessages =
-          await Future.wait(decryptFutures);
-      changedMessages =
-          changedMessages.where((message) => message.isNotEmpty).toList();
-
-      // Merge changes into existing messages
-      for (var changedMessage in changedMessages) {
-        final index = existingMessages.indexWhere(
-            (message) => message["key"]["id"] == changedMessage["key"]["id"]);
-
-        if (index != -1) {
-          existingMessages[index] = changedMessage;
-        } else {
-          existingMessages.add(changedMessage);
-        }
-      }
-
-      // Step 3: Sort and save merged messages to local database
-      try {
-        existingMessages.sort(
-            (a, b) => b['messageTimestamp'].compareTo(a['messageTimestamp']));
-      } catch (e) {
-        print("Sorting error: $e");
-      }
-
-      await chatDatabase.saveMessages(chatId, existingMessages);
-
-      // Step 4: Return the merged messages
-      return existingMessages.reversed.toList();
+        .doc(messageId)
+        .update({
+      'sentId': FieldValue.delete(),
     });
   }
 
-  Future<Map<String, dynamic>> _processMessageDocument(
-      DocumentChange document, String key) async {
-    var messageData = document.doc.data() as Map<String, dynamic>;
+  Stream<List<Map<String, dynamic>>> getMessagesStream(
+      BuildContext context, WidgetRef ref, String chatId, String key) {
+    final String userId = auth.currentUser!.uid;
+    final Stream<List<Map<String, dynamic>>> firebaseStream = firestore
+        .collection('users')
+        .doc(userId)
+        .collection('messages')
+        .doc(chatId)
+        .collection('messages')
+        .orderBy('information.timestamp', descending: true)
+        .snapshots()
+        .asyncMap((snapshot) async {
+      // Process documents from Firestore
+      List<Map<String, dynamic>> firestoreMessages =
+          snapshot.docChanges.map((doc) => doc.doc.data() ?? {}).toList();
 
-    // Assuming deepDecrypt is a function that decrypts necessary fields
-    final decryptedMessageData = deepDecrypt(messageData, key);
+      firestoreMessages.sort((a, b) {
+        int aTimestamp = a['information']['timestamp'] as int? ?? 0;
+        int bTimestamp = b['information']['timestamp'] as int? ?? 0;
+        return bTimestamp.compareTo(aTimestamp);
+      });
 
-    return decryptedMessageData;
-  }
-
-  // Cache to store decrypted values
-  Map<String, dynamic> decryptionCache = {};
-
-  dynamic deepDecrypt(dynamic obj, String key) {
-    try {
-      if (obj == null) {
-        return obj;
+      for (var message in firestoreMessages) {
+        //print("HOLA " + message['key']['id'] + " " + message["information"]["body"]);
       }
 
-      if (obj is List) {
-        return obj.map((item) => deepDecrypt(item, key)).toList();
-      }
+      await chatDatabase.saveMessages(ref, chatId, firestoreMessages);
+      List<Map<String, dynamic>> messages =
+          await chatDatabase.getMessages(chatId);
 
-      if (obj is Map<String, dynamic>) {
-        Map<String, dynamic> newObj = {};
-        obj.forEach((k, v) {
-          decryptionCache.clear();
-          if (v is String) {
-            if (decryptionCache.containsKey(v)) {
-              newObj[k] = decryptionCache[v];
-            } else {
-              newObj[k] = EncryptionUtils.decrypt(v, key);
-              decryptionCache[v] = newObj[k];
-            }
-          } else {
-            newObj[k] = deepDecrypt(v, key);
-          }
-        });
-        return newObj;
-      }
+      return messages;
+    });
 
-      return obj;
-    } catch (e) {
-      return obj;
-    }
+    final databaseStreamController =
+        chatDatabase.getChatsStreamController(chatId);
+    databaseStreamController.stream.listen((event) {
+      for (var message in event) {
+        //print("ADIOS " + message['key']['id'] + " " + message["information"]["body"]);
+      }
+    });
+
+    return CombineLatestStream.list(
+            [firebaseStream, databaseStreamController.stream])
+        .map((List<List<Map<String, dynamic>>> combinedList) {
+      final allMessages = {...combinedList[0], ...combinedList[1]}.toList();
+
+      return combinedList[1];
+    }).asBroadcastStream();
   }
 
   void sendTextMessage(BuildContext context, WidgetRef ref, String deviceId,
-      String chatId, String text) async {
+      String chatId, String text, String key) async {
     try {
+      // Create default message in storage
+      final id =
+          await chatDatabase.createDefaultMessage(ref, chatId, true, text, key);
+
       final ApiService apiService = ApiService();
 
       final firebaseUid =
@@ -221,7 +161,7 @@ class ChatRepository {
 
       apiService
           .get(context, ref,
-              "${apiService.sendMessageEndpoint}?deviceToken=$deviceId&firebaseUid=$firebaseUid&to=$chatId&data=$jsonDataToSend")
+              "${apiService.sendMessageEndpoint}?deviceToken=$deviceId&firebaseUid=$firebaseUid&to=$chatId&data=$jsonDataToSend&id=$id")
           .then((data) {
         if (!apiService.checkSuccess(data)) {
           Fluttertoast.showToast(
