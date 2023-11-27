@@ -1,5 +1,6 @@
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/ImageProperties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/vcardProperties.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/videoProperties.dart';
 import 'package:flutter/material.dart' hide DateUtils;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:swipe_to/swipe_to.dart';
@@ -19,6 +20,7 @@ class SenderMessageCard extends StatelessWidget {
   final bool media;
 
   final ImageProperties? imageProperties;
+  final VideoProperties? videoProperties;
   final VCardProperties? vCardProperties;
 
   final bool hasQuotedMsg;
@@ -36,6 +38,7 @@ class SenderMessageCard extends StatelessWidget {
     required this.type,
     required this.media,
     this.imageProperties,
+    this.videoProperties,
     this.vCardProperties,
     required this.hasQuotedMsg,
     required this.quotedMessageBody,
@@ -46,7 +49,7 @@ class SenderMessageCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SwipeTo(
-      //onRightSwipe: onRightSwipe,
+      onRightSwipe: onRightSwipe,
       child: Align(
         alignment: Alignment.centerLeft,
         child: ConstrainedBox(
@@ -59,78 +62,66 @@ class SenderMessageCard extends StatelessWidget {
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             color: senderMessageColor,
             margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-            child: Stack(
-              children: [
-                Padding(
-                  padding: type == MessageEnum.text
-                      ? const EdgeInsets.only(
-                          left: 10,
-                          right: 30,
-                          top: 5,
-                          bottom: 20,
-                        )
-                      : const EdgeInsets.only(
-                          left: 5,
-                          top: 5,
-                          right: 5,
-                          bottom: 25,
-                        ),
-                  child: Column(
-                    children: [
-                      if (hasQuotedMsg) ...[
-                        Text(
-                          quotedMessageBody,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 3),
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: backgroundColor.withOpacity(0.5),
-                            borderRadius: const BorderRadius.all(
-                              Radius.circular(
-                                5,
-                              ),
-                            ),
-                          ),
-                          child: Message(
-                            ref: ref,
-                            chatId: chatId,
-                            messageId: id,
-                            message: quotedMessageBody,
-                            type: quotedMessageType,
-                            imageProperties: imageProperties,
-                            vCardProperties: vCardProperties,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                      ],
-                      Message(
+            child: Padding(
+              padding: const EdgeInsets.all(5),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (hasQuotedMsg) ...[
+                    Text(
+                      quotedMessageBody,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: backgroundColor.withOpacity(0.5),
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(5)),
+                      ),
+                      child: Message(
                         ref: ref,
                         chatId: chatId,
                         messageId: id,
-                        message: body,
-                        type: type,
+                        message: quotedMessageBody,
+                        type: quotedMessageType,
                         imageProperties: imageProperties,
+                        videoProperties: videoProperties,
                         vCardProperties: vCardProperties,
                       ),
-                    ],
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                  Message(
+                    ref: ref,
+                    chatId: chatId,
+                    messageId: id,
+                    message: body,
+                    type: type,
+                    imageProperties: imageProperties,
+                    videoProperties: videoProperties,
+                    vCardProperties: vCardProperties,
                   ),
-                ),
-                Positioned(
-                  bottom: 2,
-                  right: 10,
-                  child: Text(
-                    DateUtils.formatDate(timestamp),
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey[600],
+                  Padding(
+                    padding: const EdgeInsets.only(top: 5),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          DateUtils.formatDate(timestamp),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

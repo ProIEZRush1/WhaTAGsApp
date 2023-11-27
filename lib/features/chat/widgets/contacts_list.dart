@@ -187,7 +187,8 @@ class _ContactsListState extends ConsumerState<ContactsList> {
       itemCount: data!.length,
       itemBuilder: (context, index) {
         var chatContactData = data![index];
-        if (chatContactData["id"] == null) {
+        if (chatContactData["id"] == null ||
+            chatContactData["archived"] != null) {
           return Container();
         }
 

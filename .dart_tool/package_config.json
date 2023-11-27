@@ -530,6 +530,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "get",
+      "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/get-4.6.6",
+      "packageUri": "lib/",
+      "languageVersion": "2.15"
+    },
+    {
       "name": "hive",
       "rootUri": "file:///Users/ech/.pub-cache/hosted/pub.dev/hive-2.2.3",
       "packageUri": "lib/",
@@ -1088,7 +1094,7 @@
       "languageVersion": "2.17"
     }
   ],
-  "generated": "2023-11-06T03:39:49.776869Z",
+  "generated": "2023-11-24T01:52:00.131699Z",
   "generator": "pub",
   "generatorVersion": "3.1.5"
 }

@@ -14,6 +14,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:com.jee.tag.whatagsapp/common/utils/utils.dart';
 import 'package:com.jee.tag.whatagsapp/requests/ApiService.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:uuid/uuid.dart';
 
 final chatRepositoryProvider = Provider(
   (ref) => ChatRepository(
@@ -97,7 +98,7 @@ class ChatRepository {
   Stream<List<Map<String, dynamic>>> getMessagesStream(
       BuildContext context, WidgetRef ref, String chatId, String key) {
     final String userId = auth.currentUser!.uid;
-    final Stream<List<Map<String, dynamic>>> firebaseStream = firestore
+    return firestore
         .collection('users')
         .doc(userId)
         .collection('messages')
@@ -107,49 +108,48 @@ class ChatRepository {
         .snapshots()
         .asyncMap((snapshot) async {
       // Process documents from Firestore
-      List<Map<String, dynamic>> firestoreMessages =
-          snapshot.docChanges.map((doc) => doc.doc.data() ?? {}).toList();
-
-      firestoreMessages.sort((a, b) {
-        int aTimestamp = a['information']['timestamp'] as int? ?? 0;
-        int bTimestamp = b['information']['timestamp'] as int? ?? 0;
-        return bTimestamp.compareTo(aTimestamp);
-      });
-
-      for (var message in firestoreMessages) {
-        //print("HOLA " + message['key']['id'] + " " + message["information"]["body"]);
+      List<Map<String, dynamic>> firestoreMessages = [];
+      for (var document in snapshot.docChanges) {
+        var message = document.doc.data() ?? {};
+        message["type"] = document.type;
+        firestoreMessages.add(message);
       }
 
-      await chatDatabase.saveMessages(ref, chatId, firestoreMessages);
-      List<Map<String, dynamic>> messages =
-          await chatDatabase.getMessages(chatId);
-
-      return messages;
+      return firestoreMessages;
     });
-
-    final databaseStreamController =
-        chatDatabase.getChatsStreamController(chatId);
-    databaseStreamController.stream.listen((event) {
-      for (var message in event) {
-        //print("ADIOS " + message['key']['id'] + " " + message["information"]["body"]);
-      }
-    });
-
-    return CombineLatestStream.list(
-            [firebaseStream, databaseStreamController.stream])
-        .map((List<List<Map<String, dynamic>>> combinedList) {
-      final allMessages = {...combinedList[0], ...combinedList[1]}.toList();
-
-      return combinedList[1];
-    }).asBroadcastStream();
   }
 
   void sendTextMessage(BuildContext context, WidgetRef ref, String deviceId,
       String chatId, String text, String key) async {
     try {
       // Create default message in storage
-      final id =
-          await chatDatabase.createDefaultMessage(ref, chatId, true, text, key);
+      final String messageId = const Uuid().v4(); // Generates a unique ID
+      final int timestamp = DateTime.now().millisecondsSinceEpoch;
+      final Map<String, dynamic> defaultMessage = {
+        "key": {
+          "remoteJid": chatId,
+          "fromMe": true,
+          "id": messageId,
+        },
+        "information": {
+          "status": 1,
+          "timestamp": timestamp ~/ 1000,
+          "body": await EncryptionUtils.encrypt(text, key),
+          "type": "text",
+          "fromMe": true,
+          "media": false,
+        },
+        "messageTimestamp": timestamp ~/ 1000,
+        "status": 1,
+      };
+      firestore
+          .collection('users')
+          .doc(auth.currentUser!.uid)
+          .collection('messages')
+          .doc(chatId)
+          .collection('messages')
+          .doc(messageId)
+          .set(defaultMessage);
 
       final ApiService apiService = ApiService();
 
@@ -161,7 +161,7 @@ class ChatRepository {
 
       apiService
           .get(context, ref,
-              "${apiService.sendMessageEndpoint}?deviceToken=$deviceId&firebaseUid=$firebaseUid&to=$chatId&data=$jsonDataToSend&id=$id")
+              "${apiService.sendMessageEndpoint}?deviceToken=$deviceId&firebaseUid=$firebaseUid&to=$chatId&data=$jsonDataToSend&id=$messageId")
           .then((data) {
         if (!apiService.checkSuccess(data)) {
           Fluttertoast.showToast(

@@ -15,6 +15,7 @@ class MobileChatScreen extends ConsumerWidget {
   final String uid;
   final bool isGroupChat;
   final String profilePic;
+
   const MobileChatScreen({
     Key? key,
     required this.name,
@@ -60,7 +61,7 @@ class MobileChatScreen extends ConsumerWidget {
           children: [
             Expanded(
               child: ChatList(
-                recieverUserId: uid,
+                chatId: uid,
                 isGroupChat: isGroupChat,
               ),
             ),

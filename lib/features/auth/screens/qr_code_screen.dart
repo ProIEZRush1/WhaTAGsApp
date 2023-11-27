@@ -13,6 +13,7 @@ import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.
 import 'package:com.jee.tag.whatagsapp/requests/ApiService.dart';
 import 'package:com.jee.tag.whatagsapp/utils/DeviceUtils.dart';
 import 'package:com.jee.tag.whatagsapp/utils/FIleUtils.dart';
+import 'package:uuid/uuid.dart';
 
 class QRCodeScreen extends ConsumerStatefulWidget {
   static const String routeName = '/qr-code';
@@ -56,16 +57,10 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
 
     final deviceToken = await DeviceUtils.getDeviceId();
     final firebaseUid =
-        ref
-            .read(authControllerProvider)
-            .authRepository
-            .auth
-            .currentUser!
-            .uid;
+        ref.read(authControllerProvider).authRepository.auth.currentUser!.uid;
 
     final data = await apiService.get(context, ref,
-        "${apiService
-            .isLoggedInEndpoint}?deviceToken=$deviceToken&firebaseUid=$firebaseUid");
+        "${apiService.isLoggedInEndpoint}?deviceToken=$deviceToken&firebaseUid=$firebaseUid");
     if (!apiService.checkSuccess(data)) {
       Fluttertoast.showToast(msg: 'Something went wrong');
       return false;
@@ -86,16 +81,10 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
 
     final deviceToken = await DeviceUtils.getDeviceId();
     final firebaseUid =
-        ref
-            .read(authControllerProvider)
-            .authRepository
-            .auth
-            .currentUser!
-            .uid;
+        ref.read(authControllerProvider).authRepository.auth.currentUser!.uid;
 
     final data = await apiService.get(context, ref,
-        "${apiService
-            .generateQrCodeEndpoint}?deviceToken=$deviceToken&firebaseUid=$firebaseUid");
+        "${apiService.generateQrCodeEndpoint}?deviceToken=$deviceToken&firebaseUid=$firebaseUid&uuid=${Uuid().v4()}");
     if (!apiService.checkSuccess(data)) {
       Fluttertoast.showToast(msg: 'Something went wrong');
       return;
@@ -124,8 +113,7 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
     if (qrCodeLoading) {
       showPlatformDialog(
           context: context,
-          builder: (context) =>
-              BasicDialogAlert(
+          builder: (context) => BasicDialogAlert(
                   title: const Text('QR Code not generated'),
                   content: const Text('Please generate the QR Code first'),
                   actions: <Widget>[
@@ -160,8 +148,7 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
       // Generate dialog
       showPlatformDialog(
           context: context,
-          builder: (context) =>
-              BasicDialogAlert(
+          builder: (context) => BasicDialogAlert(
                   title: const Text('Logged in'),
                   content: const Text(
                       "You are already logged in, click the 'Check Login' button"),
@@ -200,7 +187,7 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
         MaterialPageRoute(
           builder: (context) => const MobileLayoutScreen(),
         ),
-            (route) => false,
+        (route) => false,
       );
 
       storeUserData();
@@ -208,8 +195,7 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
       // Create dialog
       showPlatformDialog(
           context: context,
-          builder: (context) =>
-              BasicDialogAlert(
+          builder: (context) => BasicDialogAlert(
                   title: const Text('Login not detected'),
                   content: const Text(
                       'Your login has not been detected. Please try again'),
@@ -261,7 +247,7 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
               ),
               Expanded(
                 child:
-                qrCodeImage, // Replace with your image URL or use an asset
+                    qrCodeImage, // Replace with your image URL or use an asset
               ),
               const SizedBox(height: 30),
               ElevatedButton(

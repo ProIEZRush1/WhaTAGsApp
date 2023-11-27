@@ -77,7 +77,7 @@ class ApiService {
         throw Exception('Failed to get data');
       }
     } catch (e) {
-      throw Exception('Failed to get data: $e');
+      throw Exception('Failed to get data: $e URL: $_baseUrl$endpoint');
     }
   }
 

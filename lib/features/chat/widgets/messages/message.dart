@@ -3,8 +3,10 @@ import 'dart:typed_data';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/image_message.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/ImageProperties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/vcardProperties.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/videoProperties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/text_message.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/vcard_message.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/video_message.dart';
 import 'package:flutter/material.dart';
 
 import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
@@ -19,6 +21,7 @@ class Message extends StatefulWidget {
   final MessageEnum type;
 
   final ImageProperties? imageProperties;
+  final VideoProperties? videoProperties;
   final VCardProperties? vCardProperties;
 
   Message({
@@ -29,6 +32,7 @@ class Message extends StatefulWidget {
     required this.message,
     required this.type,
     this.imageProperties,
+    this.videoProperties,
     this.vCardProperties,
   }) : super(key: key);
 
@@ -44,6 +48,7 @@ class _MessageState extends State<Message> {
   late MessageEnum type;
 
   late ImageProperties? imageProperties;
+  late VideoProperties? videoProperties;
   late VCardProperties? vCardProperties;
 
   @override
@@ -57,6 +62,7 @@ class _MessageState extends State<Message> {
     type = widget.type;
 
     imageProperties = widget.imageProperties;
+    videoProperties = widget.videoProperties;
     vCardProperties = widget.vCardProperties;
   }
 
@@ -81,7 +87,17 @@ class _MessageState extends State<Message> {
       case MessageEnum.audio:
         break;
       case MessageEnum.video:
-        break;
+        return VideoMessage(
+          ref: ref,
+          chatId: chatId,
+          messageId: messageId,
+          height: videoProperties!.height,
+          width: videoProperties!.width,
+          seconds: videoProperties!.seconds,
+          mimetype: videoProperties!.mimetype,
+          jpegThumbnail: videoProperties!.jpegThumbnail,
+          caption: videoProperties!.caption,
+        );
       case MessageEnum.gif:
         break;
       case MessageEnum.vcard:
