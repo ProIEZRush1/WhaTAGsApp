@@ -1,6 +1,7 @@
 import 'dart:isolate';
 
 import 'package:country_picker/country_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:com.jee.tag.whatagsapp/common/utils/colors.dart';
@@ -18,7 +19,7 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final phoneController = TextEditingController();
+  final phoneController = TextEditingController(text: kDebugMode?'9575598841':'');
   Country? country;
 
   @override
@@ -30,7 +31,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   void pickCountry() {
     showCountryPicker(
         context: context,
-        favorite: ["mx", "us"],
+        favorite: [if(kDebugMode) 'In',"mx", "us"],
         onSelect: (Country country) {
           setState(() {
             this.country = country;

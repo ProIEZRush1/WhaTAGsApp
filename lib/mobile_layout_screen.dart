@@ -172,7 +172,7 @@ class _MobileLayoutScreenState extends ConsumerState<MobileLayoutScreen>
             children: [
               ContactsList(searchTerm: searchTerm, onChatOpened: clearSearch),
               //StatusContactsScreen(),
-              const Text('Calls are coming soon'),
+              const Center(child: Text('Calls are coming soon')),
             ],
           ),
           floatingActionButton: FloatingActionButton(

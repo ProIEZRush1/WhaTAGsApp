@@ -1,4 +1,4 @@
-import 'package:agora_uikit/agora_uikit.dart';
+// import 'package:agora_uikit/agora_uikit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:com.jee.tag.whatagsapp/common/widgets/loader.dart';
@@ -23,29 +23,30 @@ class CallScreen extends ConsumerStatefulWidget {
 }
 
 class _CallScreenState extends ConsumerState<CallScreen> {
-  AgoraClient? client;
+  // AgoraClient? client;
   String baseUrl = 'https://whatsapp-clone-rrr.herokuapp.com';
-
-  @override
-  void initState() {
-    super.initState();
-    client = AgoraClient(
-      agoraConnectionData: AgoraConnectionData(
-        appId: AgoraConfig.appId,
-        channelName: widget.channelId,
-        tokenUrl: baseUrl,
-      ),
-    );
-    initAgora();
-  }
+  //
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   client = AgoraClient(
+  //     agoraConnectionData: AgoraConnectionData(
+  //       appId: AgoraConfig.appId,
+  //       channelName: widget.channelId,
+  //       tokenUrl: baseUrl,
+  //     ),
+  //   );
+  //   initAgora();
+  // }
 
   void initAgora() async {
-    await client!.initialize();
+    // await client!.initialize();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Placeholder();
+    /*return Scaffold(
       body: client == null
           ? const Loader()
           : SafeArea(
@@ -70,6 +71,6 @@ class _CallScreenState extends ConsumerState<CallScreen> {
                 ],
               ),
             ),
-    );
+    );*/
   }
 }
