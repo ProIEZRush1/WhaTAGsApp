@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'package:com.jee.tag.whatagsapp/utils/DeviceUtils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
 import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
 import 'package:com.jee.tag.whatagsapp/features/auth/screens/login_screen.dart';
+import 'package:uuid/uuid.dart';
 
 class ApiService {
   final Dio _dio;
@@ -12,6 +14,7 @@ class ApiService {
   final String _authGroupEndpoint;
   String reviveClientEndpoint = "";
   String isLoggedInEndpoint = "";
+  String logOutEndpoint = "";
   String generateQrCodeEndpoint = "";
 
   final String _messagesGroupEndpoint;
@@ -29,6 +32,7 @@ class ApiService {
         _messagesGroupEndpoint = '/messages' {
     reviveClientEndpoint = '$_authGroupEndpoint/revive';
     isLoggedInEndpoint = '$_authGroupEndpoint/logged';
+    logOutEndpoint = '$_authGroupEndpoint/logout';
     generateQrCodeEndpoint = '$_authGroupEndpoint/qr';
 
     sendMessageEndpoint = '$_messagesGroupEndpoint/send';
@@ -80,6 +84,31 @@ class ApiService {
       }
     } catch (e) {
       throw Exception('Failed to get data: $e URL: $_baseUrl$endpoint');
+    }
+  }
+  Future<Map<String, dynamic>> logout(WidgetRef ref,BuildContext context) async {
+    try {
+      final deviceToken = await DeviceUtils.getDeviceId();
+      final firebaseUid =
+          ref.read(authControllerProvider).authRepository.auth.currentUser!.uid;
+
+      final response = await _dio.get('$_baseUrl$logOutEndpoint?deviceToken=$deviceToken&firebaseUid=$firebaseUid&uuid=${const Uuid().v4()}');
+      if (response.statusCode == 200) {
+        final authController = ref.read(authControllerProvider);
+        await authController.authRepository.auth.signOut();
+        if (context.mounted) {
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            LoginScreen.routeName,
+                (route) => false,
+          );
+        }
+        return decodeData(response.data);
+      } else {
+        throw Exception('Failed to get data');
+      }
+    } catch (e) {
+      throw Exception('Failed to get data: $e URL: $_baseUrl$logOutEndpoint');
     }
   }
 
