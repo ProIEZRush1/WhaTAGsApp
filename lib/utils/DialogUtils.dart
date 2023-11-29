@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:com.jee.tag.whatagsapp/common/widgets/loader.dart';
 import 'package:flutter/material.dart';
 
 class DialogUtils {
@@ -42,12 +43,22 @@ class DialogUtils {
               width: 350.0, // Set the width to 250.0
               child: Center(
                 // Center the network image within the container
-                child: Image(
-                  image: CachedNetworkImageProvider(imageUrl),
-                  height: 350.0, // Set the height to 300.0
-                  width: 350.0, // Set the width to 250.0
-                  fit: BoxFit.cover, // Adjust the fit property
+                child: CachedNetworkImage(
+                  imageUrl: imageUrl,
+                  height: 350.0,
+                  // Set the height to 300.0
+                  width: 350.0,
+                  // Set the width to 250.0
+                  fit: BoxFit.cover,
+                  progressIndicatorBuilder: (context, url, progress) =>
+                      const Loader(),
                 ),
+                // child: Image(
+                //   image: CachedNetworkImageProvider(imageUrl),
+                //   height: 350.0, // Set the height to 300.0
+                //   width: 350.0, // Set the width to 250.0
+                //   fit: BoxFit.cover, // Adjust the fit property
+                // ),
               ),
             ),
           ));
