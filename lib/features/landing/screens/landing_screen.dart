@@ -27,14 +27,14 @@ class LandingScreen extends StatelessWidget {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            SizedBox(height: size.height / 9),
+            SizedBox(height: size.height / 12),
             Image.asset(
               'assets/bg.png',
               height: 340,
               width: 340,
               color: tabColor,
             ),
-            SizedBox(height: size.height / 9),
+            SizedBox(height: size.height / 12),
             const Padding(
               padding: EdgeInsets.all(15.0),
               child: Text(

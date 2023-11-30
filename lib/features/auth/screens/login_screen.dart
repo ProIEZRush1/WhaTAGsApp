@@ -19,7 +19,8 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final phoneController = TextEditingController(text: kDebugMode?'9575598841':'');
+  final phoneController =
+      TextEditingController(text: kDebugMode ? '9575598841' : '');
   Country? country;
 
   @override
@@ -31,7 +32,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   void pickCountry() {
     showCountryPicker(
         context: context,
-        favorite: [if(kDebugMode) 'In',"mx", "us"],
+        favorite: [if (kDebugMode) 'In', "mx", "us"],
         onSelect: (Country country) {
           setState(() {
             this.country = country;
@@ -53,7 +54,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Enter your phone number'),
@@ -100,7 +100,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ],
                 ),
               ),
-              SizedBox(height: size.height * 0.6),
+              SizedBox(height: size.height * 0.58),
               SizedBox(
                 width: 90,
                 child: CustomButton(
