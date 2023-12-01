@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
 import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
 import 'package:com.jee.tag.whatagsapp/features/auth/screens/login_screen.dart';
+import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
 class ApiService {
@@ -24,10 +25,10 @@ class ApiService {
 
   ApiService()
       : _dio = Dio(),
-  _baseUrl = 'https://horribly-vital-gar.ngrok-free.app',
-  // _baseUrl = 'http://localhost:300',
-  //       _baseUrl = 'http://192.168.1.75:3000',
-  //_baseUrl = 'https://whatsapp.tag.org',
+        // _baseUrl = 'https://horribly-vital-gar.ngrok-free.app',
+        // _baseUrl = 'http://localhost:300',
+        _baseUrl = 'http://192.168.1.75:3000',
+        //_baseUrl = 'https://whatsapp.tag.org',
         _authGroupEndpoint = '/auth',
         _messagesGroupEndpoint = '/messages' {
     reviveClientEndpoint = '$_authGroupEndpoint/revive';
@@ -59,7 +60,7 @@ class ApiService {
         Navigator.pushNamedAndRemoveUntil(
           context,
           LoginScreen.routeName,
-              (route) => false,
+          (route) => false,
         );
       }
 
@@ -75,6 +76,7 @@ class ApiService {
 
   Future<Map<String, dynamic>> get(
       BuildContext context, WidgetRef ref, String endpoint) async {
+    // debugPrint('$_baseUrl$endpoint');
     try {
       final response = await _dio.get('$_baseUrl$endpoint');
       if (response.statusCode == 200) {
@@ -86,21 +88,25 @@ class ApiService {
       throw Exception('Failed to get data: $e URL: $_baseUrl$endpoint');
     }
   }
-  Future<Map<String, dynamic>> logout(WidgetRef ref,BuildContext context) async {
+
+  Future<Map<String, dynamic>> logout(
+      WidgetRef ref, BuildContext context) async {
     try {
       final deviceToken = await DeviceUtils.getDeviceId();
       final firebaseUid =
           ref.read(authControllerProvider).authRepository.auth.currentUser!.uid;
 
-      final response = await _dio.get('$_baseUrl$logOutEndpoint?deviceToken=$deviceToken&firebaseUid=$firebaseUid&uuid=${const Uuid().v4()}');
+      final response = await _dio.get(
+          '$_baseUrl$logOutEndpoint?deviceToken=$deviceToken&firebaseUid=$firebaseUid&uuid=${const Uuid().v4()}');
       if (response.statusCode == 200) {
         final authController = ref.read(authControllerProvider);
         await authController.authRepository.auth.signOut();
+        Hive.deleteFromDisk();
         if (context.mounted) {
           Navigator.pushNamedAndRemoveUntil(
             context,
             LoginScreen.routeName,
-                (route) => false,
+            (route) => false,
           );
         }
         return decodeData(response.data);

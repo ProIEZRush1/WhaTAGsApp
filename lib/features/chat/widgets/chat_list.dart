@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/ImageProperties.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/audio_properties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/vcardProperties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/videoProperties.dart';
 import 'package:com.jee.tag.whatagsapp/utils/EncryptionUtils.dart';
@@ -159,6 +160,7 @@ class _ChatListState extends ConsumerState<ChatList> {
       Map<String, dynamic> messageData, String body, String caption) {
     final id = messageData["key"]["id"];
     final information = messageData["information"];
+    print('information $information' );
     final status = information["status"];
     final fromMe = information["fromMe"];
 
@@ -233,6 +235,11 @@ class _ChatListState extends ConsumerState<ChatList> {
           displayName: information["displayName"] ?? "",
           vcard: information["vcard"] ?? "");
     }
+    AudioProperties? audioProperties;
+    if (type == "vcard") {
+      audioProperties = AudioProperties(
+        seconds: information["seconds"] ?? 0,);
+    }
 
     final sent = status != 1;
     final delivery = status == 3 || status == 4;
@@ -293,6 +300,7 @@ class _ChatListState extends ConsumerState<ChatList> {
       media: media,
       imageProperties: imageProperties,
       videoProperties: videoProperties,
+      audioProperties: audioProperties,
       vCardProperties: vcardProperties,
       hasQuotedMsg: hasQuotedMsg,
       quotedMessageBody: quotedMessageBody,

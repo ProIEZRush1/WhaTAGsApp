@@ -1,7 +1,9 @@
 import 'dart:typed_data';
 
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/audio_message.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/image_message.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/ImageProperties.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/audio_properties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/vcardProperties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/videoProperties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/text_message.dart';
@@ -23,6 +25,7 @@ class Message extends StatefulWidget {
   final ImageProperties? imageProperties;
   final VideoProperties? videoProperties;
   final VCardProperties? vCardProperties;
+  final AudioProperties? audioProperties;
 
   Message({
     Key? key,
@@ -32,6 +35,7 @@ class Message extends StatefulWidget {
     required this.message,
     required this.type,
     this.imageProperties,
+    this.audioProperties,
     this.videoProperties,
     this.vCardProperties,
   }) : super(key: key);
@@ -50,6 +54,7 @@ class _MessageState extends State<Message> {
   late ImageProperties? imageProperties;
   late VideoProperties? videoProperties;
   late VCardProperties? vCardProperties;
+  late AudioProperties? audioProperties;
 
   @override
   void initState() {
@@ -64,6 +69,7 @@ class _MessageState extends State<Message> {
     imageProperties = widget.imageProperties;
     videoProperties = widget.videoProperties;
     vCardProperties = widget.vCardProperties;
+    audioProperties = widget.audioProperties;
   }
 
   @override
@@ -86,11 +92,12 @@ class _MessageState extends State<Message> {
         );
       case MessageEnum.audio:
         print('messageId:$messageId');
-        return Row(
-          children: [
-            Icon(Icons.audiotrack),
-            Text('data $messageId'),
-          ],
+        return AudioMessage(
+          ref: ref,
+          chatId: chatId,
+          messageId: messageId,
+          seconds: audioProperties?.seconds??0,
+          // mimetype: videoProperties!.mimetype,
         );
       case MessageEnum.video:
         return VideoMessage(

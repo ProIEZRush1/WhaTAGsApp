@@ -59,10 +59,10 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
 
     String deviceId = box.get('lastDeviceId') ?? "";
     final key = box.get('lastEncryptionKey') ?? "";
-    final encryptedText =
-        await EncryptionUtils.encrypt(_messageController.text, key);
 
     if (isShowSendButton) {
+      final encryptedText =
+      await EncryptionUtils.encrypt(_messageController.text, key);
       ref.read(chatControllerProvider).sendTextMessage(
           context, ref, deviceId, widget.recieverUserId, encryptedText, key);
       setState(() {
@@ -71,15 +71,16 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
     } else {
       var tempDir = await getTemporaryDirectory();
       var path = '${tempDir.path}/flutter_sound.aac';
+     var file= File(path)..createSync();
       if (!isRecorderInit) {
         return;
       }
       if (isRecording) {
         await _soundRecorder!.stopRecorder();
-        sendFileMessage(File(path), MessageEnum.audio);
+        sendFileMessage(file, MessageEnum.audio);
       } else {
         await _soundRecorder!.startRecorder(
-          toFile: path,
+          toFile: file.path,
         );
       }
 
@@ -92,7 +93,13 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
   void sendFileMessage(
     File file,
     MessageEnum messageEnum,
-  ) {}
+  ) async{
+    var box = await Hive.openBox('config');
+    String deviceId = box.get('lastDeviceId') ?? "";
+    final key = box.get('lastEncryptionKey') ?? "";
+    ref.read(chatControllerProvider).sendMediaMessage(
+        context, ref, deviceId, widget.recieverUserId, '', key,messageEnum,file);
+  }
 
   void selectImage() async {
     File? image = await pickImageFromGallery(context);

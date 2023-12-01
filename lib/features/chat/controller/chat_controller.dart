@@ -37,6 +37,10 @@ class ChatController {
   void sendTextMessage(BuildContext context, WidgetRef ref, String deviceId,
       String chatId, String text, String key) {
     chatRepository.sendTextMessage(context, ref, deviceId, chatId, text, key);
+  }  
+  void sendMediaMessage(BuildContext context, WidgetRef ref, String deviceId,
+      String chatId, String text, String key, MessageEnum messageEnum, File file) {
+    chatRepository.sendMediaMessage(context, ref, deviceId, chatId, text, key,messageEnum,file);
   }
 
   void setChatSeen(

@@ -69,6 +69,7 @@ dependencies:
   http: ^1.1.0
   image_picker: ^1.0.4
   intl: ^0.18.1
+  mime: ^1.0.4
   open_file: ^3.3.2
   password_hash_plus: ^4.0.0
   path_provider: ^2.0.11
