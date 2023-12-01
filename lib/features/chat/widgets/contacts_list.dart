@@ -184,7 +184,7 @@ class _ContactsListState extends ConsumerState<ContactsList> {
     return ListView.builder(
       //physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
-      itemCount: data!.length,
+      itemCount: data.length,
       itemBuilder: (context, index) {
         var chatContactData = data![index];
         if (chatContactData["id"] == null ||

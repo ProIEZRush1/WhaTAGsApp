@@ -82,7 +82,7 @@ class _MobileLayoutScreenState extends ConsumerState<MobileLayoutScreen>
                 ? Row(
                     children: [
                       IconButton(
-                        icon: Icon(Icons.arrow_back, color: Colors.grey),
+                        icon: const Icon(Icons.arrow_back, color: Colors.grey),
                         onPressed: () {
                           setState(() {
                             isSearching = false;
@@ -93,12 +93,12 @@ class _MobileLayoutScreenState extends ConsumerState<MobileLayoutScreen>
                       Expanded(
                         child: TextField(
                           autofocus: true,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             hintText: 'Search chats...',
                             border: InputBorder.none,
                             hintStyle: TextStyle(color: Colors.grey),
                           ),
-                          style: TextStyle(color: Colors.grey, fontSize: 18),
+                          style: const TextStyle(color: Colors.grey, fontSize: 18),
                           onChanged: (value) {
                             setState(() {
                               searchTerm = value;

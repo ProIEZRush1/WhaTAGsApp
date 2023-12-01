@@ -72,6 +72,7 @@ class ApiService {
   Future<Map<String, dynamic>> get(
       BuildContext context, WidgetRef ref, String endpoint) async {
     try {
+      debugPrint('$_baseUrl$endpoint');
       final response = await _dio.get('$_baseUrl$endpoint');
       if (response.statusCode == 200) {
         return decodeData(response.data);
