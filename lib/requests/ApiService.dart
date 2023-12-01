@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'package:com.jee.tag.whatagsapp/utils/DeviceUtils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dio/dio.dart';
 import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
 import 'package:com.jee.tag.whatagsapp/features/auth/screens/login_screen.dart';
+import 'package:uuid/uuid.dart';
 
 class ApiService {
   final Dio _dio;
@@ -12,6 +14,7 @@ class ApiService {
   final String _authGroupEndpoint;
   String reviveClientEndpoint = "";
   String isLoggedInEndpoint = "";
+  String logOutEndpoint = "";
   String generateQrCodeEndpoint = "";
 
   final String _messagesGroupEndpoint;
@@ -21,14 +24,15 @@ class ApiService {
 
   ApiService()
       : _dio = Dio(),
-        _baseUrl = 'https://horribly-vital-gar.ngrok-free.app',
-        // _baseUrl = 'http://localhost:300',
-        // _baseUrl = 'http://192.168.1.75:3000',
-        //_baseUrl = 'https://whatsapp.tag.org',
+  _baseUrl = 'https://horribly-vital-gar.ngrok-free.app',
+  // _baseUrl = 'http://localhost:300',
+  //       _baseUrl = 'http://192.168.1.75:3000',
+  //_baseUrl = 'https://whatsapp.tag.org',
         _authGroupEndpoint = '/auth',
         _messagesGroupEndpoint = '/messages' {
     reviveClientEndpoint = '$_authGroupEndpoint/revive';
     isLoggedInEndpoint = '$_authGroupEndpoint/logged';
+    logOutEndpoint = '$_authGroupEndpoint/logout';
     generateQrCodeEndpoint = '$_authGroupEndpoint/qr';
 
     sendMessageEndpoint = '$_messagesGroupEndpoint/send';
@@ -55,7 +59,7 @@ class ApiService {
         Navigator.pushNamedAndRemoveUntil(
           context,
           LoginScreen.routeName,
-          (route) => false,
+              (route) => false,
         );
       }
 
@@ -72,7 +76,6 @@ class ApiService {
   Future<Map<String, dynamic>> get(
       BuildContext context, WidgetRef ref, String endpoint) async {
     try {
-      debugPrint('$_baseUrl$endpoint');
       final response = await _dio.get('$_baseUrl$endpoint');
       if (response.statusCode == 200) {
         return decodeData(response.data);
@@ -81,6 +84,31 @@ class ApiService {
       }
     } catch (e) {
       throw Exception('Failed to get data: $e URL: $_baseUrl$endpoint');
+    }
+  }
+  Future<Map<String, dynamic>> logout(WidgetRef ref,BuildContext context) async {
+    try {
+      final deviceToken = await DeviceUtils.getDeviceId();
+      final firebaseUid =
+          ref.read(authControllerProvider).authRepository.auth.currentUser!.uid;
+
+      final response = await _dio.get('$_baseUrl$logOutEndpoint?deviceToken=$deviceToken&firebaseUid=$firebaseUid&uuid=${const Uuid().v4()}');
+      if (response.statusCode == 200) {
+        final authController = ref.read(authControllerProvider);
+        await authController.authRepository.auth.signOut();
+        if (context.mounted) {
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            LoginScreen.routeName,
+                (route) => false,
+          );
+        }
+        return decodeData(response.data);
+      } else {
+        throw Exception('Failed to get data');
+      }
+    } catch (e) {
+      throw Exception('Failed to get data: $e URL: $_baseUrl$logOutEndpoint');
     }
   }
 

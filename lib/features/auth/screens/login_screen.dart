@@ -19,8 +19,7 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final phoneController =
-      TextEditingController(text: kDebugMode ? '9575598841' : '');
+  final phoneController = TextEditingController();
   Country? country;
 
   @override
@@ -32,7 +31,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   void pickCountry() {
     showCountryPicker(
         context: context,
-        favorite: [if (kDebugMode) 'In', "mx", "us"],
+        favorite: ["mx", "us"],
         onSelect: (Country country) {
           setState(() {
             this.country = country;

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:com.jee.tag.whatagsapp/requests/ApiService.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:com.jee.tag.whatagsapp/common/utils/colors.dart';
@@ -141,7 +142,16 @@ class _MobileLayoutScreenState extends ConsumerState<MobileLayoutScreen>
                             () => Navigator.pushNamed(
                                 context, CreateGroupScreen.routeName),
                           ),
-                        )
+                        ),
+                        PopupMenuItem(
+                          child: const Text(
+                            'Log out',
+                          ),
+                          onTap: () async {
+                            var resp = await ApiService().logout(ref, context);
+                            print('resp == $resp');
+                          },
+                        ),
                       ],
                     ),
                   ],
