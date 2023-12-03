@@ -161,9 +161,9 @@ class _ContactsListState extends ConsumerState<ContactsList> {
             stream: stream,
             builder: (context, streamSnapshot) {
               if (streamSnapshot.connectionState == ConnectionState.waiting) {
-                return (cachedStreamData == null || cachedStreamData!.isEmpty
+                return (cachedStreamData == null || cachedStreamData!.isEmpty)
                     ? const Loader()
-                    : getListView(cachedStreamData));
+                    : getListView(cachedStreamData);
               }
 
               if ((cachedStreamData == null || cachedStreamData!.isEmpty) &&
@@ -184,7 +184,7 @@ class _ContactsListState extends ConsumerState<ContactsList> {
     return ListView.builder(
       //physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
-      itemCount: data!.length,
+      itemCount: data.length,
       itemBuilder: (context, index) {
         var chatContactData = data![index];
         if (chatContactData["id"] == null ||
@@ -225,26 +225,28 @@ class _ContactsListState extends ConsumerState<ContactsList> {
                     ),
                   ),
                   subtitle: Padding(
-                      padding: const EdgeInsets.only(top: 6.0),
-                      child: FutureBuilder(
-                          future: EncryptionUtils.decrypt(
-                              chatContactData["lastMessage"]["body"],
-                              lastEncryptionKey!),
-                          builder: (context, bodySnapshot) {
-                            if (bodySnapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const Loader();
-                            }
-                            if (bodySnapshot.hasError) {
-                              return Text('Error: ${bodySnapshot.error}');
-                            }
+                    padding: const EdgeInsets.only(top: 6.0),
+                    child: FutureBuilder(
+                      future: EncryptionUtils.decrypt(
+                          chatContactData["lastMessage"]["body"],
+                          lastEncryptionKey!),
+                      builder: (context, bodySnapshot) {
+                        // if (bodySnapshot.connectionState ==
+                        //     ConnectionState.waiting) {
+                        //   return const Loader(color: Colors.red,);
+                        // }
+                        if (bodySnapshot.hasError) {
+                          return Text('Error: ${bodySnapshot.error}');
+                        }
 
-                            return Text(
-                              bodySnapshot.data.toString(),
-                              style: const TextStyle(fontSize: 15),
-                              maxLines: 2,
-                            );
-                          })),
+                        return Text(
+                          bodySnapshot.data?.toString() ?? "",
+                          style: const TextStyle(fontSize: 15),
+                          maxLines: 2,
+                        );
+                      },
+                    ),
+                  ),
                   leading: CircleAvatar(
                     backgroundImage: NetworkImage(
                       chatContactData["profilePicUrl"],

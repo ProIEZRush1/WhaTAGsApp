@@ -60,7 +60,7 @@ class MyMessageCard extends StatelessWidget {
     const double dateContainerMinWidth = 80;
 
     return SwipeTo(
-      onLeftSwipe: onLeftSwipe,
+      // onLeftSwipe: onLeftSwipe,
       child: Align(
         alignment: Alignment.centerRight,
         child: ConstrainedBox(

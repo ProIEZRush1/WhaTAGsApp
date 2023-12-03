@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:com.jee.tag.whatagsapp/requests/ApiService.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:com.jee.tag.whatagsapp/common/utils/colors.dart';
@@ -82,7 +83,7 @@ class _MobileLayoutScreenState extends ConsumerState<MobileLayoutScreen>
                 ? Row(
                     children: [
                       IconButton(
-                        icon: Icon(Icons.arrow_back, color: Colors.grey),
+                        icon: const Icon(Icons.arrow_back, color: Colors.grey),
                         onPressed: () {
                           setState(() {
                             isSearching = false;
@@ -93,12 +94,12 @@ class _MobileLayoutScreenState extends ConsumerState<MobileLayoutScreen>
                       Expanded(
                         child: TextField(
                           autofocus: true,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             hintText: 'Search chats...',
                             border: InputBorder.none,
                             hintStyle: TextStyle(color: Colors.grey),
                           ),
-                          style: TextStyle(color: Colors.grey, fontSize: 18),
+                          style: const TextStyle(color: Colors.grey, fontSize: 18),
                           onChanged: (value) {
                             setState(() {
                               searchTerm = value;
@@ -141,7 +142,16 @@ class _MobileLayoutScreenState extends ConsumerState<MobileLayoutScreen>
                             () => Navigator.pushNamed(
                                 context, CreateGroupScreen.routeName),
                           ),
-                        )
+                        ),
+                        PopupMenuItem(
+                          child: const Text(
+                            'Log out',
+                          ),
+                          onTap: () async {
+                            var resp = await ApiService().logout(ref, context);
+                            print('resp == $resp');
+                          },
+                        ),
                       ],
                     ),
                   ],
@@ -172,7 +182,7 @@ class _MobileLayoutScreenState extends ConsumerState<MobileLayoutScreen>
             children: [
               ContactsList(searchTerm: searchTerm, onChatOpened: clearSearch),
               //StatusContactsScreen(),
-              const Text('Calls are coming soon'),
+              const Center(child: Text('Calls are coming soon')),
             ],
           ),
           floatingActionButton: FloatingActionButton(

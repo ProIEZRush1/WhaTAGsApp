@@ -49,7 +49,7 @@ class SenderMessageCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SwipeTo(
-      onRightSwipe: onRightSwipe,
+      // onRightSwipe: onRightSwipe,
       child: Align(
         alignment: Alignment.centerLeft,
         child: ConstrainedBox(

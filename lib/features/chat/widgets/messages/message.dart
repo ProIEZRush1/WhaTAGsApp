@@ -85,7 +85,13 @@ class _MessageState extends State<Message> {
           caption: imageProperties!.caption,
         );
       case MessageEnum.audio:
-        break;
+        print('messageId:$messageId');
+        return Row(
+          children: [
+            Icon(Icons.audiotrack),
+            Text('data $messageId'),
+          ],
+        );
       case MessageEnum.video:
         return VideoMessage(
           ref: ref,

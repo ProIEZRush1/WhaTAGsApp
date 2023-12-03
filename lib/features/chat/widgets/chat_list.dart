@@ -218,7 +218,7 @@ class _ChatListState extends ConsumerState<ChatList> {
           .cast<int>();
 
       videoProperties = VideoProperties(
-        height: heightValue ?? 0.0,
+        height: (heightValue ?? 0.0),
         width: widthValue ?? 0.0,
         seconds: information["seconds"] ?? 0,
         mimetype: information["mimetype"],
@@ -298,7 +298,7 @@ class _ChatListState extends ConsumerState<ChatList> {
       quotedMessageBody: quotedMessageBody,
       quotedMessageType: ConvertMessage(quotedMessageType).toEnum(),
       onRightSwipe: () => onMessageSwipe(
-        body!,
+        body,
         false,
         ConvertMessage(type).toEnum(),
       ),
