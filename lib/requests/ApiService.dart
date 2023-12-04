@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:com.jee.tag.whatagsapp/utils/DeviceUtils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +7,7 @@ import 'package:dio/dio.dart';
 import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
 import 'package:com.jee.tag.whatagsapp/features/auth/screens/login_screen.dart';
 import 'package:hive/hive.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
 class ApiService {
@@ -105,6 +107,17 @@ class ApiService {
         final authController = ref.read(authControllerProvider);
         await authController.authRepository.auth.signOut();
         Hive.deleteFromDisk();
+        getApplicationDocumentsDirectory().then((value) async {
+          if (await value.exists()) {
+            try {
+              var delete = await value.delete(recursive: true);
+              debugPrint('${delete.path} is deleted successful');
+            } catch (e) {
+              debugPrint('deleted getApplicationDocumentsDirectory failed');
+            }
+          }
+          Hive.init(value.path);
+        });
         if (context.mounted) {
           Navigator.pushNamedAndRemoveUntil(
             context,
@@ -121,10 +134,25 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> post(BuildContext context, WidgetRef ref,
+  Future<Map<String, dynamic>> post(
       String endpoint, Map<String, dynamic> data) async {
     try {
       final response = await _dio.post('$_baseUrl$endpoint', data: data);
+      if (response.statusCode == 200) {
+        return decodeData(response.data);
+      } else {
+        throw Exception('Failed to post data');
+      }
+    } catch (e) {
+      throw Exception('Failed to post data: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> postMultipart(
+      String endpoint, Map<String, dynamic> data) async {
+    try {
+      FormData formData = FormData.fromMap(data);
+      final response = await _dio.post('$_baseUrl$endpoint', data: formData);
       if (response.statusCode == 200) {
         return decodeData(response.data);
       } else {

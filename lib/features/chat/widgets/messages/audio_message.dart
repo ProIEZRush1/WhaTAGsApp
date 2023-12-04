@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/controller/audio_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:video_player/video_player.dart';
@@ -40,8 +41,9 @@ class AudioMessage extends StatefulWidget {
 class _VideoMessageState extends State<AudioMessage> {
   bool _isDownloading = false;
   bool _videoDownloaded = false;
-  AudioPlayer? player;
-  File? videoFile;
+  String? get id=>widget.messageId;
+  AudioPlayer? get player=>AudioController.getPlayer(id);
+  File? audioFile;
 
   @override
   void initState() {
@@ -54,8 +56,8 @@ class _VideoMessageState extends State<AudioMessage> {
         await MessageUtils.getLocalFilePath(widget.messageId);
 
     if (_localFilePath != null) {
-      videoFile = File(_localFilePath);
-      if (await videoFile!.exists()) {
+      audioFile = File(_localFilePath);
+      if (await audioFile!.exists()) {
         setState(() => _videoDownloaded = true);
         _initializeVideoController(_localFilePath);
       } else {
@@ -95,10 +97,11 @@ class _VideoMessageState extends State<AudioMessage> {
   }
 
   _initializeVideoController(String videoPath) {
-    player = AudioPlayer(playerId: widget.messageId);
+    // player = AudioPlayer(playerId: widget.messageId);
+    AudioController.addPlayer(id);
     player!.onPlayerStateChanged.listen((event) {
       if (mounted) {
-        if(event==PlayerState.completed){
+        if(event==PlayerState.completed||event==PlayerState.stopped){
           currentPosition=0;
         }
         setState(() {});
@@ -139,13 +142,14 @@ class _VideoMessageState extends State<AudioMessage> {
   }
 
   void playAudio() {
-    if (videoFile != null) {
+    if (audioFile != null) {
       if (isAudioPlaying) {
         player!.pause();
       } else if (player?.state == PlayerState.paused) {
         player!.resume();
       } else {
-        player!.play(BytesSource(videoFile!.readAsBytesSync()));
+        AudioController.play(id, audioFile);
+        // player!.play(BytesSource(videoFile!.readAsBytesSync()));
       } // if(result == 1){ //play success
       //   print("audio is playing.");
       // }else{
@@ -207,7 +211,10 @@ class _VideoMessageState extends State<AudioMessage> {
                 child: Slider(
                   max:widget.seconds.toDouble(),
                   value: currentPosition,
-                  onChanged: (value) {},
+                  onChanged: (value) {
+                    currentPosition=value;
+                    player?.seek(Duration(seconds: value.toInt()));
+                  },
                 ),
               ),
             ],
@@ -245,5 +252,6 @@ class _VideoMessageState extends State<AudioMessage> {
   void dispose() {
     super.dispose();
     player?.dispose();
+    AudioController.removePlayer(id);
   }
 }

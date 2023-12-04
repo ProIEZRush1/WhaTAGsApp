@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/ImageProperties.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/audio_properties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/vcardProperties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/videoProperties.dart';
 import 'package:flutter/material.dart' hide DateUtils;
@@ -32,7 +33,7 @@ class MyMessageCard extends StatelessWidget {
   final String quotedMessageBody;
   final MessageEnum quotedMessageType;
   final VoidCallback onLeftSwipe;
-
+ final AudioProperties? audioProperties;
   const MyMessageCard({
     Key? key,
     required this.ref,
@@ -52,6 +53,7 @@ class MyMessageCard extends StatelessWidget {
     required this.quotedMessageBody,
     required this.quotedMessageType,
     required this.onLeftSwipe,
+    required this.audioProperties,
   }) : super(key: key);
 
   @override
@@ -98,6 +100,7 @@ class MyMessageCard extends StatelessWidget {
                         chatId: chatId,
                         messageId: id,
                         message: quotedMessageBody,
+                        audioProperties: audioProperties,
                         type: quotedMessageType,
                         imageProperties: null,
                         // Quoted messages don't have image properties
@@ -114,6 +117,7 @@ class MyMessageCard extends StatelessWidget {
                     message: body,
                     type: type,
                     imageProperties: imageProperties,
+                    audioProperties: audioProperties,
                     videoProperties: videoProperties,
                     vCardProperties: vCardProperties,
                   ),

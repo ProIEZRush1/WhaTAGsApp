@@ -2,6 +2,7 @@ enum MessageEnum {
   text('text'),
   image('image'),
   audio('audio'),
+  voice('voice'),
   video('video'),
   gif('gif'),
   vcard('vcard'),
@@ -26,9 +27,11 @@ extension ConvertMessage on String {
         return MessageEnum.image;
       case 'audio':
         return MessageEnum.audio;
+      case 'voice':
+        return MessageEnum.voice;
       case 'video':
         return MessageEnum.video;
-        case 'document':
+      case 'document':
         return MessageEnum.document;
       case 'gif':
         return MessageEnum.gif;

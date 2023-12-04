@@ -91,12 +91,13 @@ class _MessageState extends State<Message> {
           caption: imageProperties!.caption,
         );
       case MessageEnum.audio:
-        print('messageId:$messageId');
+      case MessageEnum.voice:
+        // print('messageId:$messageId');
         return AudioMessage(
           ref: ref,
           chatId: chatId,
           messageId: messageId,
-          seconds: audioProperties?.seconds??0,
+          seconds: audioProperties?.seconds ?? 0,
           // mimetype: videoProperties!.mimetype,
         );
       case MessageEnum.video:

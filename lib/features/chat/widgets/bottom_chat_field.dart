@@ -4,6 +4,7 @@ import 'package:com.jee.tag.whatagsapp/utils/EncryptionUtils.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_sound/flutter_sound.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
@@ -70,14 +71,15 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
       });
     } else {
       var tempDir = await getTemporaryDirectory();
-      var path = '${tempDir.path}/flutter_sound.aac';
+      var path = '${tempDir.path}/flutter_sound.mp4';
      var file= File(path)..createSync();
       if (!isRecorderInit) {
+        debugPrint('Recording not Init');
         return;
       }
       if (isRecording) {
         await _soundRecorder!.stopRecorder();
-        sendFileMessage(file, MessageEnum.audio);
+        sendFileMessage(file, MessageEnum.voice);
       } else {
         await _soundRecorder!.startRecorder(
           toFile: file.path,
@@ -97,6 +99,7 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
     var box = await Hive.openBox('config');
     String deviceId = box.get('lastDeviceId') ?? "";
     final key = box.get('lastEncryptionKey') ?? "";
+    // debugPrint('deviceId $deviceId');
     ref.read(chatControllerProvider).sendMediaMessage(
         context, ref, deviceId, widget.recieverUserId, '', key,messageEnum,file);
   }

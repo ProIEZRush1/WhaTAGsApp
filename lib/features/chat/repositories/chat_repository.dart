@@ -7,6 +7,7 @@ import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
 import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/repositories/chat_database.dart';
 import 'package:com.jee.tag.whatagsapp/utils/EncryptionUtils.dart';
+import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -201,7 +202,7 @@ class ChatRepository {
         "information": {
           "status": 1,
           "timestamp": timestamp ~/ 1000,
-          "body": await EncryptionUtils.encrypt(text, key),
+          if (text.isNotEmpty) "body": await EncryptionUtils.encrypt(text, key),
           "type": messageEnum.name,
           "fromMe": true,
           "media": true,
@@ -225,18 +226,21 @@ class ChatRepository {
 
       final dataToSend = {
         "type": messageEnum.type,
-        "data": text,
-        'media': {
-          'url': '',
-          'mimetype': lookupMimeType(file.path),
-        }
+        "caption": text,
+        // 'file':file,
+        'fileName': file.path.split('/').last,
+        'media': await MultipartFile.fromFile(
+          file.path,
+          filename: file.path.split('/').last,
+        )
       };
-      final jsonDataToSend = Uri.encodeComponent(jsonEncode(dataToSend));
-
+      debugPrint(dataToSend.toString());
       apiService
-          .get(context, ref,
-              "${apiService.sendMessageEndpoint}?deviceToken=$deviceId&firebaseUid=$firebaseUid&to=$chatId&data=$jsonDataToSend&id=$messageId")
+          .postMultipart(
+              "${apiService.sendMediaMessageEndpoint}?deviceToken=$deviceId&firebaseUid=$firebaseUid&to=$chatId&id=$messageId",
+              dataToSend)
           .then((data) {
+        print('data postMultipart==$data');
         if (!apiService.checkSuccess(data)) {
           Fluttertoast.showToast(
             msg: "Something went wrong",

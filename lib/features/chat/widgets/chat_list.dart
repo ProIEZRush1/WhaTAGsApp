@@ -239,6 +239,7 @@ class _ChatListState extends ConsumerState<ChatList> {
     if (type == "audio") {
       audioProperties = AudioProperties(
         seconds: information["seconds"] ?? 13,);
+      // print('type audio ${audioProperties.seconds}');
     }
 
     final sent = status != 1;
@@ -275,6 +276,7 @@ class _ChatListState extends ConsumerState<ChatList> {
         videoProperties: videoProperties,
         vCardProperties: vcardProperties,
         sent: sent,
+        audioProperties: audioProperties,
         delivery: delivery,
         seen: seen,
         hasQuotedMsg: hasQuotedMsg,
