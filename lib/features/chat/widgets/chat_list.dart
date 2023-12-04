@@ -236,9 +236,9 @@ class _ChatListState extends ConsumerState<ChatList> {
           vcard: information["vcard"] ?? "");
     }
     AudioProperties? audioProperties;
-    if (type == "vcard") {
+    if (type == "audio") {
       audioProperties = AudioProperties(
-        seconds: information["seconds"] ?? 0,);
+        seconds: information["seconds"] ?? 13,);
     }
 
     final sent = status != 1;

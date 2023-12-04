@@ -205,7 +205,7 @@ class _VideoMessageState extends State<AudioMessage> {
                 ),
               Flexible(
                 child: Slider(
-                  max:10,
+                  max:widget.seconds.toDouble(),
                   value: currentPosition,
                   onChanged: (value) {},
                 ),

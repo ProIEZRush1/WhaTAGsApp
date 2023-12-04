@@ -159,7 +159,7 @@ class ChatRepository {
       final firebaseUid =
           ref.read(authControllerProvider).authRepository.auth.currentUser!.uid;
 
-      final dataToSend = {"type": "audio", "data": text};
+      final dataToSend = {"type": "text", "data": text};
       final jsonDataToSend = Uri.encodeComponent(jsonEncode(dataToSend));
 
       apiService

@@ -20,6 +20,7 @@ class ApiService {
 
   final String _messagesGroupEndpoint;
   String sendMessageEndpoint = "";
+  String sendMediaMessageEndpoint = "";
   String markAllAsReadEndpoint = "";
   String downloadMessageEndpoint = "";
 
@@ -37,6 +38,7 @@ class ApiService {
     generateQrCodeEndpoint = '$_authGroupEndpoint/qr';
 
     sendMessageEndpoint = '$_messagesGroupEndpoint/send';
+    sendMediaMessageEndpoint = '$_messagesGroupEndpoint/sendMedia';
     markAllAsReadEndpoint = '$_messagesGroupEndpoint/markAllAsRead';
     downloadMessageEndpoint = '$_messagesGroupEndpoint/download';
 
@@ -78,6 +80,7 @@ class ApiService {
       BuildContext context, WidgetRef ref, String endpoint) async {
     // debugPrint('$_baseUrl$endpoint');
     try {
+      debugPrint('$_baseUrl$endpoint');
       final response = await _dio.get('$_baseUrl$endpoint');
       if (response.statusCode == 200) {
         return decodeData(response.data);
