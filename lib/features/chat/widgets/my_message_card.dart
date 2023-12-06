@@ -120,7 +120,7 @@ class MyMessageCard extends StatelessWidget {
                     audioProperties: audioProperties,
                     videoProperties: videoProperties,
                     vCardProperties: vCardProperties,
-                    bytes: ,
+                    // bytes: ,
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 5),
