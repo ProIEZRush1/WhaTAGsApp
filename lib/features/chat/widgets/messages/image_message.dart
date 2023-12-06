@@ -65,7 +65,7 @@ class _ImageMessageState extends State<ImageMessage> {
       widget.ref,
       widget.chatId,
       widget.messageId,
-      MessageEnum.image,
+        MessageUtils.getFileExtension(MessageEnum.image),
     );
 
     if (success) {

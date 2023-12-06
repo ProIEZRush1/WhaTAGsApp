@@ -9,7 +9,7 @@ class VCardMessage extends StatefulWidget {
   const VCardMessage({super.key, required this.vcard, this.picture});
 
   @override
-  _VCardMessageState createState() => _VCardMessageState();
+  State<VCardMessage> createState() => _VCardMessageState();
 }
 
 class _VCardMessageState extends State<VCardMessage> {

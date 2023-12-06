@@ -160,7 +160,7 @@ class _ChatListState extends ConsumerState<ChatList> {
       Map<String, dynamic> messageData, String body, String caption) {
     final id = messageData["key"]["id"];
     final information = messageData["information"];
-    print('information $information' );
+    // print('information $information' );
     final status = information["status"];
     final fromMe = information["fromMe"];
 
@@ -176,22 +176,22 @@ class _ChatListState extends ConsumerState<ChatList> {
       double? widthValue = (information["width"] is num)
           ? (information["width"] as num).toDouble()
           : null;
-
+      List<int> sortedValues=[];
       // Convert keys to a list and sort them
-      var sortedKeys = information["jpegThumbnail"].keys.toList()
-        ..sort((a, b) =>
-            int.parse(a.toString()).compareTo(int.parse(b.toString())));
-
-      // Retrieve values based on sorted keys
-      List<int> sortedValues = sortedKeys
-          .map((key) => information["jpegThumbnail"][key])
-          .toList()
-          .cast<int>();
-
+      if(information["jpegThumbnail"]!=null) {
+        var sortedKeys = information["jpegThumbnail"].keys.toList()
+          ..sort((a, b) =>
+              int.parse(a.toString()).compareTo(int.parse(b.toString())));
+        // Retrieve values based on sorted keys
+        sortedValues = sortedKeys
+            .map((key) => information["jpegThumbnail"][key])
+            .toList()
+            .cast<int>();
+      }
       imageProperties = ImageProperties(
         height: heightValue ?? 0.0,
         width: widthValue ?? 0.0,
-        mimetype: information["mimetype"],
+        mimetype: information["mimetype"]??'',
         jpegThumbnail: Uint8List.fromList(sortedValues),
         caption: caption,
       );
@@ -207,23 +207,25 @@ class _ChatListState extends ConsumerState<ChatList> {
           : null;
       print("heightValue: $heightValue");
       print("widthValue: $widthValue");
-
+      List<int> sortedValues=[];
       // Convert keys to a list and sort them
-      var sortedKeys = information["jpegThumbnail"].keys.toList()
-        ..sort((a, b) =>
-            int.parse(a.toString()).compareTo(int.parse(b.toString())));
+      if (information["jpegThumbnail"]!=null) {
+        var sortedKeys = information["jpegThumbnail"].keys.toList()
+          ..sort((a, b) =>
+              int.parse(a.toString()).compareTo(int.parse(b.toString())));
 
-      // Retrieve values based on sorted keys
-      List<int> sortedValues = sortedKeys
-          .map((key) => information["jpegThumbnail"][key])
-          .toList()
-          .cast<int>();
+        // Retrieve values based on sorted keys
+             sortedValues = sortedKeys
+            .map((key) => information["jpegThumbnail"][key])
+            .toList()
+            .cast<int>();
+      }
 
       videoProperties = VideoProperties(
         height: (heightValue ?? 0.0),
         width: widthValue ?? 0.0,
         seconds: information["seconds"] ?? 0,
-        mimetype: information["mimetype"],
+        mimetype: information["mimetype"]??'',
         jpegThumbnail: Uint8List.fromList(sortedValues),
         caption: caption,
       );
@@ -241,7 +243,10 @@ class _ChatListState extends ConsumerState<ChatList> {
         seconds: information["seconds"] ?? 13,);
       // print('type audio ${audioProperties.seconds}');
     }
-
+    if (type == "document") {
+      body=information['fileName']??'';
+      // print('type audio ${audioProperties.seconds}');
+    }
     final sent = status != 1;
     final delivery = status == 3 || status == 4;
     final seen = status == 4;

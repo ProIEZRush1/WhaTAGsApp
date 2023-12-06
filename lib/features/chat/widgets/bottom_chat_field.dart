@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/selecte_share_options.dart';
 import 'package:com.jee.tag.whatagsapp/utils/DeviceUtils.dart';
 import 'package:com.jee.tag.whatagsapp/utils/EncryptionUtils.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
@@ -19,10 +20,11 @@ import 'package:com.jee.tag.whatagsapp/features/chat/widgets/message_reply_previ
 class BottomChatField extends ConsumerStatefulWidget {
   final String recieverUserId;
   final bool isGroupChat;
-
+final VoidCallback onTapShare;
   const BottomChatField({
     Key? key,
     required this.recieverUserId,
+    required this.onTapShare,
     required this.isGroupChat,
   }) : super(key: key);
 
@@ -63,7 +65,7 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
 
     if (isShowSendButton) {
       final encryptedText =
-      await EncryptionUtils.encrypt(_messageController.text, key);
+          await EncryptionUtils.encrypt(_messageController.text, key);
       ref.read(chatControllerProvider).sendTextMessage(
           context, ref, deviceId, widget.recieverUserId, encryptedText, key);
       setState(() {
@@ -71,8 +73,8 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
       });
     } else {
       var tempDir = await getTemporaryDirectory();
-      var path = '${tempDir.path}/flutter_sound.mp4';
-     var file= File(path)..createSync();
+      var path = '${tempDir.path}/flutter_sound.aac';
+      var file = File(path)..createSync();
       if (!isRecorderInit) {
         debugPrint('Recording not Init');
         return;
@@ -95,13 +97,13 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
   void sendFileMessage(
     File file,
     MessageEnum messageEnum,
-  ) async{
+  ) async {
     var box = await Hive.openBox('config');
     String deviceId = box.get('lastDeviceId') ?? "";
     final key = box.get('lastEncryptionKey') ?? "";
     // debugPrint('deviceId $deviceId');
-    ref.read(chatControllerProvider).sendMediaMessage(
-        context, ref, deviceId, widget.recieverUserId, '', key,messageEnum,file);
+    ref.read(chatControllerProvider).sendMediaMessage(context, ref, deviceId,
+        widget.recieverUserId, '', key, messageEnum, file);
   }
 
   void selectImage() async {
@@ -111,10 +113,18 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
     }
   }
 
+
+
   void selectVideo() async {
     File? video = await pickVideoFromGallery(context);
     if (video != null) {
       sendFileMessage(video, MessageEnum.video);
+    }
+  }
+  void selectDocument() async {
+    File? file = await pickFile(context);
+    if (file != null) {
+      sendFileMessage(file, MessageEnum.document);
     }
   }
 
@@ -214,7 +224,8 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
                           ),
                         ),
                         IconButton(
-                          onPressed: selectVideo,
+                          // onPressed: widget.onTapShare,
+                          onPressed: selectDocument,
                           icon: const Icon(
                             Icons.attach_file,
                             color: Colors.grey,

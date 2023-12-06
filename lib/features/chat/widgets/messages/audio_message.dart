@@ -41,8 +41,10 @@ class AudioMessage extends StatefulWidget {
 class _VideoMessageState extends State<AudioMessage> {
   bool _isDownloading = false;
   bool _videoDownloaded = false;
-  String? get id=>widget.messageId;
-  AudioPlayer? get player=>AudioController.getPlayer(id);
+
+  String? get id => widget.messageId;
+
+  AudioPlayer? get player => AudioController.getPlayer(id);
   File? audioFile;
 
   @override
@@ -58,11 +60,19 @@ class _VideoMessageState extends State<AudioMessage> {
     if (_localFilePath != null) {
       audioFile = File(_localFilePath);
       if (await audioFile!.exists()) {
-        setState(() => _videoDownloaded = true);
+        _videoDownloaded = true;
+        refresh();
         _initializeVideoController(_localFilePath);
       } else {
-        setState(() => _videoDownloaded = false);
+        _videoDownloaded = false;
+        refresh();
       }
+    }
+  }
+
+  refresh() {
+    if (mounted) {
+      setState(() {});
     }
   }
 
@@ -76,7 +86,7 @@ class _VideoMessageState extends State<AudioMessage> {
       widget.ref,
       widget.chatId,
       widget.messageId,
-      MessageEnum.video,
+      MessageUtils.getFileExtension(MessageEnum.video),
     );
 
     if (success) {
@@ -101,15 +111,15 @@ class _VideoMessageState extends State<AudioMessage> {
     AudioController.addPlayer(id);
     player!.onPlayerStateChanged.listen((event) {
       if (mounted) {
-        if(event==PlayerState.completed||event==PlayerState.stopped){
-          currentPosition=0;
+        if (event == PlayerState.completed || event == PlayerState.stopped) {
+          currentPosition = 0;
         }
         setState(() {});
       }
     });
     player!.eventStream.listen((event) {
       // print('eventStream ${event.position?.inSeconds}');
-      if(event.position!=null){
+      if (event.position != null) {
         currentPosition = event.position!.inSeconds.toDouble();
 
         setState(() {});
@@ -209,10 +219,10 @@ class _VideoMessageState extends State<AudioMessage> {
                 ),
               Flexible(
                 child: Slider(
-                  max:widget.seconds.toDouble(),
+                  max: widget.seconds.toDouble(),
                   value: currentPosition,
                   onChanged: (value) {
-                    currentPosition=value;
+                    currentPosition = value;
                     player?.seek(Duration(seconds: value.toInt()));
                   },
                 ),

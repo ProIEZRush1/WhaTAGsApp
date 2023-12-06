@@ -31,7 +31,7 @@ class VideoMessage extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _VideoMessageState createState() => _VideoMessageState();
+  State<VideoMessage> createState() => _VideoMessageState();
 }
 
 class _VideoMessageState extends State<VideoMessage> {
@@ -52,11 +52,19 @@ class _VideoMessageState extends State<VideoMessage> {
     if (_localFilePath != null) {
       File videoFile = File(_localFilePath);
       if (await videoFile.exists()) {
-        setState(() => _videoDownloaded = true);
+        _videoDownloaded = true;
+        refresh();
         _initializeVideoController(_localFilePath);
       } else {
-        setState(() => _videoDownloaded = false);
+        _videoDownloaded = false;
+        refresh();
       }
+    }
+  }
+
+  refresh() {
+    if (mounted) {
+      setState(() {});
     }
   }
 
@@ -70,7 +78,7 @@ class _VideoMessageState extends State<VideoMessage> {
       widget.ref,
       widget.chatId,
       widget.messageId,
-      MessageEnum.video,
+        MessageUtils.getFileExtension(MessageEnum.video),
     );
 
     if (success) {
@@ -89,7 +97,7 @@ class _VideoMessageState extends State<VideoMessage> {
   _initializeVideoController(String videoPath) {
     _videoController = VideoPlayerController.file(File(videoPath))
       ..initialize().then((_) {
-        setState(() {}); // Ensure the widget rebuilds with the video player.
+        refresh(); // Ensure the widget rebuilds with the video player.
       });
   }
 
@@ -214,40 +222,43 @@ class _VideoMessageState extends State<VideoMessage> {
       showDialog(
         context: context,
         builder: (BuildContext context) {
-          return Scaffold(
-            backgroundColor: Colors.black,
-            appBar: AppBar(
+          return StatefulBuilder(builder: (context, state) {
+            return Scaffold(
               backgroundColor: Colors.black,
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
+              appBar: AppBar(
+                backgroundColor: Colors.black,
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: () {
+                    _videoController!.pause();
+                    Navigator.of(context).pop();
+                  },
+                ),
+                elevation: 0,
+              ),
+              body: Center(
+                child: AspectRatio(
+                  aspectRatio: _videoController!.value.aspectRatio,
+                  child: VideoPlayer(_videoController!),
+                ),
+              ),
+              floatingActionButton: FloatingActionButton(
                 onPressed: () {
-                  _videoController!.pause();
-                  Navigator.of(context).pop();
+                  if (_videoController!.value.isPlaying) {
+                    _videoController!.pause();
+                  } else {
+                    _videoController!.play();
+                  }
+                  state(() {});
                 },
+                child: Icon(
+                  _videoController!.value.isPlaying
+                      ? Icons.pause
+                      : Icons.play_arrow,
+                ),
               ),
-              elevation: 0,
-            ),
-            body: Center(
-              child: AspectRatio(
-                aspectRatio: _videoController!.value.aspectRatio,
-                child: VideoPlayer(_videoController!),
-              ),
-            ),
-            floatingActionButton: FloatingActionButton(
-              onPressed: () {
-                if (_videoController!.value.isPlaying) {
-                  _videoController!.pause();
-                } else {
-                  _videoController!.play();
-                }
-              },
-              child: Icon(
-                _videoController!.value.isPlaying
-                    ? Icons.pause
-                    : Icons.play_arrow,
-              ),
-            ),
-          );
+            );
+          });
         },
       );
       _videoController!.play();

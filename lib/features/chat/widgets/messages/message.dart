@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/audio_message.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/document_message.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/image_message.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/ImageProperties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/audio_properties.dart';
@@ -26,7 +27,7 @@ class Message extends StatefulWidget {
   final VideoProperties? videoProperties;
   final VCardProperties? vCardProperties;
   final AudioProperties? audioProperties;
-
+  final int? bytes;
   Message({
     Key? key,
     required this.ref,
@@ -36,6 +37,7 @@ class Message extends StatefulWidget {
     required this.type,
     this.imageProperties,
     this.audioProperties,
+    this.bytes,
     this.videoProperties,
     this.vCardProperties,
   }) : super(key: key);
@@ -119,6 +121,13 @@ class _MessageState extends State<Message> {
             vcard: vCardProperties!.vcard,
             picture:
                 "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png");
+      case MessageEnum.document:
+        return DocumentMessage(
+          messageId: messageId,
+          chatId: chatId,
+          fileName: message,
+          bytes: 2323,
+        );
       default:
         return Container();
     }
