@@ -64,9 +64,25 @@ class _ChatListState extends ConsumerState<ChatList> {
     _messageStreamSubscription = controller
         .chatMessagesStream(context, ref, widget.chatId, _key!)
         .listen((newMessages) {
+      print('newMessages length = ${newMessages.length}');
       setState(() {
         for (var message in newMessages) {
           final messageId = message["key"]["id"];
+          final placeHolderId = message["key"]["placeHolderId"];
+          if (message['type'] == DocumentChangeType.removed) {
+            //locally added message was deleted
+            // _messages.remove(messageId);
+            return;
+          }
+          if (placeHolderId != null) {
+            // var res = _messages.remove(placeHolderId);
+            // print(res);
+            if(_messages.containsKey(placeHolderId)) {
+              _messages[placeHolderId] = message;
+              print('replacing');
+              return;
+            }
+          }
           if (!_messages.containsKey(messageId)) {
             _messages[messageId] = message;
             _messageIds.insert(0, messageId);
@@ -77,6 +93,18 @@ class _ChatListState extends ConsumerState<ChatList> {
             }
           }
         }
+        // for (var message in newMessages) {
+        //   final messageId = message["key"]["id"];
+        //   if (!_messages.containsKey(messageId)) {
+        //     _messages[messageId] = message;
+        //     _messageIds.insert(0, messageId);
+        //   } else if (_messages[messageId] != message) {
+        //     int index = _messageIds.indexOf(messageId);
+        //     if (index != -1) {
+        //       _messages[messageId] = message;
+        //     }
+        //   }
+        // }
       });
     });
   }
@@ -137,9 +165,11 @@ class _ChatListState extends ConsumerState<ChatList> {
     }
 
     return FutureBuilder<String>(
+      initialData: _decryptedMessageCache[encryptedBody],
       future: _decryptedMessageFutures[encryptedBody],
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+        if (snapshot.connectionState == ConnectionState.waiting &&
+            snapshot.data == null) {
           return Container(); // Placeholder or loading indicator
         }
         if (snapshot.hasError) {

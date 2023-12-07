@@ -33,7 +33,7 @@ final VoidCallback onTapShare;
 }
 
 class _BottomChatFieldState extends ConsumerState<BottomChatField> {
-  bool isShowSendButton = false;
+  bool get isShowSendButton => _messageController.text.isNotEmpty;
   final TextEditingController _messageController = TextEditingController();
   FlutterSoundRecorder? _soundRecorder;
   bool isRecorderInit = false;
@@ -181,15 +181,18 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
                 focusNode: focusNode,
                 controller: _messageController,
                 onChanged: (val) {
-                  if (val.isNotEmpty) {
-                    setState(() {
-                      isShowSendButton = true;
-                    });
-                  } else {
-                    setState(() {
-                      isShowSendButton = false;
-                    });
-                  }
+                  setState(() {
+
+                  });
+                  // if (val.isNotEmpty) {
+                  //   setState(() {
+                  //     isShowSendButton = true;
+                  //   });
+                  // } else {
+                  //   setState(() {
+                  //     isShowSendButton = false;
+                  //   });
+                  // }
                 },
                 decoration: InputDecoration(
                   filled: true,
@@ -280,11 +283,11 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
                           _messageController.text + emoji.emoji;
                     });
 
-                    if (!isShowSendButton) {
-                      setState(() {
-                        isShowSendButton = true;
-                      });
-                    }
+                    // if (!isShowSendButton) {
+                    //   setState(() {
+                    //     isShowSendButton = true;
+                    //   });
+                    // }
                   }),
                 ),
               )
