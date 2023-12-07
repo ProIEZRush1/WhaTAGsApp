@@ -22,8 +22,8 @@ void main() async {
   );
   FirebaseFirestore.instance.settings =
       const Settings(persistenceEnabled: true);
-  final directory = await getApplicationDocumentsDirectory();
-  await Hive.initFlutter(directory.path);
+  // final directory = await getApplicationDocumentsDirectory();
+  await Hive.initFlutter('hive_data');
   runApp(
     const ProviderScope(
       child: MyApp(),

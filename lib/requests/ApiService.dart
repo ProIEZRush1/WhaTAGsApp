@@ -1,5 +1,5 @@
-import 'dart:convert';
 import 'dart:io';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/message_utils.dart';
 import 'package:com.jee.tag.whatagsapp/utils/DeviceUtils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +7,7 @@ import 'package:dio/dio.dart';
 import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
 import 'package:com.jee.tag.whatagsapp/features/auth/screens/login_screen.dart';
 import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 
@@ -107,17 +108,7 @@ class ApiService {
         final authController = ref.read(authControllerProvider);
         await authController.authRepository.auth.signOut();
         Hive.deleteFromDisk();
-        getApplicationDocumentsDirectory().then((value) async {
-          if (await value.exists()) {
-            try {
-              var delete = await value.delete(recursive: true);
-              debugPrint('${delete.path} is deleted successful');
-            } catch (e) {
-              debugPrint('deleted getApplicationDocumentsDirectory failed');
-            }
-          }
-          Hive.init(value.path);
-        });
+        MessageUtils.deleteAllDownload();
         if (context.mounted) {
           Navigator.pushNamedAndRemoveUntil(
             context,

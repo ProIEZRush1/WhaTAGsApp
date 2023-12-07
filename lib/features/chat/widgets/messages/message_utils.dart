@@ -22,7 +22,7 @@ class MessageUtils {
   }
 
   static Future<bool> downloadAndSaveFile(BuildContext context, WidgetRef ref,
-      String chatId, String messageId,String fileExtension) async {
+      String chatId, String messageId, String fileExtension) async {
     bool downloadSuccess = false;
 
     final ApiService apiService = ApiService();
@@ -41,8 +41,8 @@ class MessageUtils {
       if (apiService.checkSuccess(value)) {
         Uint8List uint8list =
             Uint8List.fromList(List<int>.from(value['buffer']['data']));
-        String savedPath =
-            await saveFileToPermanentLocation(fileExtension, messageId, uint8list);
+        String savedPath = await saveFileToPermanentLocation(
+            fileExtension, messageId, uint8list);
 
         box.put('localFilePath_$messageId', savedPath);
         downloadSuccess = true;
@@ -75,10 +75,24 @@ class MessageUtils {
       String fileExtension, String messageId, Uint8List buffer) async {
     final directory = await getApplicationDocumentsDirectory();
     // final fileExtension = getFileExtension(type);
-    final filePath = '${directory.path}/$messageId.${fileExtension.toLowerCase()}';
+    final filePath =
+        '${directory.path}/downloads/$messageId.${fileExtension.toLowerCase()}';
     final file = File(filePath);
     await file.writeAsBytes(buffer);
     return filePath;
+  }
+
+  static Future deleteAllDownload() async {
+    var value = await getApplicationDocumentsDirectory();
+    var downloads = Directory('${value.path}/downloads');
+    if (await downloads.exists()) {
+      try {
+        var delete = await downloads.delete(recursive: true);
+        debugPrint('${delete.path} is deleted successful');
+      } catch (e) {
+        debugPrint('deleted downloads failed');
+      }
+    }
   }
 
   static Future<bool> openFile(String path) async {
