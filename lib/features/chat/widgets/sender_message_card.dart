@@ -1,5 +1,6 @@
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/ImageProperties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/audio_properties.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/file_properties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/vcardProperties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/videoProperties.dart';
 import 'package:flutter/material.dart' hide DateUtils;
@@ -23,13 +24,12 @@ class SenderMessageCard extends StatelessWidget {
   final ImageProperties? imageProperties;
   final VideoProperties? videoProperties;
   final VCardProperties? vCardProperties;
-
+  final FileProperties? fileProperties;
   final AudioProperties? audioProperties;
   final bool hasQuotedMsg;
   final String quotedMessageBody;
   final MessageEnum quotedMessageType;
   final VoidCallback onRightSwipe;
-
   const SenderMessageCard({
     Key? key,
     required this.ref,
@@ -42,6 +42,7 @@ class SenderMessageCard extends StatelessWidget {
     this.imageProperties,
     this.videoProperties,
     this.vCardProperties,
+    this.fileProperties,
     this.audioProperties,
     required this.hasQuotedMsg,
     required this.quotedMessageBody,
@@ -95,6 +96,7 @@ class SenderMessageCard extends StatelessWidget {
                         videoProperties: videoProperties,
                         audioProperties: audioProperties,
                         vCardProperties: vCardProperties,
+                        fileProperties: fileProperties,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -109,6 +111,7 @@ class SenderMessageCard extends StatelessWidget {
                     videoProperties: videoProperties,
                     vCardProperties: vCardProperties,
                     audioProperties: audioProperties,
+                    fileProperties: fileProperties,
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 5),

@@ -5,6 +5,7 @@ import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/document_m
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/image_message.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/ImageProperties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/audio_properties.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/file_properties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/vcardProperties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/videoProperties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/text_message.dart';
@@ -27,7 +28,8 @@ class Message extends StatefulWidget {
   final VideoProperties? videoProperties;
   final VCardProperties? vCardProperties;
   final AudioProperties? audioProperties;
-  final int? bytes;
+  final FileProperties? fileProperties;
+
   Message({
     Key? key,
     required this.ref,
@@ -37,7 +39,7 @@ class Message extends StatefulWidget {
     required this.type,
     this.imageProperties,
     this.audioProperties,
-    this.bytes,
+    this.fileProperties,
     this.videoProperties,
     this.vCardProperties,
   }) : super(key: key);
@@ -56,7 +58,10 @@ class _MessageState extends State<Message> {
   late ImageProperties? imageProperties;
   late VideoProperties? videoProperties;
   late VCardProperties? vCardProperties;
-  late AudioProperties? audioProperties;
+
+  AudioProperties? get audioProperties => widget.audioProperties;
+
+  FileProperties? get fileProperties => widget.fileProperties;
 
   @override
   void initState() {
@@ -71,7 +76,6 @@ class _MessageState extends State<Message> {
     imageProperties = widget.imageProperties;
     videoProperties = widget.videoProperties;
     vCardProperties = widget.vCardProperties;
-    audioProperties = widget.audioProperties;
   }
 
   @override
@@ -125,8 +129,8 @@ class _MessageState extends State<Message> {
         return DocumentMessage(
           messageId: messageId,
           chatId: chatId,
-          fileName: message,
-          bytes: 2323,
+          fileName: fileProperties?.fileName??'File',
+          bytes: fileProperties?.sizeInBytes ?? 00,
         );
       default:
         return Container();

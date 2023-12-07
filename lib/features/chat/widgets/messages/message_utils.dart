@@ -77,7 +77,7 @@ class MessageUtils {
     // final fileExtension = getFileExtension(type);
     final filePath =
         '${directory.path}/downloads/$messageId.${fileExtension.toLowerCase()}';
-    final file = File(filePath);
+    final file = File(filePath)..createSync(recursive: true);
     await file.writeAsBytes(buffer);
     return filePath;
   }

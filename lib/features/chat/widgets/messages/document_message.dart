@@ -79,7 +79,7 @@ class _DocumentMessageState extends ConsumerState<DocumentMessage> {
     } else {
       // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to download video')),
+        const SnackBar(content: Text('Failed to download file')),
       );
     }
 

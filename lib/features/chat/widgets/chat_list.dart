@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/ImageProperties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/audio_properties.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/file_properties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/vcardProperties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/videoProperties.dart';
 import 'package:com.jee.tag.whatagsapp/utils/EncryptionUtils.dart';
@@ -176,9 +177,9 @@ class _ChatListState extends ConsumerState<ChatList> {
       double? widthValue = (information["width"] is num)
           ? (information["width"] as num).toDouble()
           : null;
-      List<int> sortedValues=[];
+      List<int> sortedValues = [];
       // Convert keys to a list and sort them
-      if(information["jpegThumbnail"]!=null) {
+      if (information["jpegThumbnail"] != null) {
         var sortedKeys = information["jpegThumbnail"].keys.toList()
           ..sort((a, b) =>
               int.parse(a.toString()).compareTo(int.parse(b.toString())));
@@ -191,7 +192,7 @@ class _ChatListState extends ConsumerState<ChatList> {
       imageProperties = ImageProperties(
         height: heightValue ?? 0.0,
         width: widthValue ?? 0.0,
-        mimetype: information["mimetype"]??'',
+        mimetype: information["mimetype"] ?? '',
         jpegThumbnail: Uint8List.fromList(sortedValues),
         caption: caption,
       );
@@ -207,15 +208,15 @@ class _ChatListState extends ConsumerState<ChatList> {
           : null;
       print("heightValue: $heightValue");
       print("widthValue: $widthValue");
-      List<int> sortedValues=[];
+      List<int> sortedValues = [];
       // Convert keys to a list and sort them
-      if (information["jpegThumbnail"]!=null) {
+      if (information["jpegThumbnail"] != null) {
         var sortedKeys = information["jpegThumbnail"].keys.toList()
           ..sort((a, b) =>
               int.parse(a.toString()).compareTo(int.parse(b.toString())));
 
         // Retrieve values based on sorted keys
-             sortedValues = sortedKeys
+        sortedValues = sortedKeys
             .map((key) => information["jpegThumbnail"][key])
             .toList()
             .cast<int>();
@@ -225,7 +226,7 @@ class _ChatListState extends ConsumerState<ChatList> {
         height: (heightValue ?? 0.0),
         width: widthValue ?? 0.0,
         seconds: information["seconds"] ?? 0,
-        mimetype: information["mimetype"]??'',
+        mimetype: information["mimetype"] ?? '',
         jpegThumbnail: Uint8List.fromList(sortedValues),
         caption: caption,
       );
@@ -240,12 +241,18 @@ class _ChatListState extends ConsumerState<ChatList> {
     AudioProperties? audioProperties;
     if (type == "audio") {
       audioProperties = AudioProperties(
-        seconds: information["seconds"] ?? 13,);
+        seconds: information["seconds"] ?? 13,
+      );
       // print('type audio ${audioProperties.seconds}');
     }
+    FileProperties? fileProperties;
     if (type == "document") {
-      body=information['fileName']??'';
-      // print('type audio ${audioProperties.seconds}');
+      debugPrint('information $information');
+      fileProperties = FileProperties(
+        sizeInBytes: information['fileLength'] ?? 0,
+        fileName: information['fileName'] ?? '',
+      );
+      // fileProperties.fileName=information['fileName']??'';
     }
     final sent = status != 1;
     final delivery = status == 3 || status == 4;
@@ -279,6 +286,7 @@ class _ChatListState extends ConsumerState<ChatList> {
         media: media,
         imageProperties: imageProperties,
         videoProperties: videoProperties,
+        fileProperties: fileProperties,
         vCardProperties: vcardProperties,
         sent: sent,
         audioProperties: audioProperties,
@@ -309,6 +317,7 @@ class _ChatListState extends ConsumerState<ChatList> {
       videoProperties: videoProperties,
       audioProperties: audioProperties,
       vCardProperties: vcardProperties,
+      fileProperties: fileProperties,
       hasQuotedMsg: hasQuotedMsg,
       quotedMessageBody: quotedMessageBody,
       quotedMessageType: ConvertMessage(quotedMessageType).toEnum(),
