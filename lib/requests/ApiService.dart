@@ -29,9 +29,9 @@ class ApiService {
 
   ApiService()
       : _dio = Dio(),
-        // _baseUrl = 'https://horribly-vital-gar.ngrok-free.app',
+        _baseUrl = 'https://horribly-vital-gar.ngrok-free.app',
         // _baseUrl = 'http://localhost:300',
-        _baseUrl = 'http://192.168.1.75:3000',
+        // _baseUrl = 'http://192.168.1.75:3000',
         //_baseUrl = 'https://whatsapp.tag.org',
         _authGroupEndpoint = '/auth',
         _messagesGroupEndpoint = '/messages' {
