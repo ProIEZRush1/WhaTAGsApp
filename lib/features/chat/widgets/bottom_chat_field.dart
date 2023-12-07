@@ -20,7 +20,8 @@ import 'package:com.jee.tag.whatagsapp/features/chat/widgets/message_reply_previ
 class BottomChatField extends ConsumerStatefulWidget {
   final String recieverUserId;
   final bool isGroupChat;
-final VoidCallback onTapShare;
+  final VoidCallback onTapShare;
+
   const BottomChatField({
     Key? key,
     required this.recieverUserId,
@@ -113,14 +114,13 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
     }
   }
 
-
-
   void selectVideo() async {
     File? video = await pickVideoFromGallery(context);
     if (video != null) {
       sendFileMessage(video, MessageEnum.video);
     }
   }
+
   void selectDocument() async {
     File? file = await pickFile(context);
     if (file != null) {
@@ -181,9 +181,7 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
                 focusNode: focusNode,
                 controller: _messageController,
                 onChanged: (val) {
-                  setState(() {
-
-                  });
+                  setState(() {});
                   // if (val.isNotEmpty) {
                   //   setState(() {
                   //     isShowSendButton = true;
@@ -205,8 +203,10 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
                         children: [
                           IconButton(
                             onPressed: toggleEmojiKeyboardContainer,
-                            icon: const Icon(
-                              Icons.emoji_emotions,
+                            icon: Icon(
+                              isShowEmojiContainer
+                                  ? Icons.keyboard_alt_outlined
+                                  : Icons.emoji_emotions,
                               color: Colors.grey,
                             ),
                           ),

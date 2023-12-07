@@ -206,6 +206,8 @@ class ChatRepository {
           "type": messageEnum.name,
           "fromMe": true,
           "media": true,
+          "fileName":file.path.split('/').last,
+          "fileLength": file.readAsBytesSync().length,
         },
         "messageTimestamp": timestamp ~/ 1000,
         "status": 1,

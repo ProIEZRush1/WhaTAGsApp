@@ -77,7 +77,7 @@ class _ChatListState extends ConsumerState<ChatList> {
           if (placeHolderId != null) {
             // var res = _messages.remove(placeHolderId);
             // print(res);
-            if(_messages.containsKey(placeHolderId)) {
+            if (_messages.containsKey(placeHolderId)) {
               _messages[placeHolderId] = message;
               print('replacing');
               return;
@@ -114,7 +114,15 @@ class _ChatListState extends ConsumerState<ChatList> {
       return _decryptedMessageCache[encryptedText]!;
     }
     String decryptedText = await EncryptionUtils.decrypt(encryptedText, _key!);
+
     _decryptedMessageCache[encryptedText] = decryptedText;
+    if(_decryptedMessageCache.length==1){
+      if(mounted){
+        setState(() {
+
+        });
+      }
+    }
     return decryptedText;
   }
 
@@ -146,14 +154,20 @@ class _ChatListState extends ConsumerState<ChatList> {
   }
 
   Widget _buildMessageList(List<Map<String, dynamic>> messages) {
-    return AnimatedList(
-      key: GlobalKey<AnimatedListState>(),
-      controller: _messageController,
-      reverse: true,
-      initialItemCount: messages.length,
-      itemBuilder: (context, index, animation) {
-        return _buildListItem(messages[index], animation);
-      },
+    return Stack(
+      children: [
+        AnimatedList(
+          key: GlobalKey<AnimatedListState>(),
+          controller: _messageController,
+          reverse: true,
+          initialItemCount: messages.length,
+          itemBuilder: (context, index, animation) {
+            return _buildListItem(messages[index], animation);
+          },
+        ),
+        if(_decryptedMessageCache.isEmpty)
+        const Center(child: CircularProgressIndicator()),
+      ],
     );
   }
 
@@ -279,7 +293,7 @@ class _ChatListState extends ConsumerState<ChatList> {
     if (type == "document") {
       debugPrint('information $information');
       fileProperties = FileProperties(
-        sizeInBytes: information['fileLength'] ?? 0,
+        sizeInBytes: int.tryParse(information['fileLength'].toString()) ?? 0,
         fileName: information['fileName'] ?? '',
       );
       // fileProperties.fileName=information['fileName']??'';
