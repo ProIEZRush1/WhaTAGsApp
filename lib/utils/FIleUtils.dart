@@ -1,14 +1,19 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
 import 'dart:convert';
-import 'dart:io';
 
 class FileUtils {
-
+  static String getFileSizeString({required int bytes, int decimals = 0}) {
+      const suffixes = ["b", "kb", "mb", "gb", "tb"];
+      if (bytes == 0) return '0${suffixes[0]}';
+      var i = (log(bytes) / log(1024)).floor();
+      return '${(bytes / pow(1024, i)).toStringAsFixed(decimals)} ${suffixes[i]}';
+    }
   static Future<File> assetToFile(String assetPath) async {
     // Load the asset as bytes
     final ByteData data = await rootBundle.load(assetPath);

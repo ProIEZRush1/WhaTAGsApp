@@ -2,11 +2,16 @@ enum MessageEnum {
   text('text'),
   image('image'),
   audio('audio'),
+  voice('voice'),
   video('video'),
   gif('gif'),
-  vcard('vcard');
+  vcard('vcard'),
+  sticker('sticker'),
+  document('document'),
+  location('location');
 
   const MessageEnum(this.type);
+
   final String type;
 }
 
@@ -22,12 +27,20 @@ extension ConvertMessage on String {
         return MessageEnum.image;
       case 'audio':
         return MessageEnum.audio;
+      case 'voice':
+        return MessageEnum.voice;
       case 'video':
         return MessageEnum.video;
+      case 'document':
+        return MessageEnum.document;
       case 'gif':
         return MessageEnum.gif;
       case 'vcard':
         return MessageEnum.vcard;
+      case 'location':
+        return MessageEnum.vcard;
+      case 'sticker':
+        return MessageEnum.sticker;
       default:
         return MessageEnum.text;
     }

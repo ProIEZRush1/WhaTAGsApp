@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:async/async.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
 import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/repositories/chat_database.dart';
 import 'package:com.jee.tag.whatagsapp/utils/EncryptionUtils.dart';
+import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -15,6 +18,7 @@ import 'package:com.jee.tag.whatagsapp/common/utils/utils.dart';
 import 'package:com.jee.tag.whatagsapp/requests/ApiService.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:uuid/uuid.dart';
+import 'package:mime/mime.dart';
 
 final chatRepositoryProvider = Provider(
   (ref) => ChatRepository(
@@ -163,6 +167,82 @@ class ChatRepository {
           .get(context, ref,
               "${apiService.sendMessageEndpoint}?deviceToken=$deviceId&firebaseUid=$firebaseUid&to=$chatId&data=$jsonDataToSend&id=$messageId")
           .then((data) {
+        if (!apiService.checkSuccess(data)) {
+          Fluttertoast.showToast(
+            msg: "Something went wrong",
+          );
+          return Future.error("Something went wrong");
+        }
+        apiService.checkIfLoggedIn(context, ref, data);
+      });
+    } catch (e) {
+      showSnackBar(context: context, content: e.toString());
+    }
+  }
+
+  void sendMediaMessage(
+      BuildContext context,
+      WidgetRef ref,
+      String deviceId,
+      String chatId,
+      String text,
+      String key,
+      MessageEnum messageEnum,
+      File file) async {
+    try {
+      // Create default message in storage
+      final String messageId = const Uuid().v4(); // Generates a unique ID
+      final int timestamp = DateTime.now().millisecondsSinceEpoch;
+      final Map<String, dynamic> defaultMessage = {
+        "key": {
+          "remoteJid": chatId,
+          "fromMe": true,
+          "id": messageId,
+        },
+        "information": {
+          "status": 1,
+          "timestamp": timestamp ~/ 1000,
+          if (text.isNotEmpty) "body": await EncryptionUtils.encrypt(text, key),
+          "type": messageEnum.name,
+          "fromMe": true,
+          "media": true,
+          "fileName":file.path.split('/').last,
+          "fileLength": file.readAsBytesSync().length,
+        },
+        "messageTimestamp": timestamp ~/ 1000,
+        "status": 1,
+      };
+      firestore
+          .collection('users')
+          .doc(auth.currentUser!.uid)
+          .collection('messages')
+          .doc(chatId)
+          .collection('messages')
+          .doc(messageId)
+          .set(defaultMessage);
+
+      final ApiService apiService = ApiService();
+
+      final firebaseUid =
+          ref.read(authControllerProvider).authRepository.auth.currentUser!.uid;
+
+      final dataToSend = {
+        "type": messageEnum.type,
+        "caption": text,
+        // 'file':file,
+        'fileName': file.path.split('/').last,
+        'media': await MultipartFile.fromFile(
+          file.path,
+          filename: file.path.split('/').last,
+        )
+      };
+      debugPrint(dataToSend.toString());
+      apiService
+          .postMultipart(
+              "${apiService.sendMediaMessageEndpoint}?deviceToken=$deviceId&firebaseUid=$firebaseUid&to=$chatId&id=$messageId",
+              dataToSend)
+          .then((data) {
+        print('data postMultipart==$data');
         if (!apiService.checkSuccess(data)) {
           Fluttertoast.showToast(
             msg: "Something went wrong",

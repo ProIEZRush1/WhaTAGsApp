@@ -1,6 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/ImageProperties.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/audio_properties.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/file_properties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/vcardProperties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/videoProperties.dart';
 import 'package:flutter/material.dart' hide DateUtils;
@@ -32,6 +34,8 @@ class MyMessageCard extends StatelessWidget {
   final String quotedMessageBody;
   final MessageEnum quotedMessageType;
   final VoidCallback onLeftSwipe;
+  final AudioProperties? audioProperties;
+  final FileProperties? fileProperties;
 
   const MyMessageCard({
     Key? key,
@@ -43,6 +47,7 @@ class MyMessageCard extends StatelessWidget {
     required this.type,
     required this.media,
     this.imageProperties,
+    this.fileProperties,
     this.videoProperties,
     this.vCardProperties,
     required this.sent,
@@ -52,6 +57,7 @@ class MyMessageCard extends StatelessWidget {
     required this.quotedMessageBody,
     required this.quotedMessageType,
     required this.onLeftSwipe,
+    required this.audioProperties,
   }) : super(key: key);
 
   @override
@@ -98,8 +104,10 @@ class MyMessageCard extends StatelessWidget {
                         chatId: chatId,
                         messageId: id,
                         message: quotedMessageBody,
+                        audioProperties: audioProperties,
                         type: quotedMessageType,
                         imageProperties: null,
+                        fileProperties: fileProperties,
                         // Quoted messages don't have image properties
                         vCardProperties:
                             null, // Quoted messages don't have vCard properties
@@ -114,8 +122,11 @@ class MyMessageCard extends StatelessWidget {
                     message: body,
                     type: type,
                     imageProperties: imageProperties,
+                    fileProperties: fileProperties,
+                    audioProperties: audioProperties,
                     videoProperties: videoProperties,
                     vCardProperties: vCardProperties,
+                    // bytes: ,
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 5),

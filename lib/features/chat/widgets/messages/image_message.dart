@@ -45,7 +45,7 @@ class _ImageMessageState extends State<ImageMessage> {
 
   _checkImageDownloaded() async {
     _localFilePath = await MessageUtils.getLocalFilePath(widget.messageId);
-    if (_localFilePath != null) {
+    if (_localFilePath != null&&mounted) {
       File imageFile = File(_localFilePath!);
       if (await imageFile.exists()) {
         setState(() => _imageDownloaded = true);
@@ -65,7 +65,7 @@ class _ImageMessageState extends State<ImageMessage> {
       widget.ref,
       widget.chatId,
       widget.messageId,
-      MessageEnum.image,
+        MessageUtils.getFileExtension(MessageEnum.image),
     );
 
     if (success) {

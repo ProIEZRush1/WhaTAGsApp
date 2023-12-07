@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/selecte_share_options.dart';
 import 'package:com.jee.tag.whatagsapp/utils/DeviceUtils.dart';
 import 'package:com.jee.tag.whatagsapp/utils/EncryptionUtils.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_sound/flutter_sound.dart';
 import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
@@ -18,10 +20,12 @@ import 'package:com.jee.tag.whatagsapp/features/chat/widgets/message_reply_previ
 class BottomChatField extends ConsumerStatefulWidget {
   final String recieverUserId;
   final bool isGroupChat;
+  final VoidCallback onTapShare;
 
   const BottomChatField({
     Key? key,
     required this.recieverUserId,
+    required this.onTapShare,
     required this.isGroupChat,
   }) : super(key: key);
 
@@ -30,7 +34,7 @@ class BottomChatField extends ConsumerStatefulWidget {
 }
 
 class _BottomChatFieldState extends ConsumerState<BottomChatField> {
-  bool isShowSendButton = false;
+  bool get isShowSendButton => _messageController.text.isNotEmpty;
   final TextEditingController _messageController = TextEditingController();
   FlutterSoundRecorder? _soundRecorder;
   bool isRecorderInit = false;
@@ -59,10 +63,10 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
 
     String deviceId = box.get('lastDeviceId') ?? "";
     final key = box.get('lastEncryptionKey') ?? "";
-    final encryptedText =
-        await EncryptionUtils.encrypt(_messageController.text, key);
 
     if (isShowSendButton) {
+      final encryptedText =
+          await EncryptionUtils.encrypt(_messageController.text, key);
       ref.read(chatControllerProvider).sendTextMessage(
           context, ref, deviceId, widget.recieverUserId, encryptedText, key);
       setState(() {
@@ -71,15 +75,17 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
     } else {
       var tempDir = await getTemporaryDirectory();
       var path = '${tempDir.path}/flutter_sound.aac';
+      var file = File(path)..createSync();
       if (!isRecorderInit) {
+        debugPrint('Recording not Init');
         return;
       }
       if (isRecording) {
         await _soundRecorder!.stopRecorder();
-        sendFileMessage(File(path), MessageEnum.audio);
+        sendFileMessage(file, MessageEnum.voice);
       } else {
         await _soundRecorder!.startRecorder(
-          toFile: path,
+          toFile: file.path,
         );
       }
 
@@ -92,7 +98,14 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
   void sendFileMessage(
     File file,
     MessageEnum messageEnum,
-  ) {}
+  ) async {
+    var box = await Hive.openBox('config');
+    String deviceId = box.get('lastDeviceId') ?? "";
+    final key = box.get('lastEncryptionKey') ?? "";
+    // debugPrint('deviceId $deviceId');
+    ref.read(chatControllerProvider).sendMediaMessage(context, ref, deviceId,
+        widget.recieverUserId, '', key, messageEnum, file);
+  }
 
   void selectImage() async {
     File? image = await pickImageFromGallery(context);
@@ -105,6 +118,13 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
     File? video = await pickVideoFromGallery(context);
     if (video != null) {
       sendFileMessage(video, MessageEnum.video);
+    }
+  }
+
+  void selectDocument() async {
+    File? file = await pickFile(context);
+    if (file != null) {
+      sendFileMessage(file, MessageEnum.document);
     }
   }
 
@@ -161,15 +181,16 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
                 focusNode: focusNode,
                 controller: _messageController,
                 onChanged: (val) {
-                  if (val.isNotEmpty) {
-                    setState(() {
-                      isShowSendButton = true;
-                    });
-                  } else {
-                    setState(() {
-                      isShowSendButton = false;
-                    });
-                  }
+                  setState(() {});
+                  // if (val.isNotEmpty) {
+                  //   setState(() {
+                  //     isShowSendButton = true;
+                  //   });
+                  // } else {
+                  //   setState(() {
+                  //     isShowSendButton = false;
+                  //   });
+                  // }
                 },
                 decoration: InputDecoration(
                   filled: true,
@@ -182,8 +203,10 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
                         children: [
                           IconButton(
                             onPressed: toggleEmojiKeyboardContainer,
-                            icon: const Icon(
-                              Icons.emoji_emotions,
+                            icon: Icon(
+                              isShowEmojiContainer
+                                  ? Icons.keyboard_alt_outlined
+                                  : Icons.emoji_emotions,
                               color: Colors.grey,
                             ),
                           ),
@@ -204,7 +227,8 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
                           ),
                         ),
                         IconButton(
-                          onPressed: selectVideo,
+                          // onPressed: widget.onTapShare,
+                          onPressed: selectDocument,
                           icon: const Icon(
                             Icons.attach_file,
                             color: Colors.grey,
@@ -259,11 +283,11 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
                           _messageController.text + emoji.emoji;
                     });
 
-                    if (!isShowSendButton) {
-                      setState(() {
-                        isShowSendButton = true;
-                      });
-                    }
+                    // if (!isShowSendButton) {
+                    //   setState(() {
+                    //     isShowSendButton = true;
+                    //   });
+                    // }
                   }),
                 ),
               )

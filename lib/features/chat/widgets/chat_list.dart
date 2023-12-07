@@ -4,6 +4,8 @@ import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/ImageProperties.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/audio_properties.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/file_properties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/vcardProperties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/videoProperties.dart';
 import 'package:com.jee.tag.whatagsapp/utils/EncryptionUtils.dart';
@@ -62,9 +64,25 @@ class _ChatListState extends ConsumerState<ChatList> {
     _messageStreamSubscription = controller
         .chatMessagesStream(context, ref, widget.chatId, _key!)
         .listen((newMessages) {
+      print('newMessages length = ${newMessages.length}');
       setState(() {
         for (var message in newMessages) {
           final messageId = message["key"]["id"];
+          final placeHolderId = message["key"]["placeHolderId"];
+          if (message['type'] == DocumentChangeType.removed) {
+            //locally added message was deleted
+            // _messages.remove(messageId);
+            return;
+          }
+          if (placeHolderId != null) {
+            // var res = _messages.remove(placeHolderId);
+            // print(res);
+            if (_messages.containsKey(placeHolderId)) {
+              _messages[placeHolderId] = message;
+              print('replacing');
+              return;
+            }
+          }
           if (!_messages.containsKey(messageId)) {
             _messages[messageId] = message;
             _messageIds.insert(0, messageId);
@@ -75,6 +93,18 @@ class _ChatListState extends ConsumerState<ChatList> {
             }
           }
         }
+        // for (var message in newMessages) {
+        //   final messageId = message["key"]["id"];
+        //   if (!_messages.containsKey(messageId)) {
+        //     _messages[messageId] = message;
+        //     _messageIds.insert(0, messageId);
+        //   } else if (_messages[messageId] != message) {
+        //     int index = _messageIds.indexOf(messageId);
+        //     if (index != -1) {
+        //       _messages[messageId] = message;
+        //     }
+        //   }
+        // }
       });
     });
   }
@@ -84,7 +114,15 @@ class _ChatListState extends ConsumerState<ChatList> {
       return _decryptedMessageCache[encryptedText]!;
     }
     String decryptedText = await EncryptionUtils.decrypt(encryptedText, _key!);
+
     _decryptedMessageCache[encryptedText] = decryptedText;
+    if(_decryptedMessageCache.length==1){
+      if(mounted){
+        setState(() {
+
+        });
+      }
+    }
     return decryptedText;
   }
 
@@ -116,14 +154,20 @@ class _ChatListState extends ConsumerState<ChatList> {
   }
 
   Widget _buildMessageList(List<Map<String, dynamic>> messages) {
-    return AnimatedList(
-      key: GlobalKey<AnimatedListState>(),
-      controller: _messageController,
-      reverse: true,
-      initialItemCount: messages.length,
-      itemBuilder: (context, index, animation) {
-        return _buildListItem(messages[index], animation);
-      },
+    return Stack(
+      children: [
+        AnimatedList(
+          key: GlobalKey<AnimatedListState>(),
+          controller: _messageController,
+          reverse: true,
+          initialItemCount: messages.length,
+          itemBuilder: (context, index, animation) {
+            return _buildListItem(messages[index], animation);
+          },
+        ),
+        if(_decryptedMessageCache.isEmpty)
+        const Center(child: CircularProgressIndicator()),
+      ],
     );
   }
 
@@ -135,9 +179,11 @@ class _ChatListState extends ConsumerState<ChatList> {
     }
 
     return FutureBuilder<String>(
+      initialData: _decryptedMessageCache[encryptedBody],
       future: _decryptedMessageFutures[encryptedBody],
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+        if (snapshot.connectionState == ConnectionState.waiting &&
+            snapshot.data == null) {
           return Container(); // Placeholder or loading indicator
         }
         if (snapshot.hasError) {
@@ -159,6 +205,7 @@ class _ChatListState extends ConsumerState<ChatList> {
       Map<String, dynamic> messageData, String body, String caption) {
     final id = messageData["key"]["id"];
     final information = messageData["information"];
+    // print('information $information' );
     final status = information["status"];
     final fromMe = information["fromMe"];
 
@@ -174,22 +221,22 @@ class _ChatListState extends ConsumerState<ChatList> {
       double? widthValue = (information["width"] is num)
           ? (information["width"] as num).toDouble()
           : null;
-
+      List<int> sortedValues = [];
       // Convert keys to a list and sort them
-      var sortedKeys = information["jpegThumbnail"].keys.toList()
-        ..sort((a, b) =>
-            int.parse(a.toString()).compareTo(int.parse(b.toString())));
-
-      // Retrieve values based on sorted keys
-      List<int> sortedValues = sortedKeys
-          .map((key) => information["jpegThumbnail"][key])
-          .toList()
-          .cast<int>();
-
+      if (information["jpegThumbnail"] != null) {
+        var sortedKeys = information["jpegThumbnail"].keys.toList()
+          ..sort((a, b) =>
+              int.parse(a.toString()).compareTo(int.parse(b.toString())));
+        // Retrieve values based on sorted keys
+        sortedValues = sortedKeys
+            .map((key) => information["jpegThumbnail"][key])
+            .toList()
+            .cast<int>();
+      }
       imageProperties = ImageProperties(
         height: heightValue ?? 0.0,
         width: widthValue ?? 0.0,
-        mimetype: information["mimetype"],
+        mimetype: information["mimetype"] ?? '',
         jpegThumbnail: Uint8List.fromList(sortedValues),
         caption: caption,
       );
@@ -205,23 +252,25 @@ class _ChatListState extends ConsumerState<ChatList> {
           : null;
       print("heightValue: $heightValue");
       print("widthValue: $widthValue");
-
+      List<int> sortedValues = [];
       // Convert keys to a list and sort them
-      var sortedKeys = information["jpegThumbnail"].keys.toList()
-        ..sort((a, b) =>
-            int.parse(a.toString()).compareTo(int.parse(b.toString())));
+      if (information["jpegThumbnail"] != null) {
+        var sortedKeys = information["jpegThumbnail"].keys.toList()
+          ..sort((a, b) =>
+              int.parse(a.toString()).compareTo(int.parse(b.toString())));
 
-      // Retrieve values based on sorted keys
-      List<int> sortedValues = sortedKeys
-          .map((key) => information["jpegThumbnail"][key])
-          .toList()
-          .cast<int>();
+        // Retrieve values based on sorted keys
+        sortedValues = sortedKeys
+            .map((key) => information["jpegThumbnail"][key])
+            .toList()
+            .cast<int>();
+      }
 
       videoProperties = VideoProperties(
         height: (heightValue ?? 0.0),
         width: widthValue ?? 0.0,
         seconds: information["seconds"] ?? 0,
-        mimetype: information["mimetype"],
+        mimetype: information["mimetype"] ?? '',
         jpegThumbnail: Uint8List.fromList(sortedValues),
         caption: caption,
       );
@@ -233,7 +282,22 @@ class _ChatListState extends ConsumerState<ChatList> {
           displayName: information["displayName"] ?? "",
           vcard: information["vcard"] ?? "");
     }
-
+    AudioProperties? audioProperties;
+    if (type == "audio") {
+      audioProperties = AudioProperties(
+        seconds: information["seconds"] ?? 13,
+      );
+      // print('type audio ${audioProperties.seconds}');
+    }
+    FileProperties? fileProperties;
+    if (type == "document") {
+      debugPrint('information $information');
+      fileProperties = FileProperties(
+        sizeInBytes: int.tryParse(information['fileLength'].toString()) ?? 0,
+        fileName: information['fileName'] ?? '',
+      );
+      // fileProperties.fileName=information['fileName']??'';
+    }
     final sent = status != 1;
     final delivery = status == 3 || status == 4;
     final seen = status == 4;
@@ -266,8 +330,10 @@ class _ChatListState extends ConsumerState<ChatList> {
         media: media,
         imageProperties: imageProperties,
         videoProperties: videoProperties,
+        fileProperties: fileProperties,
         vCardProperties: vcardProperties,
         sent: sent,
+        audioProperties: audioProperties,
         delivery: delivery,
         seen: seen,
         hasQuotedMsg: hasQuotedMsg,
@@ -293,7 +359,9 @@ class _ChatListState extends ConsumerState<ChatList> {
       media: media,
       imageProperties: imageProperties,
       videoProperties: videoProperties,
+      audioProperties: audioProperties,
       vCardProperties: vcardProperties,
+      fileProperties: fileProperties,
       hasQuotedMsg: hasQuotedMsg,
       quotedMessageBody: quotedMessageBody,
       quotedMessageType: ConvertMessage(quotedMessageType).toEnum(),
