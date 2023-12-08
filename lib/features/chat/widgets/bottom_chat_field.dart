@@ -20,12 +20,12 @@ import 'package:com.jee.tag.whatagsapp/features/chat/widgets/message_reply_previ
 class BottomChatField extends ConsumerStatefulWidget {
   final String recieverUserId;
   final bool isGroupChat;
-  final VoidCallback onTapShare;
+  final Function(bool val) setShareVisibility;
 
   const BottomChatField({
     Key? key,
     required this.recieverUserId,
-    required this.onTapShare,
+    required this.setShareVisibility,
     required this.isGroupChat,
   }) : super(key: key);
 
@@ -57,13 +57,15 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
     await _soundRecorder!.openRecorder();
     isRecorderInit = true;
   }
-void sendCurrentLocation()async{
-  var box = await Hive.openBox('config');
-  String deviceId = box.get('lastDeviceId') ?? "";
-  final key = box.get('lastEncryptionKey') ?? "";
-  ref.read(chatControllerProvider).sendCurrentLocationMessage(
-      context, ref, deviceId, widget.recieverUserId, key);
-}
+
+  void sendCurrentLocation() async {
+    var box = await Hive.openBox('config');
+    String deviceId = box.get('lastDeviceId') ?? "";
+    final key = box.get('lastEncryptionKey') ?? "";
+    ref.read(chatControllerProvider).sendCurrentLocationMessage(
+        context, ref, deviceId, widget.recieverUserId, key);
+  }
+
   void sendTextMessage() async {
     var box = await Hive.openBox('config');
 
@@ -72,7 +74,7 @@ void sendCurrentLocation()async{
 
     if (isShowSendButton) {
       final encryptedText =
-          await EncryptionUtils.encrypt(_messageController.text, key);
+      await EncryptionUtils.encrypt(_messageController.text, key);
       ref.read(chatControllerProvider).sendTextMessage(
           context, ref, deviceId, widget.recieverUserId, encryptedText, key);
       setState(() {
@@ -81,7 +83,8 @@ void sendCurrentLocation()async{
     } else {
       var tempDir = await getTemporaryDirectory();
       var path = '${tempDir.path}/flutter_sound.aac';
-      var file = File(path)..createSync();
+      var file = File(path)
+        ..createSync();
       if (!isRecorderInit) {
         debugPrint('Recording not Init');
         return;
@@ -101,16 +104,21 @@ void sendCurrentLocation()async{
     }
   }
 
-  void sendFileMessage(
-    File file,
-    MessageEnum messageEnum,
-  ) async {
+  void sendFileMessage(File file,
+      MessageEnum messageEnum,) async {
     var box = await Hive.openBox('config');
     String deviceId = box.get('lastDeviceId') ?? "";
     final key = box.get('lastEncryptionKey') ?? "";
     // debugPrint('deviceId $deviceId');
-    ref.read(chatControllerProvider).sendMediaMessage(context, ref, deviceId,
-        widget.recieverUserId, '', key, messageEnum, file);
+    ref.read(chatControllerProvider).sendMediaMessage(
+        context,
+        ref,
+        deviceId,
+        widget.recieverUserId,
+        '',
+        key,
+        messageEnum,
+        file);
   }
 
   void selectImage() async {
@@ -183,75 +191,86 @@ void sendCurrentLocation()async{
         Row(
           children: [
             Expanded(
-              child: TextFormField(
-                focusNode: focusNode,
-                controller: _messageController,
-                onChanged: (val) {
-                  setState(() {});
-                  // if (val.isNotEmpty) {
-                  //   setState(() {
-                  //     isShowSendButton = true;
-                  //   });
-                  // } else {
-                  //   setState(() {
-                  //     isShowSendButton = false;
-                  //   });
-                  // }
-                },
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: mobileChatBoxColor,
-                  prefixIcon: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: SizedBox(
-                      width: 50,
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  bottom: 8,
+                  right: 2,
+                  left: 2,
+                ),
+                child: TextFormField(
+                  focusNode: focusNode,
+                  controller: _messageController,
+                  onTap: () => widget.setShareVisibility(false),
+                  onChanged: (val) {
+                    setState(() {});
+                    // if (val.isNotEmpty) {
+                    //   setState(() {
+                    //     isShowSendButton = true;
+                    //   });
+                    // } else {
+                    //   setState(() {
+                    //     isShowSendButton = false;
+                    //   });
+                    // }
+                  },
+                  decoration: InputDecoration(
+                    filled: true,
+                    fillColor: mobileChatBoxColor,
+                    prefixIcon: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: SizedBox(
+                        width: 50,
+                        child: Row(
+                          children: [
+                            IconButton(
+                              onPressed: toggleEmojiKeyboardContainer,
+                              icon: Icon(
+                                isShowEmojiContainer
+                                    ? Icons.keyboard_alt_outlined
+                                    : Icons.emoji_emotions,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    suffixIcon: SizedBox(
+                      width: 100,
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           IconButton(
-                            onPressed: toggleEmojiKeyboardContainer,
-                            icon: Icon(
-                              isShowEmojiContainer
-                                  ? Icons.keyboard_alt_outlined
-                                  : Icons.emoji_emotions,
+                            onPressed: selectImage,
+                            icon: const Icon(
+                              Icons.camera_alt,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              hideKeyboard();
+                              widget.setShareVisibility(true);
+                            },
+                            // onPressed: selectGIF,
+                            icon: const Icon(
+                              Icons.attach_file,
                               color: Colors.grey,
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                  suffixIcon: SizedBox(
-                    width: 100,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        IconButton(
-                          onPressed: selectImage,
-                          icon: const Icon(
-                            Icons.camera_alt,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        IconButton(
-                          // onPressed: widget.onTapShare,
-                          onPressed: sendCurrentLocation,
-                          icon: const Icon(
-                            Icons.attach_file,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ],
+                    hintText: 'Type a message!',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(20.0),
+                      borderSide: const BorderSide(
+                        width: 0,
+                        style: BorderStyle.none,
+                      ),
                     ),
+                    contentPadding: const EdgeInsets.all(10),
                   ),
-                  hintText: 'Type a message!',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20.0),
-                    borderSide: const BorderSide(
-                      width: 0,
-                      style: BorderStyle.none,
-                    ),
-                  ),
-                  contentPadding: const EdgeInsets.all(10),
                 ),
               ),
             ),
@@ -270,8 +289,8 @@ void sendCurrentLocation()async{
                     isShowSendButton
                         ? Icons.send
                         : isRecording
-                            ? Icons.close
-                            : Icons.mic,
+                        ? Icons.close
+                        : Icons.mic,
                     color: Colors.white,
                   ),
                 ),
@@ -281,22 +300,22 @@ void sendCurrentLocation()async{
         ),
         isShowEmojiContainer
             ? SizedBox(
-                height: 310,
-                child: EmojiPicker(
-                  onEmojiSelected: ((category, emoji) {
-                    setState(() {
-                      _messageController.text =
-                          _messageController.text + emoji.emoji;
-                    });
+          height: 310,
+          child: EmojiPicker(
+            onEmojiSelected: ((category, emoji) {
+              setState(() {
+                _messageController.text =
+                    _messageController.text + emoji.emoji;
+              });
 
-                    // if (!isShowSendButton) {
-                    //   setState(() {
-                    //     isShowSendButton = true;
-                    //   });
-                    // }
-                  }),
-                ),
-              )
+              // if (!isShowSendButton) {
+              //   setState(() {
+              //     isShowSendButton = true;
+              //   });
+              // }
+            }),
+          ),
+        )
             : const SizedBox(),
       ],
     );

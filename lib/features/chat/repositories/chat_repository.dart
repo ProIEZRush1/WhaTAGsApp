@@ -148,8 +148,8 @@ class ChatRepository {
         "information": {
           "status": 1,
           "timestamp": timestamp ~/ 1000,
-          if(messageEnum==MessageEnum.text)
-          "body": await EncryptionUtils.encrypt(text, key),
+          if (messageEnum == MessageEnum.text)
+            "body": await EncryptionUtils.encrypt(text, key),
           "type": messageEnum.name,
           "fromMe": true,
           "media": false,
@@ -184,7 +184,6 @@ class ChatRepository {
       final firebaseUid =
           ref.read(authControllerProvider).authRepository.auth.currentUser!.uid;
 
-
       final jsonDataToSend = Uri.encodeComponent(jsonEncode(dataToSend));
 
       apiService
@@ -200,6 +199,7 @@ class ChatRepository {
         apiService.checkIfLoggedIn(context, ref, data);
       });
     } catch (e) {
+      debugPrint('Error $e');
       showSnackBar(context: context, content: e.toString());
     }
   }
@@ -212,8 +212,19 @@ class ChatRepository {
       String text,
       String key,
       MessageEnum messageEnum,
-      File file) async {
+      File file,
+      {double? time}) async {
     try {
+      final dataToSend = {
+        "type": messageEnum.type,
+        "caption": text,
+        // 'file':file,
+        'fileName': file.path.split('/').last,
+        'media': await MultipartFile.fromFile(
+          file.path,
+          filename: file.path.split('/').last,
+        )
+      };
       // Create default message in storage
       final String messageId = const Uuid().v4(); // Generates a unique ID
       final int timestamp = DateTime.now().millisecondsSinceEpoch;
@@ -230,12 +241,26 @@ class ChatRepository {
           "type": messageEnum.name,
           "fromMe": true,
           "media": true,
+          if (time != null) 'seconds': time,
           "fileName": file.path.split('/').last,
           "fileLength": file.readAsBytesSync().length,
         },
         "messageTimestamp": timestamp ~/ 1000,
         "status": 1,
       };
+      if (messageEnum == MessageEnum.image) {
+        var decodedImage = await decodeImageFromList(file.readAsBytesSync());
+        defaultMessage["information"]['height'] = decodedImage.height;
+        defaultMessage["information"]['width'] = decodedImage.width;
+        dataToSend['height'] = decodedImage.height;
+        dataToSend['width'] = decodedImage.width;
+      } else if (messageEnum == MessageEnum.video) {
+        var height = 848, width = 384;
+        defaultMessage["information"]['height'] = height;
+        defaultMessage["information"]['width'] = width;
+        dataToSend['height'] = height;
+        dataToSend['width'] = width;
+      }
       firestore
           .collection('users')
           .doc(auth.currentUser!.uid)
@@ -250,16 +275,6 @@ class ChatRepository {
       final firebaseUid =
           ref.read(authControllerProvider).authRepository.auth.currentUser!.uid;
 
-      final dataToSend = {
-        "type": messageEnum.type,
-        "caption": text,
-        // 'file':file,
-        'fileName': file.path.split('/').last,
-        'media': await MultipartFile.fromFile(
-          file.path,
-          filename: file.path.split('/').last,
-        )
-      };
       debugPrint(dataToSend.toString());
       apiService
           .postMultipart(

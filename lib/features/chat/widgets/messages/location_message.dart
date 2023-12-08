@@ -25,22 +25,33 @@ class LocationMessage extends StatelessWidget {
           );
         }
       },
-      child: Image.network(
-        loadingBuilder: (context, child, loadingProgress) {
-          if(loadingProgress?.expectedTotalBytes==loadingProgress?.cumulativeBytesLoaded) return child;
-          return SizedBox(
-            width: 300,
-            height: 160,
-            child: Icon(
-              Icons.location_on,
-              color: Colors.white.withOpacity(.2),
-              size: 120,
-            ),
-          );
-        },
+      child: SizedBox(
         width: 300,
         height: 160,
-        'https://maps.google.com/maps/api/staticmap?center=$lat,$long&zoom=15&size=300x160&markers=color:red%7Clabel:%7C$lat,$long&key=AIzaSyBAeEUvjFJvE8rwkDO9J86adS7yd9aM2Vs',
+        child: Stack(
+          children: [
+            const Center(child: CircularProgressIndicator()),
+            Image.network(
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress?.expectedTotalBytes ==
+                    loadingProgress?.cumulativeBytesLoaded) {
+                  return ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: child,
+                  );
+                }
+                return Icon(
+                  Icons.location_on,
+                  color: Colors.white.withOpacity(.2),
+                  size: 120,
+                );
+              },
+              // width: 300,
+              // height: 160,
+              'https://maps.google.com/maps/api/staticmap?center=$lat,$long&zoom=15&size=300x160&markers=color:red%7Clabel:%7C$lat,$long&key=AIzaSyBAeEUvjFJvE8rwkDO9J86adS7yd9aM2Vs',
+            ),
+          ],
+        ),
       ),
     );
   }

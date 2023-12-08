@@ -91,12 +91,22 @@ class _MobileChatScreenState extends ConsumerState<MobileChatScreen> {
                       isGroupChat: isGroupChat,
                     ),
                   ),
-                  if (showShareOptions)
-                    const Positioned(
+
+                    Positioned(
                       right: 0,
                       left: 0,
                       bottom: 0,
-                      child: SelectShareOptionContainer(),
+                      child: Visibility(
+                         visible: showShareOptions,
+                        child: SelectShareOptionContainer(
+                          recieverUserId: uid,
+                          ref: ref,
+                          hideShareButton: () {
+                            showShareOptions = false;
+                            setState(() {});
+                          },
+                        ),
+                      ),
                     ),
                 ],
               ),
@@ -104,8 +114,8 @@ class _MobileChatScreenState extends ConsumerState<MobileChatScreen> {
             BottomChatField(
               recieverUserId: uid,
               isGroupChat: isGroupChat,
-              onTapShare: () {
-                showShareOptions = true;
+              setShareVisibility: (val) {
+                showShareOptions = val;
                 setState(() {});
               },
             ),

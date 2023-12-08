@@ -131,6 +131,10 @@ class _ImageMessageState extends State<ImageMessage> {
     return Stack(
       alignment: Alignment.center,
       children: [
+        ///place holder loader show before image is load
+        const Center(
+          child: CircularProgressIndicator(),
+        ),
         widget.jpegThumbnail.isNotEmpty
             ? Image.memory(
                 widget.jpegThumbnail,

@@ -27,10 +27,10 @@ Future<File?> pickImageFromGallery(BuildContext context) async {
   return image;
 }
 
-Future<File?> pickFile(BuildContext context) async {
+Future<File?> pickFile(BuildContext context,{List<String>? allowedExtensions}) async {
   File? file;
   try {
-    FilePickerResult? result = await FilePicker.platform.pickFiles();
+    FilePickerResult? result = await FilePicker.platform.pickFiles(allowedExtensions: allowedExtensions,type:allowedExtensions==null?FileType.any: FileType.custom);
     if (result != null) {
       file = File(result.files.single.path!);
     }

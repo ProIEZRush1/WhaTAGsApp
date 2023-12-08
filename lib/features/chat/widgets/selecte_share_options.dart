@@ -1,69 +1,132 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'dart:io';
+
+import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
+import 'package:com.jee.tag.whatagsapp/common/utils/utils.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/controller/chat_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive/hive.dart';
 
-class SelectShareOptionContainer extends ConsumerStatefulWidget {
-  const SelectShareOptionContainer({Key? key}) : super(key: key);
+class SelectShareOptionContainer extends StatefulWidget {
+  const SelectShareOptionContainer({
+    Key? key,
+    required this.recieverUserId,
+    required this.hideShareButton,
+    required this.ref,
+  }) : super(key: key);
+  final String recieverUserId;
+  final VoidCallback hideShareButton;
+  final WidgetRef ref;
 
   @override
-  ConsumerState<SelectShareOptionContainer> createState() =>
+  State<SelectShareOptionContainer> createState() =>
       _SelectShareOptionContainerState();
 }
 
-class Model {
-  String title;
-  IconData icon;
-  int index = -1;
-  Color? color;
-
-  Model({required this.title, required this.icon, this.color});
-}
-
 class _SelectShareOptionContainerState
-    extends ConsumerState<SelectShareOptionContainer> {
-  List<Model> items = [
-    Model(
-      title: 'Document',
-      icon: Icons.file_copy,
-      color: Colors.deepPurple,
-    ),
-    Model(
-      title: 'Camera',
-      icon: Icons.camera_alt,
-      color: Colors.pink,
-    ),
-    Model(
-      title: 'Gallery',
-      icon: Icons.photo_rounded,
-      color: Colors.purple,
-    ),
-    Model(
-      title: 'Audio',
-      icon: Icons.headphones,
-      color: Colors.orange,
-    ),
-    Model(
-      title: 'Location',
-      icon: Icons.location_on,
-      color: Colors.green,
-    ),
-    Model(
-      title: 'Contact',
-      icon: Icons.person,
-      color: Colors.blue,
-    ),
-  ];
+    extends State<SelectShareOptionContainer> {
+  WidgetRef get ref => widget.ref;
+
+  List<ShareItemModel> get items => [
+        ShareItemModel(
+          title: 'Document',
+          icon: Icons.file_copy,
+          color: Colors.deepPurple,
+          onTap: selectDocument,
+        ),
+        ShareItemModel(
+          title: 'Camera',
+          icon: Icons.camera_alt,
+          color: Colors.pink,
+          onTap: selectImage,
+        ),
+        ShareItemModel(
+          title: 'Gallery',
+          // title: 'Video',
+          icon: Icons.photo_rounded,
+          // icon: Icons.video_camera_back_outlined,
+          color: Colors.purple,
+          onTap: selectVideoAndImage,
+        ),
+        ShareItemModel(
+          title: 'Audio',
+          icon: Icons.headphones,
+          color: Colors.orange,
+          onTap: null,
+        ),
+        ShareItemModel(
+          title: 'Location',
+          icon: Icons.location_on,
+          color: Colors.green,
+          onTap: sendCurrentLocation,
+        ),
+        ShareItemModel(
+          title: 'Contact',
+          icon: Icons.person,
+          color: Colors.blue,
+          onTap: null,
+        ),
+      ];
+
+  void selectDocument() async {
+    File? file = await pickFile(context);
+
+    if (file != null) {
+      _sendFileMessage(file, MessageEnum.document);
+    }
+    widget.hideShareButton();
+  }
+
+  void selectImage() async {
+    File? image = await pickImageFromGallery(context);
+    if (image != null) {
+      _sendFileMessage(image, MessageEnum.image);
+    }
+    widget.hideShareButton();
+  }
+
+  void selectVideoAndImage() async {
+    File? video = await pickFile(context,
+        allowedExtensions: ['jpg', 'png', 'mp4', 'avi', 'mov']);
+    widget.hideShareButton();
+    if (video != null) {
+      _sendFileMessage(video, MessageEnum.video);
+    }
+
+  }
+
+  void sendCurrentLocation() async {
+    var box = await Hive.openBox('config');
+    String deviceId = box.get('lastDeviceId') ?? "";
+    final key = box.get('lastEncryptionKey') ?? "";
+    ref.read(chatControllerProvider).sendCurrentLocationMessage(
+        context, ref, deviceId, widget.recieverUserId, key);
+    widget.hideShareButton();
+  }
+
+  void _sendFileMessage(
+    File file,
+    MessageEnum messageEnum,
+  ) async {
+    var box = await Hive.openBox('config');
+    String deviceId = box.get('lastDeviceId') ?? "";
+    final key = box.get('lastEncryptionKey') ?? "";
+    // debugPrint('deviceId $deviceId');
+    ref.read(chatControllerProvider).sendMediaMessage(context, ref, deviceId,
+        widget.recieverUserId, '', key, messageEnum, file);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 15, vertical:10),
+      margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
       // height: 50,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       width: double.maxFinite,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15)
-      ),
+          color: Colors.white, borderRadius: BorderRadius.circular(15)),
       child: Wrap(
         alignment: WrapAlignment.center,
         spacing: 0,
@@ -75,7 +138,16 @@ class _SelectShareOptionContainerState
                 child: Column(
                   children: [
                     InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        if (e.onTap != null) {
+                          e.onTap!();
+                        } else {
+                          widget.hideShareButton();
+                          showSnackBar(
+                              context: context,
+                              content: '${e.title} not implement yet!!');
+                        }
+                      },
                       child: CircleAvatar(
                         radius: 30,
                         backgroundColor: e.color ?? Colors.red,
@@ -101,4 +173,14 @@ class _SelectShareOptionContainerState
       ),
     );
   }
+}
+
+class ShareItemModel {
+  String title;
+  IconData icon;
+  VoidCallback? onTap;
+  Color? color;
+
+  ShareItemModel(
+      {required this.title, this.onTap, required this.icon, this.color});
 }

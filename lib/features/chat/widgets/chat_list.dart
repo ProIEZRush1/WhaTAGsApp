@@ -117,11 +117,9 @@ class _ChatListState extends ConsumerState<ChatList> {
     String decryptedText = await EncryptionUtils.decrypt(encryptedText, _key!);
 
     _decryptedMessageCache[encryptedText] = decryptedText;
-    if(_decryptedMessageCache.length==1){
-      if(mounted){
-        setState(() {
-
-        });
+    if (_decryptedMessageCache.length == 1) {
+      if (mounted) {
+        setState(() {});
       }
     }
     return decryptedText;
@@ -166,8 +164,8 @@ class _ChatListState extends ConsumerState<ChatList> {
             return _buildListItem(messages[index], animation);
           },
         ),
-        if(_decryptedMessageCache.isEmpty)
-        const Center(child: CircularProgressIndicator()),
+        if (_decryptedMessageCache.isEmpty)
+          const Center(child: CircularProgressIndicator()),
       ],
     );
   }
@@ -244,7 +242,7 @@ class _ChatListState extends ConsumerState<ChatList> {
     }
 
     VideoProperties? videoProperties;
-    if (type == "video") {
+    if (type == MessageEnum.video.name) {
       double? heightValue = (information["height"] is num)
           ? (information["height"] as num).toDouble()
           : null;
@@ -278,20 +276,20 @@ class _ChatListState extends ConsumerState<ChatList> {
     }
 
     VCardProperties? vcardProperties;
-    if (type == "vcard") {
+    if (type == MessageEnum.vcard.name) {
       vcardProperties = VCardProperties(
           displayName: information["displayName"] ?? "",
           vcard: information["vcard"] ?? "");
     }
     AudioProperties? audioProperties;
-    if (type == "audio") {
+    if (type == MessageEnum.voice.name || type == MessageEnum.audio.name) {
       audioProperties = AudioProperties(
         seconds: information["seconds"] ?? 13,
       );
       // print('type audio ${audioProperties.seconds}');
     }
     FileProperties? fileProperties;
-    if (type == "document") {
+    if (type == MessageEnum.document.name) {
       fileProperties = FileProperties(
         sizeInBytes: int.tryParse(information['fileLength'].toString()) ?? 0,
         fileName: information['fileName'] ?? '',
@@ -299,14 +297,14 @@ class _ChatListState extends ConsumerState<ChatList> {
       // fileProperties.fileName=information['fileName']??'';
     }
     LocationProperties? locationProperties;
-    if (type == "location") {
+    if (type == MessageEnum.location.name) {
       locationProperties = LocationProperties(
         lat: double.tryParse(information['degreesLatitude'].toString()) ?? 0,
         long: double.tryParse(information['degreesLongitude'].toString()) ?? 0,
       );
       // fileProperties.fileName=information['fileName']??'';
     }
-    print('information ===$information');
+    // print('information ===$information');
     final sent = status != 1;
     final delivery = status == 3 || status == 4;
     final seen = status == 4;
