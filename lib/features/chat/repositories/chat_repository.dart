@@ -7,6 +7,7 @@ import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
 import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/repositories/chat_database.dart';
 import 'package:com.jee.tag.whatagsapp/utils/EncryptionUtils.dart';
+import 'package:com.jee.tag.whatagsapp/utils/LocationUtils.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -123,12 +124,21 @@ class ChatRepository {
     });
   }
 
-  void sendTextMessage(BuildContext context, WidgetRef ref, String deviceId,
-      String chatId, String text, String key) async {
+  void sendMessage(
+    BuildContext context,
+    WidgetRef ref,
+    String deviceId,
+    String chatId,
+    String text,
+    String key,
+    MessageEnum messageEnum,
+  ) async {
     try {
+      final dataToSend = {"type": messageEnum.name, "data": text};
       // Create default message in storage
       final String messageId = const Uuid().v4(); // Generates a unique ID
       final int timestamp = DateTime.now().millisecondsSinceEpoch;
+
       final Map<String, dynamic> defaultMessage = {
         "key": {
           "remoteJid": chatId,
@@ -138,14 +148,28 @@ class ChatRepository {
         "information": {
           "status": 1,
           "timestamp": timestamp ~/ 1000,
+          if(messageEnum==MessageEnum.text)
           "body": await EncryptionUtils.encrypt(text, key),
-          "type": "text",
+          "type": messageEnum.name,
           "fromMe": true,
           "media": false,
         },
         "messageTimestamp": timestamp ~/ 1000,
         "status": 1,
       };
+      if (messageEnum == MessageEnum.location) {
+        var location = await LocationUtils.getLocation();
+        if (location == null) {
+          Fluttertoast.showToast(
+            msg: "Unable to get location",
+          );
+          return;
+        }
+        defaultMessage["information"]['degreesLatitude'] = location.latitude;
+        defaultMessage["information"]['degreesLongitude'] = location.longitude;
+        dataToSend['degreesLatitude'] = location.latitude.toString();
+        dataToSend['degreesLongitude'] = location.longitude.toString();
+      }
       firestore
           .collection('users')
           .doc(auth.currentUser!.uid)
@@ -160,7 +184,7 @@ class ChatRepository {
       final firebaseUid =
           ref.read(authControllerProvider).authRepository.auth.currentUser!.uid;
 
-      final dataToSend = {"type": "text", "data": text};
+
       final jsonDataToSend = Uri.encodeComponent(jsonEncode(dataToSend));
 
       apiService
@@ -206,7 +230,7 @@ class ChatRepository {
           "type": messageEnum.name,
           "fromMe": true,
           "media": true,
-          "fileName":file.path.split('/').last,
+          "fileName": file.path.split('/').last,
           "fileLength": file.readAsBytesSync().length,
         },
         "messageTimestamp": timestamp ~/ 1000,

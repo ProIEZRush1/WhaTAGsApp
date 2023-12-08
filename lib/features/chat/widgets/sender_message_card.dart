@@ -1,6 +1,7 @@
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/ImageProperties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/audio_properties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/file_properties.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/location_properties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/vcardProperties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/videoProperties.dart';
 import 'package:flutter/material.dart' hide DateUtils;
@@ -26,6 +27,7 @@ class SenderMessageCard extends StatelessWidget {
   final VCardProperties? vCardProperties;
   final FileProperties? fileProperties;
   final AudioProperties? audioProperties;
+ final LocationProperties? locationProperties;
   final bool hasQuotedMsg;
   final String quotedMessageBody;
   final MessageEnum quotedMessageType;
@@ -42,6 +44,7 @@ class SenderMessageCard extends StatelessWidget {
     this.imageProperties,
     this.videoProperties,
     this.vCardProperties,
+    this.locationProperties,
     this.fileProperties,
     this.audioProperties,
     required this.hasQuotedMsg,
@@ -88,6 +91,7 @@ class SenderMessageCard extends StatelessWidget {
                       ),
                       child: Message(
                         ref: ref,
+                        locationProperties: locationProperties,
                         chatId: chatId,
                         messageId: id,
                         message: quotedMessageBody,
@@ -107,6 +111,7 @@ class SenderMessageCard extends StatelessWidget {
                     messageId: id,
                     message: body,
                     type: type,
+                    locationProperties: locationProperties,
                     imageProperties: imageProperties,
                     videoProperties: videoProperties,
                     vCardProperties: vCardProperties,

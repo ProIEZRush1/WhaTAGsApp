@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/ImageProperties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/audio_properties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/file_properties.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/location_properties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/vcardProperties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/videoProperties.dart';
 import 'package:flutter/material.dart' hide DateUtils;
@@ -36,6 +37,7 @@ class MyMessageCard extends StatelessWidget {
   final VoidCallback onLeftSwipe;
   final AudioProperties? audioProperties;
   final FileProperties? fileProperties;
+ final LocationProperties? locationProperties;
 
   const MyMessageCard({
     Key? key,
@@ -47,6 +49,7 @@ class MyMessageCard extends StatelessWidget {
     required this.type,
     required this.media,
     this.imageProperties,
+    this.locationProperties,
     this.fileProperties,
     this.videoProperties,
     this.vCardProperties,
@@ -105,6 +108,7 @@ class MyMessageCard extends StatelessWidget {
                         messageId: id,
                         message: quotedMessageBody,
                         audioProperties: audioProperties,
+                        locationProperties: locationProperties,
                         type: quotedMessageType,
                         imageProperties: null,
                         fileProperties: fileProperties,
@@ -123,6 +127,7 @@ class MyMessageCard extends StatelessWidget {
                     type: type,
                     imageProperties: imageProperties,
                     fileProperties: fileProperties,
+                    locationProperties: locationProperties,
                     audioProperties: audioProperties,
                     videoProperties: videoProperties,
                     vCardProperties: vCardProperties,

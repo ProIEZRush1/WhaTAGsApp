@@ -57,7 +57,13 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
     await _soundRecorder!.openRecorder();
     isRecorderInit = true;
   }
-
+void sendCurrentLocation()async{
+  var box = await Hive.openBox('config');
+  String deviceId = box.get('lastDeviceId') ?? "";
+  final key = box.get('lastEncryptionKey') ?? "";
+  ref.read(chatControllerProvider).sendCurrentLocationMessage(
+      context, ref, deviceId, widget.recieverUserId, key);
+}
   void sendTextMessage() async {
     var box = await Hive.openBox('config');
 
@@ -228,7 +234,7 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
                         ),
                         IconButton(
                           // onPressed: widget.onTapShare,
-                          onPressed: selectDocument,
+                          onPressed: sendCurrentLocation,
                           icon: const Icon(
                             Icons.attach_file,
                             color: Colors.grey,

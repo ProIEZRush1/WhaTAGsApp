@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/ImageProperties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/audio_properties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/file_properties.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/location_properties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/vcardProperties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/videoProperties.dart';
 import 'package:com.jee.tag.whatagsapp/utils/EncryptionUtils.dart';
@@ -291,13 +292,21 @@ class _ChatListState extends ConsumerState<ChatList> {
     }
     FileProperties? fileProperties;
     if (type == "document") {
-      debugPrint('information $information');
       fileProperties = FileProperties(
         sizeInBytes: int.tryParse(information['fileLength'].toString()) ?? 0,
         fileName: information['fileName'] ?? '',
       );
       // fileProperties.fileName=information['fileName']??'';
     }
+    LocationProperties? locationProperties;
+    if (type == "location") {
+      locationProperties = LocationProperties(
+        lat: double.tryParse(information['degreesLatitude'].toString()) ?? 0,
+        long: double.tryParse(information['degreesLongitude'].toString()) ?? 0,
+      );
+      // fileProperties.fileName=information['fileName']??'';
+    }
+    print('information ===$information');
     final sent = status != 1;
     final delivery = status == 3 || status == 4;
     final seen = status == 4;
@@ -332,6 +341,7 @@ class _ChatListState extends ConsumerState<ChatList> {
         videoProperties: videoProperties,
         fileProperties: fileProperties,
         vCardProperties: vcardProperties,
+        locationProperties: locationProperties,
         sent: sent,
         audioProperties: audioProperties,
         delivery: delivery,
@@ -361,6 +371,7 @@ class _ChatListState extends ConsumerState<ChatList> {
       videoProperties: videoProperties,
       audioProperties: audioProperties,
       vCardProperties: vcardProperties,
+      locationProperties: locationProperties,
       fileProperties: fileProperties,
       hasQuotedMsg: hasQuotedMsg,
       quotedMessageBody: quotedMessageBody,
