@@ -21,7 +21,15 @@ class MessageUtils {
         "+$phoneNumber";
     return contactName;
   }
-  static String? getContactName(String phoneNumber) {
+  static String? getContactName(String phoneNumber,{bool fromId=false}) {
+    if(fromId){
+      try {
+        phoneNumber = phoneNumber.split("@")[0];
+      } on Exception catch (e) {
+        debugPrint(e.toString());
+        return null;
+      }
+    }
     String sanitizedInput = phoneNumber.replaceAll(RegExp(r'\D'), '');
 
     if (sanitizedInput.length >= 4) {
@@ -38,7 +46,7 @@ class MessageUtils {
             sanitizedContact = sanitizedContact.substring(2);
             // sanitizedContact = sanitizedContact.substring(3);
           }
-          print('sanitizedInput $sanitizedInput $sanitizedContact');
+          // print('sanitizedInput $sanitizedInput $sanitizedContact');
           if (sanitizedInput == sanitizedContact ||
               sanitizedContact == sanitizedInput) {
             return contact.displayName;

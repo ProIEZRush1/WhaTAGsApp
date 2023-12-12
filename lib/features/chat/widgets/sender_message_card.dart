@@ -18,7 +18,7 @@ class SenderMessageCard extends StatelessWidget {
   final WidgetRef ref;
   final String chatId;
   final String id;
-  final String? participantId;
+  final String? participantId,name;
   final String body;
   final int timestamp;
   final MessageEnum type;
@@ -41,6 +41,7 @@ class SenderMessageCard extends StatelessWidget {
     required this.chatId,
     required this.id,
     required this.participantId,
+    required this.name,
     required this.body,
     required this.timestamp,
     required this.isGroupChat,
@@ -90,6 +91,17 @@ class SenderMessageCard extends StatelessWidget {
                             style: const TextStyle(
                               fontSize: 13,
                               color: Colors.pink,
+                            ),
+                          ),
+                          if(MessageUtils.getContactName(participantId!)==null)
+                          Padding(
+                            padding: const EdgeInsets.only(left:10.0),
+                            child: Text(
+                              name??'',
+                              style: const TextStyle(
+                                fontSize: 13,
+                                color: Colors.grey,
+                              ),
                             ),
                           ),
                         ],

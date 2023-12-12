@@ -358,7 +358,9 @@ class _ChatListState extends ConsumerState<ChatList> {
 
       return myMessageCard;
     }
+    print('information## $information');
     final SenderMessageCard senderMessageCard = SenderMessageCard(
+      name: information['name'],
       key: messageKey,
       isGroupChat:widget.isGroupChat,
       ref: ref,

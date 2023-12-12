@@ -38,6 +38,7 @@ class _VideoMessageState extends State<VideoMessage> {
   bool _isDownloading = false;
   bool _videoDownloaded = false;
   VideoPlayerController? _videoController;
+  static var videoFileCached = <String,String?>{};
 
   @override
   void initState() {
@@ -46,12 +47,12 @@ class _VideoMessageState extends State<VideoMessage> {
   }
 
   _checkVideoDownloaded() async {
-    final _localFilePath =
+    final _localFilePath =videoFileCached[widget.messageId]??
         await MessageUtils.getLocalFilePath(widget.messageId);
-
     if (_localFilePath != null) {
       File videoFile = File(_localFilePath);
-      if (await videoFile.exists()) {
+      if (videoFile.existsSync()) {
+        videoFileCached[widget.messageId]=_localFilePath;
         _videoDownloaded = true;
         refresh();
         _initializeVideoController(_localFilePath);
@@ -117,7 +118,7 @@ class _VideoMessageState extends State<VideoMessage> {
               ? _buildDownloadedVideo()
               : _buildVideoPlaceholder(),
         ),
-        if (widget.caption?.isNotEmpty??false)
+        if (widget.caption?.isNotEmpty ?? false)
           Padding(
             padding: const EdgeInsets.all(4.0),
             child: Text(
