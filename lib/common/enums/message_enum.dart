@@ -38,7 +38,7 @@ extension ConvertMessage on String {
       case 'vcard':
         return MessageEnum.vcard;
       case 'location':
-        return MessageEnum.vcard;
+        return MessageEnum.location;
       case 'sticker':
         return MessageEnum.sticker;
       default:

@@ -38,6 +38,7 @@ class _VideoMessageState extends State<VideoMessage> {
   bool _isDownloading = false;
   bool _videoDownloaded = false;
   VideoPlayerController? _videoController;
+  static var videoFileCached = <String,String?>{};
 
   @override
   void initState() {
@@ -46,12 +47,12 @@ class _VideoMessageState extends State<VideoMessage> {
   }
 
   _checkVideoDownloaded() async {
-    final _localFilePath =
+    final _localFilePath =videoFileCached[widget.messageId]??
         await MessageUtils.getLocalFilePath(widget.messageId);
-
     if (_localFilePath != null) {
       File videoFile = File(_localFilePath);
-      if (await videoFile.exists()) {
+      if (videoFile.existsSync()) {
+        videoFileCached[widget.messageId]=_localFilePath;
         _videoDownloaded = true;
         refresh();
         _initializeVideoController(_localFilePath);
@@ -72,13 +73,13 @@ class _VideoMessageState extends State<VideoMessage> {
     setState(() {
       _isDownloading = true;
     });
-
+    videoFileCached.remove(widget.messageId);
     bool success = await MessageUtils.downloadAndSaveFile(
       context,
       widget.ref,
       widget.chatId,
       widget.messageId,
-        MessageUtils.getFileExtension(MessageEnum.video),
+      MessageUtils.getFileExtension(MessageEnum.video),
     );
 
     if (success) {
@@ -117,9 +118,9 @@ class _VideoMessageState extends State<VideoMessage> {
               ? _buildDownloadedVideo()
               : _buildVideoPlaceholder(),
         ),
-        if (widget.caption != null)
+        if (widget.caption?.isNotEmpty ?? false)
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(4.0),
             child: Text(
               widget.caption!,
               textAlign: TextAlign.left,
@@ -139,7 +140,20 @@ class _VideoMessageState extends State<VideoMessage> {
       return Center(
         child: AspectRatio(
           aspectRatio: _videoController!.value.aspectRatio,
-          child: VideoPlayer(_videoController!),
+          child: Stack(
+            children: [
+              VideoPlayer(_videoController!),
+              Center(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.5),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.play_arrow),
+                ),
+              )
+            ],
+          ),
         ),
       );
     } else {
@@ -151,18 +165,23 @@ class _VideoMessageState extends State<VideoMessage> {
     return Stack(
       alignment: Alignment.center,
       children: [
+        ///place holder loader show before video is load
+        const Center(
+          child: CircularProgressIndicator(),
+        ),
         // Display the video thumbnail before downloading
         widget.jpegThumbnail.isNotEmpty
             ? Image.memory(
                 widget.jpegThumbnail,
                 fit: BoxFit.cover,
-                height: widget.height,
-                width: widget.width, // Set the width to match the preview
+                height: widget.height / 2,
+                width: widget.width,
+                // Set the width to match the preview
               )
             : Image.asset(
                 "assets/blurred.jpg",
                 fit: BoxFit.cover,
-                height: widget.height,
+                height: widget.height / 2,
                 width: widget.width, // Set the width to match the preview
               ),
         if (_isDownloading)

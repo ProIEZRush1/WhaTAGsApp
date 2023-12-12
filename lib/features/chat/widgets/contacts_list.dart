@@ -1,5 +1,6 @@
 import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/repositories/chat_database.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/message_utils.dart';
 import 'package:com.jee.tag.whatagsapp/requests/ApiService.dart';
 import 'package:com.jee.tag.whatagsapp/utils/DialogUtils.dart';
 import 'package:flutter/material.dart' hide DateUtils;
@@ -32,7 +33,7 @@ class ContactsList extends ConsumerStatefulWidget {
 class _ContactsListState extends ConsumerState<ContactsList> {
   String? lastDeviceId;
   String? lastEncryptionKey;
-  List<Contact>? cachedContacts;
+  List<Contact>? get cachedContacts=>MessageUtils.cachedContacts;
 
   Stream<List<Map<String, dynamic>>>? stream;
   List<Map<String, dynamic>>? cachedStreamData;
@@ -59,8 +60,13 @@ class _ContactsListState extends ConsumerState<ContactsList> {
     box.put('lastEncryptionKey', lastEncryptionKey);
 
     if (await FlutterContacts.requestPermission()) {
+      print('contact sync from Device');
       FlutterContacts.getContacts(withProperties: true)
-          .then((value) => cachedContacts = value);
+          .then((value) {
+            print(value.first.name);
+            print(value.first.phones.first.number);
+            return MessageUtils.cachedContacts = value;
+          });
     }
 
     final ChatDatabase chatDatabase = ChatDatabase();
@@ -94,32 +100,6 @@ class _ContactsListState extends ConsumerState<ContactsList> {
     };
   }
 
-  String? getContactName(String phoneNumber) {
-    String sanitizedInput = phoneNumber.replaceAll(RegExp(r'\D'), '');
-
-    if (sanitizedInput.length >= 4) {
-      sanitizedInput = sanitizedInput.substring(4);
-    }
-
-    if (cachedContacts != null) {
-      for (var contact in cachedContacts!) {
-        for (final phone in contact.phones) {
-          String sanitizedContact = phone.number.replaceAll(RegExp(r'\D'), '');
-
-          if (sanitizedContact.length >= 3) {
-            sanitizedContact = sanitizedContact.substring(3);
-          }
-
-          if (sanitizedInput == sanitizedContact ||
-              sanitizedContact == sanitizedInput) {
-            return contact.displayName;
-          }
-        }
-      }
-    }
-    return null; // Return null if no contact is found
-  }
-
   String searchTerm = "";
 
   List<Map<String, dynamic>> filterChats(List<Map<String, dynamic>> chats) {
@@ -132,8 +112,8 @@ class _ContactsListState extends ConsumerState<ContactsList> {
       }
 
       final phoneNumber = chat["id"]!.split("@")[0];
-      final contactName =
-          getContactName(phoneNumber) ?? chat["name"] ?? "+$phoneNumber";
+      final contactName =MessageUtils.getNameFromData(chat["id"] ,name: chat["name"] );
+          // getContactName(phoneNumber) ?? chat["name"] ?? "+$phoneNumber";
       return contactName.toLowerCase().contains(searchTerm.toLowerCase()) ||
           phoneNumber.toLowerCase().contains(searchTerm.toLowerCase());
     }).toList();
@@ -192,24 +172,26 @@ class _ContactsListState extends ConsumerState<ContactsList> {
           return Container();
         }
 
-        final id = chatContactData["id"];
+        final String id = chatContactData["id"];
         final profilePicUrl = chatContactData["profilePicUrl"];
         final profilePicUrlHigh = chatContactData["profilePicUrlHigh"];
 
-        String phoneNumber = id.split("@")[0];
-        final contactName = getContactName(phoneNumber) ??
-            chatContactData["name"] ??
-            "+$phoneNumber";
+        // String phoneNumber = id.split("@")[0];
+        final contactName = MessageUtils.getNameFromData(id,name: chatContactData['name']) ;
+        // ??
+            // chatContactData["name"] ??
+            // "+$phoneNumber";
         final unreadCount = chatContactData["unreadCount"] ?? 0;
 
         final TextSpan highlightedName =
             getHighlightedText(contactName, searchTerm);
+        final bool isGroupChat= id.contains('@g.us');
 
         return Column(
           children: [
             InkWell(
               onTap: () {
-                openChat(id, contactName, false, profilePicUrl);
+                openChat(id, contactName, isGroupChat, profilePicUrl);
               },
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 8.0),
@@ -261,7 +243,7 @@ class _ContactsListState extends ConsumerState<ContactsList> {
                           contactName,
                           () {
                             Navigator.pop(context);
-                            openChat(id, contactName, false, profilePicUrl);
+                            openChat(id, contactName, isGroupChat, profilePicUrl);
                           },
                           () {},
                           () {},

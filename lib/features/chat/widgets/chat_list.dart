@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/ImageProperties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/audio_properties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/file_properties.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/location_properties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/vcardProperties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/videoProperties.dart';
 import 'package:com.jee.tag.whatagsapp/utils/EncryptionUtils.dart';
@@ -116,11 +117,9 @@ class _ChatListState extends ConsumerState<ChatList> {
     String decryptedText = await EncryptionUtils.decrypt(encryptedText, _key!);
 
     _decryptedMessageCache[encryptedText] = decryptedText;
-    if(_decryptedMessageCache.length==1){
-      if(mounted){
-        setState(() {
-
-        });
+    if (_decryptedMessageCache.length == 1) {
+      if (mounted) {
+        setState(() {});
       }
     }
     return decryptedText;
@@ -165,15 +164,16 @@ class _ChatListState extends ConsumerState<ChatList> {
             return _buildListItem(messages[index], animation);
           },
         ),
-        if(_decryptedMessageCache.isEmpty)
-        const Center(child: CircularProgressIndicator()),
+        if (_decryptedMessageCache.isEmpty)
+          const Center(child: CircularProgressIndicator()),
       ],
     );
   }
 
   Widget _buildListItem(
       Map<String, dynamic> message, Animation<double> animation) {
-    final encryptedBody = message["information"]["body"] ?? "";
+    ///for Media messages that have caption's
+    final encryptedBody = message["information"]["body"] ?? message["information"]["caption"]??"";
     if (!_decryptedMessageFutures.containsKey(encryptedBody)) {
       _decryptedMessageFutures[encryptedBody] = _decryptText(encryptedBody);
     }
@@ -191,7 +191,7 @@ class _ChatListState extends ConsumerState<ChatList> {
         }
 
         final body = snapshot.data ?? "Decryption failed";
-        final caption = ""; // Decrypted caption
+        final caption = body; // Decrypted caption
 
         return SizeTransition(
           sizeFactor: animation,
@@ -204,6 +204,7 @@ class _ChatListState extends ConsumerState<ChatList> {
   Widget getMessageCard(
       Map<String, dynamic> messageData, String body, String caption) {
     final id = messageData["key"]["id"];
+    final participantId = messageData["key"]["participant"];
     final information = messageData["information"];
     // print('information $information' );
     final status = information["status"];
@@ -243,7 +244,7 @@ class _ChatListState extends ConsumerState<ChatList> {
     }
 
     VideoProperties? videoProperties;
-    if (type == "video") {
+    if (type == MessageEnum.video.name) {
       double? heightValue = (information["height"] is num)
           ? (information["height"] as num).toDouble()
           : null;
@@ -277,27 +278,35 @@ class _ChatListState extends ConsumerState<ChatList> {
     }
 
     VCardProperties? vcardProperties;
-    if (type == "vcard") {
+    if (type == MessageEnum.vcard.name) {
       vcardProperties = VCardProperties(
           displayName: information["displayName"] ?? "",
           vcard: information["vcard"] ?? "");
     }
     AudioProperties? audioProperties;
-    if (type == "audio") {
+    if (type == MessageEnum.voice.name || type == MessageEnum.audio.name) {
       audioProperties = AudioProperties(
         seconds: information["seconds"] ?? 13,
       );
       // print('type audio ${audioProperties.seconds}');
     }
     FileProperties? fileProperties;
-    if (type == "document") {
-      debugPrint('information $information');
+    if (type == MessageEnum.document.name) {
       fileProperties = FileProperties(
         sizeInBytes: int.tryParse(information['fileLength'].toString()) ?? 0,
         fileName: information['fileName'] ?? '',
       );
       // fileProperties.fileName=information['fileName']??'';
     }
+    LocationProperties? locationProperties;
+    if (type == MessageEnum.location.name) {
+      locationProperties = LocationProperties(
+        lat: double.tryParse(information['degreesLatitude'].toString()) ?? 0,
+        long: double.tryParse(information['degreesLongitude'].toString()) ?? 0,
+      );
+      // fileProperties.fileName=information['fileName']??'';
+    }
+    // print('information ===$information');
     final sent = status != 1;
     final delivery = status == 3 || status == 4;
     final seen = status == 4;
@@ -332,6 +341,7 @@ class _ChatListState extends ConsumerState<ChatList> {
         videoProperties: videoProperties,
         fileProperties: fileProperties,
         vCardProperties: vcardProperties,
+        locationProperties: locationProperties,
         sent: sent,
         audioProperties: audioProperties,
         delivery: delivery,
@@ -348,11 +358,15 @@ class _ChatListState extends ConsumerState<ChatList> {
 
       return myMessageCard;
     }
+    print('information## $information');
     final SenderMessageCard senderMessageCard = SenderMessageCard(
+      name: information['name'],
       key: messageKey,
+      isGroupChat:widget.isGroupChat,
       ref: ref,
       chatId: widget.chatId,
       id: id,
+      participantId:participantId,
       body: body,
       timestamp: timestamp,
       type: ConvertMessage(type).toEnum(),
@@ -361,6 +375,7 @@ class _ChatListState extends ConsumerState<ChatList> {
       videoProperties: videoProperties,
       audioProperties: audioProperties,
       vCardProperties: vcardProperties,
+      locationProperties: locationProperties,
       fileProperties: fileProperties,
       hasQuotedMsg: hasQuotedMsg,
       quotedMessageBody: quotedMessageBody,

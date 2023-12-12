@@ -3,9 +3,11 @@ import 'dart:typed_data';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/audio_message.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/document_message.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/image_message.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/location_message.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/ImageProperties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/audio_properties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/file_properties.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/location_properties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/vcardProperties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/videoProperties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/text_message.dart';
@@ -23,12 +25,14 @@ class Message extends StatefulWidget {
   final String messageId;
   final String message;
   final MessageEnum type;
+  final bool? sent;
 
   final ImageProperties? imageProperties;
   final VideoProperties? videoProperties;
   final VCardProperties? vCardProperties;
   final AudioProperties? audioProperties;
   final FileProperties? fileProperties;
+  final LocationProperties? locationProperties;
 
   Message({
     Key? key,
@@ -38,6 +42,8 @@ class Message extends StatefulWidget {
     required this.message,
     required this.type,
     this.imageProperties,
+    this.sent,
+    this.locationProperties,
     this.audioProperties,
     this.fileProperties,
     this.videoProperties,
@@ -62,6 +68,8 @@ class _MessageState extends State<Message> {
   AudioProperties? get audioProperties => widget.audioProperties;
 
   FileProperties? get fileProperties => widget.fileProperties;
+
+  LocationProperties? get locationProperties => widget.locationProperties;
 
   @override
   void initState() {
@@ -122,15 +130,22 @@ class _MessageState extends State<Message> {
         break;
       case MessageEnum.vcard:
         return VCardMessage(
-            vcard: vCardProperties!.vcard,
+            vcard: vCardProperties?.vcard ?? '',
             picture:
                 "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png");
       case MessageEnum.document:
         return DocumentMessage(
           messageId: messageId,
+          sent: widget.sent,
           chatId: chatId,
-          fileName: fileProperties?.fileName??'File',
+          fileName: fileProperties?.fileName ?? 'File',
           bytes: fileProperties?.sizeInBytes ?? 00,
+        );
+      case MessageEnum.location:
+        return LocationMessage(
+          messageId: messageId,
+          lat: locationProperties?.lat ?? 0,
+          long: locationProperties?.long ?? 0,
         );
       default:
         return Container();

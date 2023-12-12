@@ -37,6 +37,7 @@ class _ImageMessageState extends State<ImageMessage> {
   bool _imageDownloaded = false;
   String? _localFilePath;
 
+  static var imageFileCached = <String,String?>{};
   @override
   void initState() {
     super.initState();
@@ -44,10 +45,11 @@ class _ImageMessageState extends State<ImageMessage> {
   }
 
   _checkImageDownloaded() async {
-    _localFilePath = await MessageUtils.getLocalFilePath(widget.messageId);
+    _localFilePath = imageFileCached[widget.messageId] ??await MessageUtils.getLocalFilePath(widget.messageId);
     if (_localFilePath != null&&mounted) {
       File imageFile = File(_localFilePath!);
-      if (await imageFile.exists()) {
+      if (imageFile.existsSync()) {
+        imageFileCached[widget.messageId]=_localFilePath;
         setState(() => _imageDownloaded = true);
       } else {
         setState(() => _imageDownloaded = false);
@@ -59,7 +61,7 @@ class _ImageMessageState extends State<ImageMessage> {
     setState(() {
       _isDownloading = true;
     });
-
+    imageFileCached.remove(widget.messageId);
     bool success = await MessageUtils.downloadAndSaveFile(
       context,
       widget.ref,
@@ -99,9 +101,9 @@ class _ImageMessageState extends State<ImageMessage> {
               ? _buildDownloadedImage(imagePreviewHeight)
               : _buildThumbnail(imagePreviewHeight),
         ),
-        if (widget.caption != null)
+        if (widget.caption?.isNotEmpty??false)
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(4.0),
             child: Text(
               widget.caption!,
               textAlign: TextAlign.left,
@@ -131,6 +133,10 @@ class _ImageMessageState extends State<ImageMessage> {
     return Stack(
       alignment: Alignment.center,
       children: [
+        ///place holder loader show before image is load
+        const Center(
+          child: CircularProgressIndicator(),
+        ),
         widget.jpegThumbnail.isNotEmpty
             ? Image.memory(
                 widget.jpegThumbnail,
