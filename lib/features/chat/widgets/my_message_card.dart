@@ -37,7 +37,7 @@ class MyMessageCard extends StatelessWidget {
   final VoidCallback onLeftSwipe;
   final AudioProperties? audioProperties;
   final FileProperties? fileProperties;
- final LocationProperties? locationProperties;
+  final LocationProperties? locationProperties;
 
   const MyMessageCard({
     Key? key,
@@ -105,6 +105,7 @@ class MyMessageCard extends StatelessWidget {
                       child: Message(
                         ref: ref,
                         chatId: chatId,
+                        sent: sent,
                         messageId: id,
                         message: quotedMessageBody,
                         audioProperties: audioProperties,
@@ -125,6 +126,7 @@ class MyMessageCard extends StatelessWidget {
                     messageId: id,
                     message: body,
                     type: type,
+                    sent: sent,
                     imageProperties: imageProperties,
                     fileProperties: fileProperties,
                     locationProperties: locationProperties,

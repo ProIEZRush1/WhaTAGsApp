@@ -25,6 +25,7 @@ class Message extends StatefulWidget {
   final String messageId;
   final String message;
   final MessageEnum type;
+  final bool? sent;
 
   final ImageProperties? imageProperties;
   final VideoProperties? videoProperties;
@@ -41,6 +42,7 @@ class Message extends StatefulWidget {
     required this.message,
     required this.type,
     this.imageProperties,
+    this.sent,
     this.locationProperties,
     this.audioProperties,
     this.fileProperties,
@@ -134,6 +136,7 @@ class _MessageState extends State<Message> {
       case MessageEnum.document:
         return DocumentMessage(
           messageId: messageId,
+          sent: widget.sent,
           chatId: chatId,
           fileName: fileProperties?.fileName ?? 'File',
           bytes: fileProperties?.sizeInBytes ?? 00,

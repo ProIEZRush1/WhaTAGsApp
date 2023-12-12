@@ -1,3 +1,4 @@
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/message_utils.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/ImageProperties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/audio_properties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/file_properties.dart';
@@ -17,6 +18,7 @@ class SenderMessageCard extends StatelessWidget {
   final WidgetRef ref;
   final String chatId;
   final String id;
+  final String? participantId;
   final String body;
   final int timestamp;
   final MessageEnum type;
@@ -29,6 +31,7 @@ class SenderMessageCard extends StatelessWidget {
   final AudioProperties? audioProperties;
  final LocationProperties? locationProperties;
   final bool hasQuotedMsg;
+  final bool isGroupChat;
   final String quotedMessageBody;
   final MessageEnum quotedMessageType;
   final VoidCallback onRightSwipe;
@@ -37,8 +40,10 @@ class SenderMessageCard extends StatelessWidget {
     required this.ref,
     required this.chatId,
     required this.id,
+    required this.participantId,
     required this.body,
     required this.timestamp,
+    required this.isGroupChat,
     required this.type,
     required this.media,
     this.imageProperties,
@@ -74,6 +79,22 @@ class SenderMessageCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if(isGroupChat&&(participantId?.isNotEmpty??false))
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 5,right: 10,left: 5),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            MessageUtils.getNameFromData(participantId!),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Colors.pink,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   if (hasQuotedMsg) ...[
                     Text(
                       quotedMessageBody,

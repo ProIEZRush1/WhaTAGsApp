@@ -4,6 +4,7 @@ import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
 import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
 import 'package:com.jee.tag.whatagsapp/requests/ApiService.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_contacts/contact.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hive/hive.dart';
@@ -11,6 +12,42 @@ import 'package:open_file_plus/open_file_plus.dart';
 import 'package:path_provider/path_provider.dart';
 
 class MessageUtils {
+  static  List<Contact>? cachedContacts;
+  static String getNameFromData(String id,{String? name}){
+    // final String id = chatContactData["id"];
+    String phoneNumber = id.split("@")[0];
+    final contactName = getContactName(phoneNumber) ??
+        name ??
+        "+$phoneNumber";
+    return contactName;
+  }
+  static String? getContactName(String phoneNumber) {
+    String sanitizedInput = phoneNumber.replaceAll(RegExp(r'\D'), '');
+
+    if (sanitizedInput.length >= 4) {
+      sanitizedInput = sanitizedInput.substring(2);
+      // sanitizedInput = sanitizedInput.substring(4);
+    }
+
+    if (cachedContacts != null) {
+      for (var contact in cachedContacts!) {
+        for (final phone in contact.phones) {
+          String sanitizedContact = phone.number.replaceAll(RegExp(r'\D'), '');
+
+          if (sanitizedContact.length >= 3) {
+            sanitizedContact = sanitizedContact.substring(2);
+            // sanitizedContact = sanitizedContact.substring(3);
+          }
+          print('sanitizedInput $sanitizedInput $sanitizedContact');
+          if (sanitizedInput == sanitizedContact ||
+              sanitizedContact == sanitizedInput) {
+            return contact.displayName;
+          }
+        }
+      }
+    }
+    return null; // Return null if no contact is found
+  }
   static Future<String?> getLocalFilePath(String messageId) async {
     var box = await Hive.openBox('config');
     return box.get('localFilePath_$messageId');

@@ -13,6 +13,7 @@ class DocumentMessage extends ConsumerStatefulWidget {
     super.key,
     required this.messageId,
     required this.chatId,
+    this.sent,
     required this.fileName,
     required this.bytes,
   });
@@ -21,6 +22,7 @@ class DocumentMessage extends ConsumerStatefulWidget {
   final String messageId;
   final String fileName;
   final int bytes;
+  final bool? sent;
 
   @override
   ConsumerState<DocumentMessage> createState() => _DocumentMessageState();
@@ -154,7 +156,7 @@ class _DocumentMessageState extends ConsumerState<DocumentMessage> {
                 ],
               ),
             ),
-            if (_isDownloading)
+            if (_isDownloading||widget.sent==false)
               const Center(
                 child: CircularProgressIndicator(),
               )

@@ -40,7 +40,7 @@ class ChatController {
   }
   void sendCurrentLocationMessage(BuildContext context, WidgetRef ref, String deviceId,
       String chatId, String key) {
-    chatRepository.sendMessage(context, ref, deviceId, chatId, '', key,MessageEnum.vcard);
+    chatRepository.sendMessage(context, ref, deviceId, chatId, '', key,MessageEnum.location);
   }
   void sendMediaMessage(BuildContext context, WidgetRef ref, String deviceId,
       String chatId, String text, String key, MessageEnum messageEnum, File file) {

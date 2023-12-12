@@ -204,6 +204,7 @@ class _ChatListState extends ConsumerState<ChatList> {
   Widget getMessageCard(
       Map<String, dynamic> messageData, String body, String caption) {
     final id = messageData["key"]["id"];
+    final participantId = messageData["key"]["participant"];
     final information = messageData["information"];
     // print('information $information' );
     final status = information["status"];
@@ -359,9 +360,11 @@ class _ChatListState extends ConsumerState<ChatList> {
     }
     final SenderMessageCard senderMessageCard = SenderMessageCard(
       key: messageKey,
+      isGroupChat:widget.isGroupChat,
       ref: ref,
       chatId: widget.chatId,
       id: id,
+      participantId:participantId,
       body: body,
       timestamp: timestamp,
       type: ConvertMessage(type).toEnum(),
