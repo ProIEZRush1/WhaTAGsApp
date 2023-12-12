@@ -172,7 +172,8 @@ class _ChatListState extends ConsumerState<ChatList> {
 
   Widget _buildListItem(
       Map<String, dynamic> message, Animation<double> animation) {
-    final encryptedBody = message["information"]["body"] ?? "";
+    ///for Media messages that have caption's
+    final encryptedBody = message["information"]["body"] ?? message["information"]["caption"]??"";
     if (!_decryptedMessageFutures.containsKey(encryptedBody)) {
       _decryptedMessageFutures[encryptedBody] = _decryptText(encryptedBody);
     }
@@ -190,7 +191,7 @@ class _ChatListState extends ConsumerState<ChatList> {
         }
 
         final body = snapshot.data ?? "Decryption failed";
-        final caption = ""; // Decrypted caption
+        final caption = body; // Decrypted caption
 
         return SizeTransition(
           sizeFactor: animation,

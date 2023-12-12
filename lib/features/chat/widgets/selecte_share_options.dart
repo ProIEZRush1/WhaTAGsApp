@@ -8,6 +8,7 @@ import 'package:com.jee.tag.whatagsapp/features/chat/controller/chat_controller.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
+import 'package:whatsapp_camera/whatsapp_camera.dart';
 
 class SelectShareOptionContainer extends StatefulWidget {
   const SelectShareOptionContainer({
@@ -80,10 +81,19 @@ class _SelectShareOptionContainerState
   }
 
   void selectImage() async {
-    File? image = await pickImageFromGallery(context);
-    if (image != null) {
-      _sendFileMessage(image, MessageEnum.image);
+    List<File>? res = await Navigator.push(
+      context, MaterialPageRoute(
+      builder: (context) => const WhatsappCamera(multiple: false),
+    ),
+    );
+    if(res?.isNotEmpty??false){
+      var file=res!.first;
+      _sendFileMessage(file,file.path.split('.').last=='mp4'?MessageEnum.video: MessageEnum.image);
     }
+    // File? image = await pickImageFromGallery(context);
+    // if (image != null) {
+    //   _sendFileMessage(image, MessageEnum.image);
+    // }
     widget.hideShareButton();
   }
 

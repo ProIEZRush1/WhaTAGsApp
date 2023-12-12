@@ -99,9 +99,9 @@ class _ImageMessageState extends State<ImageMessage> {
               ? _buildDownloadedImage(imagePreviewHeight)
               : _buildThumbnail(imagePreviewHeight),
         ),
-        if (widget.caption != null)
+        if (widget.caption?.isNotEmpty??false)
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(4.0),
             child: Text(
               widget.caption!,
               textAlign: TextAlign.left,

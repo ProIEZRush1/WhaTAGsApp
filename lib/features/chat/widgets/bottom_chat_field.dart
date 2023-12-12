@@ -16,6 +16,7 @@ import 'package:com.jee.tag.whatagsapp/common/providers/message_reply_provider.d
 import 'package:com.jee.tag.whatagsapp/common/utils/utils.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/controller/chat_controller.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/message_reply_preview.dart';
+import 'package:whatsapp_camera/camera/camera_whatsapp.dart';
 
 class BottomChatField extends ConsumerStatefulWidget {
   final String recieverUserId;
@@ -74,7 +75,7 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
 
     if (isShowSendButton) {
       final encryptedText =
-      await EncryptionUtils.encrypt(_messageController.text, key);
+          await EncryptionUtils.encrypt(_messageController.text, key);
       ref.read(chatControllerProvider).sendTextMessage(
           context, ref, deviceId, widget.recieverUserId, encryptedText, key);
       setState(() {
@@ -83,8 +84,7 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
     } else {
       var tempDir = await getTemporaryDirectory();
       var path = '${tempDir.path}/flutter_sound.aac';
-      var file = File(path)
-        ..createSync();
+      var file = File(path)..createSync();
       if (!isRecorderInit) {
         debugPrint('Recording not Init');
         return;
@@ -104,27 +104,39 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
     }
   }
 
-  void sendFileMessage(File file,
-      MessageEnum messageEnum,) async {
+  void sendFileMessage(
+    File file,
+    MessageEnum messageEnum,
+  ) async {
     var box = await Hive.openBox('config');
     String deviceId = box.get('lastDeviceId') ?? "";
     final key = box.get('lastEncryptionKey') ?? "";
     // debugPrint('deviceId $deviceId');
-    ref.read(chatControllerProvider).sendMediaMessage(
-        context,
-        ref,
-        deviceId,
-        widget.recieverUserId,
-        '',
-        key,
-        messageEnum,
-        file);
+    ref.read(chatControllerProvider).sendMediaMessage(context, ref, deviceId,
+        widget.recieverUserId, '', key, messageEnum, file);
   }
 
+  // void selectImage() async {
+  //   File? image = await pickImageFromGallery(context);
+  //   if (image != null) {
+  //     sendFileMessage(image, MessageEnum.image);
+  //   }
+  // }
   void selectImage() async {
-    File? image = await pickImageFromGallery(context);
-    if (image != null) {
-      sendFileMessage(image, MessageEnum.image);
+    List<File>? res = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const WhatsappCamera(multiple: false),
+      ),
+    );
+    if (res?.isNotEmpty ?? false) {
+      var file = res!.first;
+      sendFileMessage(
+        file,
+        file.path.split('.').last == 'mp4'
+            ? MessageEnum.video
+            : MessageEnum.image,
+      );
     }
   }
 
@@ -289,8 +301,8 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
                     isShowSendButton
                         ? Icons.send
                         : isRecording
-                        ? Icons.close
-                        : Icons.mic,
+                            ? Icons.close
+                            : Icons.mic,
                     color: Colors.white,
                   ),
                 ),
@@ -300,22 +312,22 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
         ),
         isShowEmojiContainer
             ? SizedBox(
-          height: 310,
-          child: EmojiPicker(
-            onEmojiSelected: ((category, emoji) {
-              setState(() {
-                _messageController.text =
-                    _messageController.text + emoji.emoji;
-              });
+                height: 310,
+                child: EmojiPicker(
+                  onEmojiSelected: ((category, emoji) {
+                    setState(() {
+                      _messageController.text =
+                          _messageController.text + emoji.emoji;
+                    });
 
-              // if (!isShowSendButton) {
-              //   setState(() {
-              //     isShowSendButton = true;
-              //   });
-              // }
-            }),
-          ),
-        )
+                    // if (!isShowSendButton) {
+                    //   setState(() {
+                    //     isShowSendButton = true;
+                    //   });
+                    // }
+                  }),
+                ),
+              )
             : const SizedBox(),
       ],
     );

@@ -11,6 +11,9 @@
       <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks" />
       <excludeFolder url="file://$MODULE_DIR$/ios/Pods" />
       <excludeFolder url="file://$MODULE_DIR$/android/.gradle" />
+      <excludeFolder url="file://$MODULE_DIR$/whatsapp_camera-main/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/whatsapp_camera-main/build" />
+      <excludeFolder url="file://$MODULE_DIR$/whatsapp_camera-main/.dart_tool" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
