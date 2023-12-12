@@ -61,7 +61,7 @@ class _ImageMessageState extends State<ImageMessage> {
     setState(() {
       _isDownloading = true;
     });
-
+    imageFileCached.remove(widget.messageId);
     bool success = await MessageUtils.downloadAndSaveFile(
       context,
       widget.ref,

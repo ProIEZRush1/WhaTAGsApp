@@ -73,7 +73,7 @@ class _VideoMessageState extends State<VideoMessage> {
     setState(() {
       _isDownloading = true;
     });
-
+    videoFileCached.remove(widget.messageId);
     bool success = await MessageUtils.downloadAndSaveFile(
       context,
       widget.ref,
