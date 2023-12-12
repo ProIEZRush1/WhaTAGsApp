@@ -33,8 +33,8 @@ class MessageUtils {
     String sanitizedInput = phoneNumber.replaceAll(RegExp(r'\D'), '');
 
     if (sanitizedInput.length >= 4) {
-      sanitizedInput = sanitizedInput.substring(2);
-      // sanitizedInput = sanitizedInput.substring(4);
+      // sanitizedInput = sanitizedInput.substring(2);
+      sanitizedInput = sanitizedInput.substring(4);
     }
 
     if (cachedContacts != null) {
@@ -43,8 +43,8 @@ class MessageUtils {
           String sanitizedContact = phone.number.replaceAll(RegExp(r'\D'), '');
 
           if (sanitizedContact.length >= 3) {
-            sanitizedContact = sanitizedContact.substring(2);
-            // sanitizedContact = sanitizedContact.substring(3);
+            // sanitizedContact = sanitizedContact.substring(2);
+            sanitizedContact = sanitizedContact.substring(3);
           }
           // print('sanitizedInput $sanitizedInput $sanitizedContact');
           if (sanitizedInput == sanitizedContact ||
