@@ -6,6 +6,7 @@ import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
 import 'package:com.jee.tag.whatagsapp/common/providers/message_reply_provider.dart';
 import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/repositories/chat_repository.dart';
+import 'package:whatsapp_camera/modle/file_media_model.dart';
 
 final chatControllerProvider = Provider((ref) {
   final chatRepository = ref.watch(chatRepositoryProvider);
@@ -43,8 +44,11 @@ class ChatController {
     chatRepository.sendMessage(context, ref, deviceId, chatId, '', key,MessageEnum.location);
   }
   void sendMediaMessage(BuildContext context, WidgetRef ref, String deviceId,
-      String chatId, String text, String key, MessageEnum messageEnum, File file) {
-    chatRepository.sendMediaMessage(context, ref, deviceId, chatId, text, key,messageEnum,file);
+      String chatId, String text, String key, MessageEnum messageEnum, File file,
+      {
+        FileMediaModel? model
+      }) {
+    chatRepository.sendMediaMessage(context, ref, deviceId, chatId, text, key,messageEnum,file,model: model);
   }
 
   void setChatSeen(

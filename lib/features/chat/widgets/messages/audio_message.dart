@@ -84,7 +84,7 @@ class _VideoMessageState extends State<AudioMessage> {
       widget.ref,
       widget.chatId,
       widget.messageId,
-      MessageUtils.getFileExtension(MessageEnum.video),
+      MessageUtils.getFileExtension(MessageEnum.audio),
     );
 
     if (success) {

@@ -38,7 +38,7 @@ class _VideoMessageState extends State<VideoMessage> {
   bool _isDownloading = false;
   bool _videoDownloaded = false;
   VideoPlayerController? _videoController;
-  static var videoFileCached = <String,String?>{};
+  static var videoFileCached = <String, String?>{};
 
   @override
   void initState() {
@@ -47,12 +47,12 @@ class _VideoMessageState extends State<VideoMessage> {
   }
 
   _checkVideoDownloaded() async {
-    final _localFilePath =videoFileCached[widget.messageId]??
+    final _localFilePath = videoFileCached[widget.messageId] ??
         await MessageUtils.getLocalFilePath(widget.messageId);
     if (_localFilePath != null) {
       File videoFile = File(_localFilePath);
       if (videoFile.existsSync()) {
-        videoFileCached[widget.messageId]=_localFilePath;
+        videoFileCached[widget.messageId] = _localFilePath;
         _videoDownloaded = true;
         refresh();
         _initializeVideoController(_localFilePath);
@@ -139,7 +139,7 @@ class _VideoMessageState extends State<VideoMessage> {
     if (_videoController != null) {
       return Center(
         child: AspectRatio(
-          aspectRatio: _videoController!.value.aspectRatio,
+          aspectRatio: (widget.width/widget.height)*2,
           child: Stack(
             children: [
               VideoPlayer(_videoController!),

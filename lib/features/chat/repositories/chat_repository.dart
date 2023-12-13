@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
 import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/repositories/chat_database.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/message_utils.dart';
 import 'package:com.jee.tag.whatagsapp/utils/EncryptionUtils.dart';
 import 'package:com.jee.tag.whatagsapp/utils/LocationUtils.dart';
 import 'package:dio/dio.dart';
@@ -17,9 +18,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:com.jee.tag.whatagsapp/common/utils/utils.dart';
 import 'package:com.jee.tag.whatagsapp/requests/ApiService.dart';
+import 'package:mime/mime.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:uuid/uuid.dart';
-import 'package:mime/mime.dart';
+import 'package:http_parser/http_parser.dart' as http;
+import 'package:whatsapp_camera/modle/file_media_model.dart';
 
 final chatRepositoryProvider = Provider(
   (ref) => ChatRepository(
@@ -213,21 +216,33 @@ class ChatRepository {
       String key,
       MessageEnum messageEnum,
       File file,
-      {double? time}) async {
+      {double? time,
+      FileMediaModel? model}) async {
     try {
+      final name=file.path.split('/').last;
       final dataToSend = {
         "type": messageEnum.type,
+        if(text.isNotEmpty)
         "caption": text,
         // 'file':file,
-        'fileName': file.path.split('/').last,
+        if(model?.thumbnail!=null)
+        'jpegThumbnail':base64.encode(model!.thumbnail!),
+        'seconds':model?.duration,
+        'width':model?.width,
+        'height':model?.height,
+        'mimetype':lookupMimeType(file.path)??'${messageEnum.type}/',
+        'fileName': name,
         'media': await MultipartFile.fromFile(
           file.path,
-          filename: file.path.split('/').last,
+          // contentType: http.MediaType(),
+          filename: name,
         )
       };
+      print('dataToSend $dataToSend');
       // Create default message in storage
       final String messageId = const Uuid().v4(); // Generates a unique ID
       final int timestamp = DateTime.now().millisecondsSinceEpoch;
+      MessageUtils.saveSendFile(messageId, MessageUtils.getFileExtension(messageEnum)??name.split('.').lastOrNull??'', file);
       final Map<String, dynamic> defaultMessage = {
         "key": {
           "remoteJid": chatId,
@@ -237,12 +252,16 @@ class ChatRepository {
         "information": {
           "status": 1,
           "timestamp": timestamp ~/ 1000,
-          if (text.isNotEmpty) "body": await EncryptionUtils.encrypt(text, key),
+          if (text.isNotEmpty) "caption": await EncryptionUtils.encrypt(text, key),
           "type": messageEnum.name,
           "fromMe": true,
           "media": true,
+          'seconds':model?.duration,
+          'width':model?.width,
+          'height':model?.height,
           if (time != null) 'seconds': time,
           "fileName": file.path.split('/').last,
+          'jpegThumbnail':model?.thumbnail,
           "fileLength": file.readAsBytesSync().length,
         },
         "messageTimestamp": timestamp ~/ 1000,
@@ -287,6 +306,11 @@ class ChatRepository {
             msg: "Something went wrong",
           );
           return Future.error("Something went wrong");
+        }else{
+          final id=data['messageData']?['key']?['id'];
+          if(id is String){
+            MessageUtils.updateSaveMediaMessageId(messageId, id);
+          }
         }
         apiService.checkIfLoggedIn(context, ref, data);
       });

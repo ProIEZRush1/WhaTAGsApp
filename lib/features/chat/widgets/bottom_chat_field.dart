@@ -17,6 +17,7 @@ import 'package:com.jee.tag.whatagsapp/common/utils/utils.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/controller/chat_controller.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/message_reply_preview.dart';
 import 'package:whatsapp_camera/camera/camera_whatsapp.dart';
+import 'package:whatsapp_camera/modle/file_media_model.dart';
 
 class BottomChatField extends ConsumerStatefulWidget {
   final String recieverUserId;
@@ -104,16 +105,14 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
     }
   }
 
-  void sendFileMessage(
-    File file,
-    MessageEnum messageEnum,
-  ) async {
+  void sendFileMessage(File file, MessageEnum messageEnum,
+      {FileMediaModel? model}) async {
     var box = await Hive.openBox('config');
     String deviceId = box.get('lastDeviceId') ?? "";
     final key = box.get('lastEncryptionKey') ?? "";
     // debugPrint('deviceId $deviceId');
     ref.read(chatControllerProvider).sendMediaMessage(context, ref, deviceId,
-        widget.recieverUserId, '', key, messageEnum, file);
+        widget.recieverUserId, '', key, messageEnum, file,model:model);
   }
 
   // void selectImage() async {
@@ -123,20 +122,15 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
   //   }
   // }
   void selectImage() async {
-    List<File>? res = await Navigator.push(
+    List<FileMediaModel>? res = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => const WhatsappCamera(multiple: false),
       ),
     );
-    if (res?.isNotEmpty ?? false) {
-      var file = res!.first;
-      sendFileMessage(
-        file,
-        file.path.split('.').last == 'mp4'
-            ? MessageEnum.video
-            : MessageEnum.image,
-      );
+    if(res?.isNotEmpty??false){
+      var file=res!.first;
+      sendFileMessage(file.file,file.isImage?MessageEnum.image: MessageEnum.video,model: file);
     }
   }
 
