@@ -43,6 +43,11 @@ class ChatController {
       String chatId, String key) {
     chatRepository.sendMessage(context, ref, deviceId, chatId, '', key,MessageEnum.location);
   }
+  void sendContactMessage(BuildContext context, WidgetRef ref, String deviceId,
+      String chatId, String key) {
+    chatRepository.sendMessage(context, ref, deviceId, chatId, '', key,MessageEnum.vcard);
+  }
+
   void sendMediaMessage(BuildContext context, WidgetRef ref, String deviceId,
       String chatId, String text, String key, MessageEnum messageEnum, File file,
       {
@@ -58,6 +63,15 @@ class ChatController {
       ref,
       deviceId,
       chatId,
+    );
+  }
+  Future<String?> getProfileUrl(
+      BuildContext context, WidgetRef ref, String deviceId, String profileId) {
+   return chatRepository.getProfileUrl(
+      context,
+      ref,
+      deviceId,
+      profileId,
     );
   }
 }

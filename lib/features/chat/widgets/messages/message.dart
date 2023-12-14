@@ -93,15 +93,22 @@ class _MessageState extends State<Message> {
     }
 
     switch (type) {
+
+      case MessageEnum.sticker:
+        return ImageMessage(
+          ref: ref,
+          chatId: chatId,
+          messageId: messageId,
+        );
       case MessageEnum.image:
         return ImageMessage(
           ref: ref,
           chatId: chatId,
           messageId: messageId,
-          height: imageProperties!.height,
-          width: imageProperties!.width,
-          mimetype: imageProperties!.mimetype,
-          jpegThumbnail: imageProperties!.jpegThumbnail,
+          height: imageProperties?.height,
+          width: imageProperties?.width,
+          mimetype: imageProperties?.mimetype,
+          jpegThumbnail: imageProperties?.jpegThumbnail,
           caption: imageProperties!.caption,
         );
       case MessageEnum.audio:
@@ -130,6 +137,8 @@ class _MessageState extends State<Message> {
         break;
       case MessageEnum.vcard:
         return VCardMessage(
+            messageId: (messageId),
+            ref: ref,
             vcard: vCardProperties?.vcard ?? '',
             picture:
                 "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png");

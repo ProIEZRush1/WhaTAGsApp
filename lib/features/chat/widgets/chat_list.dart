@@ -52,11 +52,21 @@ class _ChatListState extends ConsumerState<ChatList> {
     initializeChat();
   }
 
+  Future<void> readMessage() async {
+    final controller = ref.read(chatControllerProvider);
+    controller.setChatSeen(
+      context,
+      ref,
+      _deviceId ?? "",
+      widget.chatId,
+    );
+  }
+
   Future<void> initializeChat() async {
     var box = await Hive.openBox('config');
     _deviceId = box.get('lastDeviceId') ?? "";
     _key = box.get('lastEncryptionKey') ?? "";
-
+    readMessage();
     _subscribeToMessageUpdates();
   }
 
@@ -173,7 +183,9 @@ class _ChatListState extends ConsumerState<ChatList> {
   Widget _buildListItem(
       Map<String, dynamic> message, Animation<double> animation) {
     ///for Media messages that have caption's
-    final encryptedBody = message["information"]["body"] ?? message["information"]["caption"]??"";
+    final encryptedBody = message["information"]["body"] ??
+        message["information"]["caption"] ??
+        "";
     if (!_decryptedMessageFutures.containsKey(encryptedBody)) {
       _decryptedMessageFutures[encryptedBody] = _decryptText(encryptedBody);
     }
@@ -224,7 +236,8 @@ class _ChatListState extends ConsumerState<ChatList> {
           : null;
       List<int> sortedValues = [];
       // Convert keys to a list and sort them
-      if (information["jpegThumbnail"] != null&&information["jpegThumbnail"] is Map) {
+      if (information["jpegThumbnail"] != null &&
+          information["jpegThumbnail"] is Map) {
         var sortedKeys = information["jpegThumbnail"].keys.toList()
           ..sort((a, b) =>
               int.parse(a.toString()).compareTo(int.parse(b.toString())));
@@ -233,8 +246,8 @@ class _ChatListState extends ConsumerState<ChatList> {
             .map((key) => information["jpegThumbnail"][key])
             .toList()
             .cast<int>();
-      }else{
-        sortedValues=List<int>.from(information["jpegThumbnail"]??[]);
+      } else {
+        sortedValues = List<int>.from(information["jpegThumbnail"] ?? []);
       }
       imageProperties = ImageProperties(
         height: heightValue ?? 0.0,
@@ -257,7 +270,8 @@ class _ChatListState extends ConsumerState<ChatList> {
       print("widthValue: $widthValue");
       List<int> sortedValues = [];
       // Convert keys to a list and sort them
-      if (information["jpegThumbnail"] != null&&information["jpegThumbnail"] is Map) {
+      if (information["jpegThumbnail"] != null &&
+          information["jpegThumbnail"] is Map) {
         var sortedKeys = information["jpegThumbnail"].keys.toList()
           ..sort((a, b) =>
               int.parse(a.toString()).compareTo(int.parse(b.toString())));
@@ -267,8 +281,8 @@ class _ChatListState extends ConsumerState<ChatList> {
             .map((key) => information["jpegThumbnail"][key])
             .toList()
             .cast<int>();
-      }else{
-        sortedValues=List<int>.from(information["jpegThumbnail"]??[]);
+      } else {
+        sortedValues = List<int>.from(information["jpegThumbnail"] ?? []);
       }
 
       videoProperties = VideoProperties(
@@ -366,11 +380,11 @@ class _ChatListState extends ConsumerState<ChatList> {
     final SenderMessageCard senderMessageCard = SenderMessageCard(
       name: information['name'],
       key: messageKey,
-      isGroupChat:widget.isGroupChat,
+      isGroupChat: widget.isGroupChat,
       ref: ref,
       chatId: widget.chatId,
       id: id,
-      participantId:participantId,
+      participantId: participantId,
       body: body,
       timestamp: timestamp,
       type: ConvertMessage(type).toEnum(),
