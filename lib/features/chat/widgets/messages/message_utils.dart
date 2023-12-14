@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
@@ -12,17 +13,17 @@ import 'package:open_file_plus/open_file_plus.dart';
 import 'package:path_provider/path_provider.dart';
 
 class MessageUtils {
-  static  List<Contact>? cachedContacts;
-  static String getNameFromData(String id,{String? name}){
+  static List<Contact>? cachedContacts;
+
+  static String getNameFromData(String id, {String? name}) {
     // final String id = chatContactData["id"];
     String phoneNumber = id.split("@")[0];
-    final contactName = getContactName(phoneNumber) ??
-        name ??
-        "+$phoneNumber";
+    final contactName = getContactName(phoneNumber) ?? name ?? "+$phoneNumber";
     return contactName;
   }
-  static String? getContactName(String phoneNumber,{bool fromId=false}) {
-    if(fromId){
+
+  static String? getContactName(String phoneNumber, {bool fromId = false}) {
+    if (fromId) {
       try {
         phoneNumber = phoneNumber.split("@")[0];
       } on Exception catch (e) {
@@ -56,6 +57,7 @@ class MessageUtils {
     }
     return null; // Return null if no contact is found
   }
+
   static Future<String?> getLocalFilePath(String messageId) async {
     var box = await Hive.openBox('config');
     return box.get('localFilePath_$messageId');
@@ -67,7 +69,7 @@ class MessageUtils {
   }
 
   static Future<bool> downloadAndSaveFile(BuildContext context, WidgetRef ref,
-      String chatId, String messageId, String fileExtension) async {
+      String chatId, String messageId, String? fileExtension) async {
     bool downloadSuccess = false;
 
     final ApiService apiService = ApiService();
@@ -82,12 +84,12 @@ class MessageUtils {
         ref,
         "${apiService.downloadMessageEndpoint}?deviceToken=$deviceToken&firebaseUid=$firebaseUid&chatId=$chatId&messageId=$messageId",
       );
-
+      log('value### ${value}');
       if (apiService.checkSuccess(value)) {
         Uint8List uint8list =
             Uint8List.fromList(List<int>.from(value['buffer']['data']));
         String savedPath = await saveFileToPermanentLocation(
-            fileExtension, messageId, uint8list);
+            fileExtension??'', messageId, uint8list);
 
         box.put('localFilePath_$messageId', savedPath);
         downloadSuccess = true;
@@ -101,7 +103,29 @@ class MessageUtils {
     return downloadSuccess;
   }
 
-  static String getFileExtension(MessageEnum type) {
+  static Future updateSaveMediaMessageId( String messageId, String newMessageId,)async{
+    var box = await Hive.openBox('config');
+    var path=await getLocalFilePath(messageId);
+    box.put('localFilePath_$newMessageId', path);
+  }
+  static Future<bool> saveSendFile(
+      String messageId, String fileExtension, File file) async {
+    bool downloadSuccess = false;
+    var box = await Hive.openBox('config');
+    try {
+      String savedPath = await saveFileToPermanentLocation(
+          fileExtension, messageId, await file.readAsBytes());
+
+      box.put('localFilePath_$messageId', savedPath);
+      downloadSuccess = true;
+    } catch (e) {
+      Fluttertoast.showToast(msg: 'Something went wrong');
+    }
+
+    return downloadSuccess;
+  }
+
+  static String? getFileExtension(MessageEnum type) {
     switch (type) {
       case MessageEnum.image:
         return "jpg";
@@ -112,7 +136,7 @@ class MessageUtils {
       case MessageEnum.gif:
         return "gif";
       default:
-        return "txt";
+        return null;
     }
   }
 

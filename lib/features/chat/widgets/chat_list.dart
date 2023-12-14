@@ -224,7 +224,7 @@ class _ChatListState extends ConsumerState<ChatList> {
           : null;
       List<int> sortedValues = [];
       // Convert keys to a list and sort them
-      if (information["jpegThumbnail"] != null) {
+      if (information["jpegThumbnail"] != null&&information["jpegThumbnail"] is Map) {
         var sortedKeys = information["jpegThumbnail"].keys.toList()
           ..sort((a, b) =>
               int.parse(a.toString()).compareTo(int.parse(b.toString())));
@@ -233,6 +233,8 @@ class _ChatListState extends ConsumerState<ChatList> {
             .map((key) => information["jpegThumbnail"][key])
             .toList()
             .cast<int>();
+      }else{
+        sortedValues=List<int>.from(information["jpegThumbnail"]??[]);
       }
       imageProperties = ImageProperties(
         height: heightValue ?? 0.0,
@@ -255,7 +257,7 @@ class _ChatListState extends ConsumerState<ChatList> {
       print("widthValue: $widthValue");
       List<int> sortedValues = [];
       // Convert keys to a list and sort them
-      if (information["jpegThumbnail"] != null) {
+      if (information["jpegThumbnail"] != null&&information["jpegThumbnail"] is Map) {
         var sortedKeys = information["jpegThumbnail"].keys.toList()
           ..sort((a, b) =>
               int.parse(a.toString()).compareTo(int.parse(b.toString())));
@@ -265,6 +267,8 @@ class _ChatListState extends ConsumerState<ChatList> {
             .map((key) => information["jpegThumbnail"][key])
             .toList()
             .cast<int>();
+      }else{
+        sortedValues=List<int>.from(information["jpegThumbnail"]??[]);
       }
 
       videoProperties = VideoProperties(
@@ -358,7 +362,7 @@ class _ChatListState extends ConsumerState<ChatList> {
 
       return myMessageCard;
     }
-    print('information## $information');
+    // print('information## $information');
     final SenderMessageCard senderMessageCard = SenderMessageCard(
       name: information['name'],
       key: messageKey,

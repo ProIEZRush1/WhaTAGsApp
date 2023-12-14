@@ -1,16 +1,20 @@
+import 'dart:ui' as ui;
 import 'dart:async';
 import 'dart:io';
 
 // import 'package:camera_camera/camera_camera.dart';
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_sliding_up_panel/flutter_sliding_up_panel.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_gallery/photo_gallery.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:whatsapp_camera/camera/view_image.dart';
+import 'package:whatsapp_camera/modle/file_media_model.dart';
 
 class _WhatsAppCameraController extends ChangeNotifier {
   ///
@@ -26,7 +30,7 @@ class _WhatsAppCameraController extends ChangeNotifier {
   ///
   ///
   final bool multiple;
-  final selectedImages = <File>[];
+  final selectedImages = <FileMediaModel>[];
   var images = <Medium>[];
 
   Future<bool> handlerPermissions() async {
@@ -39,13 +43,16 @@ class _WhatsAppCameraController extends ChangeNotifier {
   }
 
   bool imageIsSelected(String? fileName) {
-    final index =
-        selectedImages.indexWhere((e) => e.path.split('/').last == fileName);
+    final index = selectedImages
+        .indexWhere((e) => e.file.path.split('/').last == fileName);
     return index != -1;
   }
 
+  Timer? timer;
+
   _timer() {
     Timer.periodic(const Duration(seconds: 2), (t) async {
+      timer = t;
       Permission.camera.isGranted.then((value) {
         if (value) {
           getPhotosToGallery();
@@ -53,6 +60,12 @@ class _WhatsAppCameraController extends ChangeNotifier {
         }
       });
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    timer?.cancel();
   }
 
   Future<void> getPhotosToGallery() async {
@@ -84,29 +97,33 @@ class _WhatsAppCameraController extends ChangeNotifier {
     );
     if (res != null) {
       for (var element in res.files) {
-        if (element.path != null) selectedImages.add(File(element.path!));
+        if (element.path != null) {
+          selectedImages.add(FileMediaModel(File(element.path!)));
+        }
       }
     }
   }
 
-  void captureImage(File file) {
-    selectedImages.add(file);
+  void captureImage(FileMediaModel fileMedia) {
+    selectedImages.add(fileMedia);
   }
 
   Future<void> selectImage(Medium image) async {
     if (multiple) {
       final index = selectedImages
-          .indexWhere((e) => e.path.split('/').last == image.filename);
+          .indexWhere((e) => e.file.path.split('/').last == image.filename);
       if (index != -1) {
         selectedImages.removeAt(index);
       } else {
-        final file = await image.getFile();
-        selectedImages.add(file);
+        // final file = await image.getFile();
+        // final thumbnail=await image.getThumbnail();
+        selectedImages.add(await FileMediaModel.fromMedium(image));
       }
     } else {
       selectedImages.clear();
-      final file = await image.getFile();
-      selectedImages.add(file);
+      // final file = await image.getFile();
+      selectedImages.add(await FileMediaModel.fromMedium(image));
+      // selectedImages.add(FileMediaModel(file));
     }
     notifyListeners();
   }
@@ -228,8 +245,8 @@ class _WhatsappCameraState extends State<WhatsappCamera>
     timer?.cancel();
   }
 
-  void startTimer({bool rest=true}) {
-    if(rest){
+  void startTimer({bool rest = true}) {
+    if (rest) {
       videoDuration = const Duration(seconds: 1);
     }
     Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -269,7 +286,7 @@ class _WhatsappCameraState extends State<WhatsappCamera>
   }
 
   toggleCamera() async {
-    // if (camController.value.isRecordingVideo) {
+    // if (camValue.isRecordingVideo) {
     //   stopTimer();
     //  await camController.pauseVideoRecording();
     //  debugPrint('Video pause');
@@ -277,7 +294,7 @@ class _WhatsappCameraState extends State<WhatsappCamera>
     final cam = _cameras.firstWhere((camera) =>
         camera.lensDirection != camController.description.lensDirection);
     await camController.setDescription(cam);
-    // if (camController.value.isRecordingPaused) {
+    // if (camValue.isRecordingPaused) {
     //   await camController.resumeVideoRecording();
     //   startTimer(rest: false);
     //   debugPrint('Video resume');
@@ -285,20 +302,24 @@ class _WhatsappCameraState extends State<WhatsappCamera>
   }
 
   Future<void> toggleFlashMode() async {
+    _capturePng();
+    return;
     var always = FlashMode.always;
-    await camController.setFlashMode(
-        camController.value.flashMode == always ? FlashMode.off : always);
+    await camController
+        .setFlashMode(camValue?.flashMode == always ? FlashMode.off : always);
     setState(() {});
+  }
+
+  CameraValue? get camValue {
+    if (_isLoading) return null;
+    return camController.value;
   }
 
   bool videoMode = false;
   Duration videoDuration = Duration.zero;
-  bool get isRecording{
-    if(_isLoading){
-      return false;
-    }
-    return camController.value.isRecordingVideo;
-  }
+
+  bool get isRecording => camValue?.isRecordingVideo ?? false;
+
   Future<void> setFlashMode(FlashMode mode) async {
     try {
       await camController.setFlashMode(mode);
@@ -355,30 +376,32 @@ class _WhatsappCameraState extends State<WhatsappCamera>
         padding: const EdgeInsets.symmetric(horizontal: 4.0),
         child: Row(
           // mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment:isRecording?MainAxisAlignment.center: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: isRecording
+              ? MainAxisAlignment.center
+              : MainAxisAlignment.spaceBetween,
           children: [
-            if(!isRecording)
-            Container(
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.black45,
+            if (!isRecording)
+              Container(
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.black45,
+                ),
+                child: IconButton(
+                  color: Colors.white,
+                  onPressed: () async {
+                    controller.openGallery().then((value) {
+                      if (controller.selectedImages.isNotEmpty) {
+                        Navigator.pop(context, controller.selectedImages);
+                      }
+                    });
+                  },
+                  icon: const Icon(Icons.image),
+                ),
               ),
-              child: IconButton(
-                color: Colors.white,
-                onPressed: () async {
-                  controller.openGallery().then((value) {
-                    if (controller.selectedImages.isNotEmpty) {
-                      Navigator.pop(context, controller.selectedImages);
-                    }
-                  });
-                },
-                icon: const Icon(Icons.image),
-              ),
-            ),
             // const SizedBox(width: 10,),
             Container(
               // alignment: Alignment.center,
-              padding: EdgeInsets.all(isRecording?10:5),
+              padding: EdgeInsets.all(isRecording ? 10 : 5),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(25),
                 border: Border.all(color: Colors.white, width: 5),
@@ -394,31 +417,49 @@ class _WhatsappCameraState extends State<WhatsappCamera>
                     file = await takePicture();
                   }
                   if (file != null) {
-                    controller.captureImage(File(file.path));
+
+                    controller.captureImage(FileMediaModel(
+                      File(file.path),
+                      height: camValue?.previewSize?.height,
+                      width: camValue?.previewSize?.width,
+                      duration: videoMode ? videoDuration.inSeconds : null,
+                      isImage: !videoMode,
+                      thumbnail:await _capturePng()
+                    ));
                     Navigator.pop(context, controller.selectedImages);
                   }
                 },
-                child: Icon(isRecording?Icons.square:Icons.circle, size:isRecording?20: 30,color:isRecording?Colors.red: Colors.white),
+                child: Icon(isRecording ? Icons.square : Icons.circle,
+                    size: isRecording ? 20 : 30,
+                    color: isRecording ? Colors.red : Colors.white),
               ),
             ),
             // const SizedBox(width: 10,),
-            if(!isRecording)
-            Container(
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.black45,
+            if (!isRecording)
+              Container(
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.black45,
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.flip_camera_android),
+                  onPressed: toggleCamera,
+                ),
               ),
-              child: IconButton(
-                icon: const Icon(Icons.flip_camera_android),
-                onPressed: toggleCamera,
-              ),
-            ),
           ],
         ),
       );
     }
   }
+  GlobalKey globalKey = GlobalKey();
 
+  Future<Uint8List> _capturePng() async {
+    RenderRepaintBoundary boundary = globalKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+    ui.Image image = boundary.toImageSync(pixelRatio: .03);
+    ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    Uint8List pngBytes = byteData!.buffer.asUint8List();
+    return pngBytes;
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -435,9 +476,12 @@ class _WhatsappCameraState extends State<WhatsappCamera>
           else
             SizedBox(
               width: MediaQuery.of(context).size.width,
-              child: CameraPreview(
-                camController,
-                // child:
+              child: RepaintBoundary(
+                key: globalKey,
+                child: CameraPreview(
+                  camController,
+                  // child:
+                ),
               ),
               // child: CameraCamera(
               //   enableZoom: false,
@@ -464,13 +508,17 @@ class _WhatsappCameraState extends State<WhatsappCamera>
                           '${videoDuration.inMinutes.toString().padLeft(2, '0')}:${(videoDuration.inSeconds % 60).toString().padLeft(2, '0')}'),
                       backgroundColor:
                           videoDuration.inSeconds == 0 ? null : Colors.red),
-                if (isRecording)
+                if (!isRecording)
                   IconButton(
-                    icon: Icon(camController.value.flashMode == FlashMode.always
+                    icon: Icon(camValue?.flashMode == FlashMode.always
                         ? Icons.flash_on
                         : Icons.flash_off),
                     onPressed: toggleFlashMode,
-                  )else const SizedBox(width: 50,)
+                  )
+                else
+                  const SizedBox(
+                    width: 50,
+                  )
               ],
             ),
           ),
@@ -482,22 +530,22 @@ class _WhatsappCameraState extends State<WhatsappCamera>
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if(!isRecording)
-                GestureDetector(
-                  dragStartBehavior: DragStartBehavior.down,
-                  onVerticalDragStart: (details) => painel.expand(),
-                  child: SizedBox(
-                    height: 120,
-                    child: AnimatedBuilder(
-                        animation: controller,
-                        builder: (context, child) {
-                          return Column(
-                            children: [
-                              if (controller.images.isNotEmpty)
-                           const Icon(
-                                Icons.remove,
-                                color: Colors.white,
-                              ),
+                if (!isRecording)
+                  GestureDetector(
+                    dragStartBehavior: DragStartBehavior.down,
+                    onVerticalDragStart: (details) => painel.expand(),
+                    child: SizedBox(
+                      height: 120,
+                      child: AnimatedBuilder(
+                          animation: controller,
+                          builder: (context, child) {
+                            return Column(
+                              children: [
+                                if (controller.images.isNotEmpty)
+                                  const Icon(
+                                    Icons.remove,
+                                    color: Colors.white,
+                                  ),
                                 // const RotatedBox(
                                 //   quarterTurns: 1,
                                 //   child: Icon(
@@ -505,51 +553,51 @@ class _WhatsappCameraState extends State<WhatsappCamera>
                                 //     color: Colors.white,
                                 //   ),
                                 // ),
-                              Expanded(
-                                child: ListView.builder(
-                                  itemCount: controller.images.length,
-                                  physics: const BouncingScrollPhysics(),
-                                  scrollDirection: Axis.horizontal,
-                                  itemBuilder: (context, index) {
-                                    return InkWell(
-                                      onTap: () async {
-                                        controller
-                                            .selectImage(
-                                                controller.images[index])
-                                            .then((value) {
-                                          Navigator.pop(
-                                            context,
-                                            controller.selectedImages,
-                                          );
-                                        });
-                                      },
-                                      child: Container(
-                                        height: 100,
-                                        width: 100,
-                                        margin: const EdgeInsets.symmetric(
-                                            horizontal: 5),
-                                        decoration: BoxDecoration(
-                                          image: DecorationImage(
-                                            fit: BoxFit.cover,
-                                            isAntiAlias: true,
-                                            filterQuality: FilterQuality.high,
-                                            image: ThumbnailProvider(
-                                              highQuality: true,
-                                              mediumId:
-                                                  controller.images[index].id,
+                                Expanded(
+                                  child: ListView.builder(
+                                    itemCount: controller.images.length,
+                                    physics: const BouncingScrollPhysics(),
+                                    scrollDirection: Axis.horizontal,
+                                    itemBuilder: (context, index) {
+                                      return InkWell(
+                                        onTap: () async {
+                                          controller
+                                              .selectImage(
+                                                  controller.images[index])
+                                              .then((value) {
+                                            Navigator.pop(
+                                              context,
+                                              controller.selectedImages,
+                                            );
+                                          });
+                                        },
+                                        child: Container(
+                                          height: 100,
+                                          width: 100,
+                                          margin: const EdgeInsets.symmetric(
+                                              horizontal: 5),
+                                          decoration: BoxDecoration(
+                                            image: DecorationImage(
+                                              fit: BoxFit.cover,
+                                              isAntiAlias: true,
+                                              filterQuality: FilterQuality.high,
+                                              image: ThumbnailProvider(
+                                                highQuality: true,
+                                                mediumId:
+                                                    controller.images[index].id,
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                    );
-                                  },
+                                      );
+                                    },
+                                  ),
                                 ),
-                              ),
-                            ],
-                          );
-                        }),
+                              ],
+                            );
+                          }),
+                    ),
                   ),
-                ),
                 const SizedBox(
                   height: 15,
                 ),
@@ -557,8 +605,12 @@ class _WhatsappCameraState extends State<WhatsappCamera>
                 const SizedBox(
                   height: 15,
                 ),
-                if(!isRecording)
-                _cameraVideoTogglesRowWidget()else const SizedBox(height: 32,)
+                if (!isRecording)
+                  _cameraVideoTogglesRowWidget()
+                else
+                  const SizedBox(
+                    height: 32,
+                  )
               ],
             ),
           ),
