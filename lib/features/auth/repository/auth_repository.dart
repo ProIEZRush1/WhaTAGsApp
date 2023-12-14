@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:app_settings/app_settings.dart';
+// import 'package:app_settings/app_settings.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:com.jee.tag.whatagsapp/mobile_layout_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -50,13 +50,13 @@ class AuthRepository {
                   content:
                       Text("We need your permission to send notifications"),
                   actions: <Widget>[
-                    BasicDialogAction(
-                        title: Text("Accept"),
-                        onPressed: () {
-                          AppSettings.openAppSettings(
-                              type: AppSettingsType.notification);
-                          Navigator.pop(context);
-                        }),
+                    // BasicDialogAction(
+                    //     title: Text("Accept"),
+                    //     onPressed: () {
+                    //       AppSettings.openAppSettings(
+                    //           type: AppSettingsType.notification);
+                    //       Navigator.pop(context);
+                    //     }),
                     BasicDialogAction(
                         title: Text("Cancel"),
                         onPressed: () {

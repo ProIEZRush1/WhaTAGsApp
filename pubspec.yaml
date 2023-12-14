@@ -28,7 +28,7 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
 #  agora_uikit: ^1.0.2
-  app_settings: ^5.1.1
+#  app_settings: ^5.1.1
   async: ^2.11.0
   audioplayers: ^5.1.0
   cached_network_image: ^3.2.1
@@ -89,6 +89,7 @@ dependencies:
   swipe_to: ^1.0.2
   url_launcher: ^6.1.14
   uuid: ^3.0.6
+  audio_waveforms: ^1.0.4
 #  whatsapp_camera: ^1.0.0
   whatsapp_camera:
     path: whatsapp_camera-main

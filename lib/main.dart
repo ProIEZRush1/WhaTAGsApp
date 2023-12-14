@@ -1,3 +1,4 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,24 @@ void main() async {
       const Settings(persistenceEnabled: true);
   // final directory = await getApplicationDocumentsDirectory();
   await Hive.initFlutter('hive_data');
+   AudioContext audioContext = const AudioContext(
+    iOS: AudioContextIOS(
+      // defaultToSpeaker: true,
+      category: AVAudioSessionCategory.playback,
+      options: [
+        AVAudioSessionOptions.defaultToSpeaker,
+        AVAudioSessionOptions.mixWithOthers,
+      ],
+    ),
+    android: AudioContextAndroid(
+      isSpeakerphoneOn: true,
+      stayAwake: true,
+      contentType: AndroidContentType.music,
+      usageType: AndroidUsageType.assistanceSonification,
+      audioFocus: AndroidAudioFocus.gain,
+    ),
+  );
+  AudioPlayer.global.setAudioContext(audioContext);
   runApp(
     const ProviderScope(
       child: MyApp(),
@@ -64,3 +83,7 @@ class MyApp extends ConsumerWidget {
     );
   }
 }
+// #include? "../Pods/Target Support Files/Pods-Target Name/Pods-Target Name.debug.xcconfig"
+// #include "Generated.xcconfig"
+// #include? "../Pods/Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"
+// #include "Generated.xcconfig"
