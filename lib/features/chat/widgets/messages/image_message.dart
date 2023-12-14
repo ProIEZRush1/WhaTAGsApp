@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
-import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/message_utils.dart';
+import 'package:com.jee.tag.whatagsapp/utils/message_utils.dart';
 
 class ImageMessage extends StatefulWidget {
   final WidgetRef ref;
@@ -67,7 +67,8 @@ class _ImageMessageState extends State<ImageMessage> {
       widget.ref,
       widget.chatId,
       widget.messageId,
-        MessageUtils.getFileExtension(MessageEnum.image),
+        MessageEnum.image
+        // MessageUtils.getFileExtension(MessageEnum.image),
     );
 
     if (success) {

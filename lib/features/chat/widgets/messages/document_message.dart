@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
-import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/message_utils.dart';
+import 'package:com.jee.tag.whatagsapp/utils/message_utils.dart';
 import 'package:com.jee.tag.whatagsapp/utils/ColourUtils.dart';
 import 'package:com.jee.tag.whatagsapp/utils/FIleUtils.dart';
 import 'package:flutter/material.dart';
@@ -73,7 +73,8 @@ class _DocumentMessageState extends ConsumerState<DocumentMessage> {
       ref,
       widget.chatId,
       widget.messageId,
-      fileExtension,
+      MessageEnum.document
+      // fileExtension,
     );
 
     if (success) {

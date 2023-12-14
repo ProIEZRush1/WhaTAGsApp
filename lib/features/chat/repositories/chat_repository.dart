@@ -6,7 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
 import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/repositories/chat_database.dart';
-import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/message_utils.dart';
+import 'package:com.jee.tag.whatagsapp/utils/message_utils.dart';
 import 'package:com.jee.tag.whatagsapp/utils/EncryptionUtils.dart';
 import 'package:com.jee.tag.whatagsapp/utils/LocationUtils.dart';
 import 'package:dio/dio.dart';
@@ -242,7 +242,7 @@ class ChatRepository {
       // Create default message in storage
       final String messageId = const Uuid().v4(); // Generates a unique ID
       final int timestamp = DateTime.now().millisecondsSinceEpoch;
-      MessageUtils.saveSendFile(messageId, MessageUtils.getFileExtension(messageEnum)??name.split('.').lastOrNull??'', file);
+      MessageUtils.saveSendFile(messageId, name, file,messageEnum);
       final Map<String, dynamic> defaultMessage = {
         "key": {
           "remoteJid": chatId,

@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/message_utils.dart';
+import 'package:com.jee.tag.whatagsapp/utils/message_utils.dart';
 import 'package:com.jee.tag.whatagsapp/utils/DeviceUtils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -108,6 +108,7 @@ class ApiService {
         final authController = ref.read(authControllerProvider);
         await authController.authRepository.auth.signOut();
         Hive.deleteFromDisk();
+        Hive.initFlutter('hive_data');
         MessageUtils.deleteAllDownload();
         if (context.mounted) {
           Navigator.pushNamedAndRemoveUntil(
