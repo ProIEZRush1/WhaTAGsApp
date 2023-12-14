@@ -14,6 +14,7 @@ import Flutter
 import UIKit
 import Flutter
 import Firebase
+import FirebaseCore
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {

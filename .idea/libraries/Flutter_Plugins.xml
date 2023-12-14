@@ -73,7 +73,9 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/image_picker_android-0.8.8+2" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences-2.2.2" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/file_selector_macos-0.9.3+3" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/audio_waveforms-1.0.4" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/record_web-1.0.3" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/record-5.0.1" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/record_linux-0.7.1" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

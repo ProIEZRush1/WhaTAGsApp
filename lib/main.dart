@@ -18,17 +18,9 @@ import 'package:path_provider/path_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  FirebaseFirestore.instance.settings =
-      const Settings(persistenceEnabled: true);
-  // final directory = await getApplicationDocumentsDirectory();
-  await Hive.initFlutter('hive_data');
-   AudioContext audioContext = const AudioContext(
+  const AudioContext audioContext = AudioContext(
     iOS: AudioContextIOS(
-      // defaultToSpeaker: true,
-      category: AVAudioSessionCategory.playback,
+      category: AVAudioSessionCategory.ambient,
       options: [
         AVAudioSessionOptions.defaultToSpeaker,
         AVAudioSessionOptions.mixWithOthers,
@@ -37,12 +29,19 @@ void main() async {
     android: AudioContextAndroid(
       isSpeakerphoneOn: true,
       stayAwake: true,
-      contentType: AndroidContentType.music,
+      contentType: AndroidContentType.sonification,
       usageType: AndroidUsageType.assistanceSonification,
-      audioFocus: AndroidAudioFocus.gain,
+      audioFocus: AndroidAudioFocus.none,
     ),
   );
   AudioPlayer.global.setAudioContext(audioContext);
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  FirebaseFirestore.instance.settings =
+      const Settings(persistenceEnabled: true);
+  // final directory = await getApplicationDocumentsDirectory();
+  await Hive.initFlutter('hive_data');
   runApp(
     const ProviderScope(
       child: MyApp(),

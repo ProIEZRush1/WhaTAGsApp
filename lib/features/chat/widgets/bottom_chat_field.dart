@@ -1,8 +1,9 @@
+import 'dart:async';
 import 'dart:io';
-import 'package:com.jee.tag.whatagsapp/features/chat/widgets/selecte_share_options.dart';
-import 'package:com.jee.tag.whatagsapp/utils/DeviceUtils.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/audio_recording_message_service/audio_recorder_io.dart';
 import 'package:com.jee.tag.whatagsapp/utils/EncryptionUtils.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sound/flutter_sound.dart';
@@ -16,6 +17,7 @@ import 'package:com.jee.tag.whatagsapp/common/providers/message_reply_provider.d
 import 'package:com.jee.tag.whatagsapp/common/utils/utils.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/controller/chat_controller.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/message_reply_preview.dart';
+import 'package:record/record.dart';
 import 'package:whatsapp_camera/camera/camera_whatsapp.dart';
 import 'package:whatsapp_camera/modle/file_media_model.dart';
 
@@ -35,20 +37,112 @@ class BottomChatField extends ConsumerStatefulWidget {
   ConsumerState<BottomChatField> createState() => _BottomChatFieldState();
 }
 
-class _BottomChatFieldState extends ConsumerState<BottomChatField> {
+class _BottomChatFieldState extends ConsumerState<BottomChatField> with AudioRecorderMixin {
   bool get isShowSendButton => _messageController.text.isNotEmpty;
   final TextEditingController _messageController = TextEditingController();
-  FlutterSoundRecorder? _soundRecorder;
+  // FlutterSoundRecorder? _soundRecorder;
   bool isRecorderInit = false;
   bool isShowEmojiContainer = false;
   bool isRecording = false;
   FocusNode focusNode = FocusNode();
+  int _recordDuration = 0;
+  Timer? _timer;
+  late final AudioRecorder _audioRecorder;
+
+  StreamSubscription<RecordState>? _recordSub;
+  RecordState _recordState = RecordState.stop;
+  StreamSubscription<Amplitude>? _amplitudeSub;
+  Amplitude? _amplitude;
 
   @override
   void initState() {
     super.initState();
-    _soundRecorder = FlutterSoundRecorder();
+    // _soundRecorder = FlutterSoundRecorder();
     openAudio();
+    _audioRecorder = AudioRecorder();
+
+    _recordSub = _audioRecorder.onStateChanged().listen((recordState) {
+      _updateRecordState(recordState);
+    });
+
+    _amplitudeSub = _audioRecorder
+        .onAmplitudeChanged(const Duration(milliseconds: 300))
+        .listen((amp) {
+      setState(() => _amplitude = amp);
+    });
+  }
+
+
+  void _updateRecordState(RecordState recordState) {
+    setState(() => _recordState = recordState);
+
+    switch (recordState) {
+      case RecordState.pause:
+        _timer?.cancel();
+        break;
+      case RecordState.record:
+        _startTimer();
+        break;
+      case RecordState.stop:
+        _timer?.cancel();
+        _recordDuration = 0;
+        break;
+    }
+  }
+
+  void _startTimer() {
+    _timer?.cancel();
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
+      setState(() => _recordDuration++);
+    });
+  }
+
+  Future<void> _start() async {
+    try {
+      if (await _audioRecorder.hasPermission()) {
+        const encoder = AudioEncoder.aacLc;
+
+        // We don't do anything with this but printing
+        final isSupported = await _audioRecorder.isEncoderSupported(
+          encoder,
+        );
+
+        if (!isSupported) {
+          debugPrint('${encoder.name} supported: $isSupported');
+        }
+
+        final devs = await _audioRecorder.listInputDevices();
+        debugPrint(devs.toString());
+
+        const config = RecordConfig(encoder: encoder);
+
+        // Record to file
+        await recordFile(_audioRecorder, config);
+
+        // Record to stream
+        // await recordStream(_audioRecorder, config);
+
+        _recordDuration = 0;
+
+        _startTimer();
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+    }
+  }
+
+  Future<void> _stop() async {
+    final path = await _audioRecorder.stop();
+
+    if (path != null) {
+      // widget.onStop(path);
+      var file = File(path)..createSync(recursive: true);
+      sendFileMessage(file, MessageEnum.voice);
+      downloadWebData(path);
+    }
   }
 
   void openAudio() async {
@@ -56,7 +150,7 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
     if (status != PermissionStatus.granted) {
       throw RecordingPermissionException('Mic permission not allowed!');
     }
-    await _soundRecorder!.openRecorder();
+    // await _soundRecorder!.openRecorder();
     isRecorderInit = true;
   }
 
@@ -83,21 +177,28 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
         _messageController.text = '';
       });
     } else {
-      var tempDir = await getTemporaryDirectory();
-      var path = '${tempDir.path}/flutter_sound.aac';
-      var file = File(path)..createSync();
+      // var tempDir = await getTemporaryDirectory();
+      // var path = '${tempDir.path}/flutter_sound.aac';
+      // var file = File(path)..createSync();
       if (!isRecorderInit) {
         debugPrint('Recording not Init');
         return;
       }
-      if (isRecording) {
-        await _soundRecorder!.stopRecorder();
-        sendFileMessage(file, MessageEnum.voice);
-      } else {
-        await _soundRecorder!.startRecorder(
-          toFile: file.path,
-        );
-      }
+      _start();
+      // if (isRecording) {
+      //   _stop();
+      // }else{
+      //   _start();
+      // }
+
+      // if (isRecording) {
+      //   // await _soundRecorder!.stopRecorder();
+      //   // sendFileMessage(file, MessageEnum.voice);
+      // } else {
+      //   // await _soundRecorder!.startRecorder(
+      //   //   toFile: file.path,
+      //   // );
+      // }
 
       setState(() {
         isRecording = !isRecording;
@@ -183,8 +284,12 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
   void dispose() {
     super.dispose();
     _messageController.dispose();
-    _soundRecorder!.closeRecorder();
+    // _soundRecorder!.closeRecorder();
     isRecorderInit = false;
+    _timer?.cancel();
+    _recordSub?.cancel();
+    _amplitudeSub?.cancel();
+    _audioRecorder.dispose();
   }
 
   @override

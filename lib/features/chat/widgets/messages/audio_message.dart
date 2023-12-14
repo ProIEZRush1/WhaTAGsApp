@@ -1,6 +1,10 @@
+import 'dart:async';
 import 'dart:io';
+// import 'package:audioplayers/audioplayers.dart';
+import 'package:audioplayers/audioplayers.dart' as ap;
 import 'package:audioplayers/audioplayers.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/controller/audio_controller.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
@@ -45,11 +49,47 @@ class _VideoMessageState extends State<AudioMessage> {
   AudioPlayer? get player => AudioController.getPlayer(id);
   File? audioFile;
 
+
+  final _audioPlayer = ap.AudioPlayer()..setReleaseMode(ReleaseMode.stop);
+  late StreamSubscription<void> _playerStateChangedSubscription;
+  late StreamSubscription<Duration?> _durationChangedSubscription;
+  late StreamSubscription<Duration> _positionChangedSubscription;
+  Duration? _position;
+  Duration? _duration;
+
+
+
   @override
   void initState() {
     super.initState();
     _checkAudioDownloaded();
+
+    _playerStateChangedSubscription =
+        _audioPlayer.onPlayerComplete.listen((state) async {
+          await stop();
+          setState(() {});
+        });
+    _positionChangedSubscription = _audioPlayer.onPositionChanged.listen(
+          (position) => setState(() {
+        _position = position;
+      }),
+    );
+    _durationChangedSubscription = _audioPlayer.onDurationChanged.listen(
+          (duration) => setState(() {
+        _duration = duration;
+      }),
+    );
   }
+
+  Future<void> play() {
+      return _audioPlayer.play(
+        kIsWeb ? ap.UrlSource(audioFile?.path??"") : ap.DeviceFileSource(audioFile?.path??''),
+      );
+  }
+
+  Future<void> stop() => _audioPlayer.stop();
+
+  Future<void> pause() => _audioPlayer.pause();
 
   _checkAudioDownloaded() async {
     final _localFilePath =
@@ -151,14 +191,19 @@ class _VideoMessageState extends State<AudioMessage> {
 
   void playAudio() {
     if (audioFile != null) {
-      if (isAudioPlaying) {
-        player!.pause();
-      } else if (player?.state == PlayerState.paused) {
-        player!.resume();
+      if (_audioPlayer.state == ap.PlayerState.playing) {
+        pause();
       } else {
-        AudioController.play(id, audioFile);
-        // player!.play(BytesSource(videoFile!.readAsBytesSync()));
-      } // if(result == 1){ //play success
+        play();
+      }
+      // if (isAudioPlaying) {
+      //   player!.pause();
+      // } else if (player?.state == PlayerState.paused) {
+      //   player!.resume();
+      // } else {
+      //   AudioController.play(id, audioFile);
+      //   // player!.play(BytesSource(videoFile!.readAsBytesSync()));
+      // } // if(result == 1){ //play success
       //   print("audio is playing.");
       // }else{
       //   print("Error while playing audio.");
@@ -171,7 +216,7 @@ class _VideoMessageState extends State<AudioMessage> {
 
   double currentPosition = 0;
 
-  bool get isAudioPlaying => player?.state == PlayerState.playing;
+  // bool get isAudioPlaying => player?.state == PlayerState.playing;
 
   Widget _buildVideoPlaceholder() {
     return SizedBox(
@@ -195,7 +240,9 @@ class _VideoMessageState extends State<AudioMessage> {
                     shape: BoxShape.circle,
                   ),
                   child: IconButton(
-                    icon: Icon(isAudioPlaying ? Icons.stop : Icons.play_arrow,
+                    icon: Icon(
+                        // isAudioPlaying ?
+                        _audioPlayer.state == ap.PlayerState.playing?Icons.stop : Icons.play_arrow,
                         color: Colors.white),
                     onPressed: playAudio,
                   ),
@@ -216,14 +263,15 @@ class _VideoMessageState extends State<AudioMessage> {
                         ),
                 ),
               Flexible(
-                child: Slider(
-                  max: widget.seconds.toDouble(),
-                  value: currentPosition,
-                  onChanged: (value) {
-                    currentPosition = value;
-                    player?.seek(Duration(seconds: value.toInt()));
-                  },
-                ),
+                child: _buildSlider(),
+                // Slider(
+                //   max: widget.seconds.toDouble(),
+                //   value: currentPosition,
+                //   onChanged: (value) {
+                //     currentPosition = value;
+                //     player?.seek(Duration(seconds: value.toInt()));
+                //   },
+                // ),
               ),
             ],
           ),
@@ -249,6 +297,41 @@ class _VideoMessageState extends State<AudioMessage> {
     );
   }
 
+
+
+  Widget _buildSlider() {
+    bool canSetValue = false;
+    final duration = _duration;
+    final position = _position;
+
+    if (duration != null && position != null) {
+      canSetValue = position.inMilliseconds > 0;
+      canSetValue &= position.inMilliseconds < duration.inMilliseconds;
+    }
+
+    // Slider(
+    //   max: widget.seconds.toDouble(),
+    //   value: currentPosition,
+    //   onChanged: (value) {
+    //     currentPosition = value;
+    //     player?.seek(Duration(seconds: value.toInt()));
+    //   },
+    // ),
+    return Slider(
+      max: widget.seconds.toDouble(),
+      onChanged: (v) {
+        if (duration != null) {
+          final position = v * duration.inMilliseconds;
+          _audioPlayer.seek(Duration(milliseconds: position.round()));
+        }
+      },
+      value: canSetValue && duration != null && position != null
+          ? position.inMilliseconds / duration.inMilliseconds
+          : 0.0,
+    );
+  }
+
+
   String _formatDuration(int seconds) {
     final hours = seconds ~/ 3600;
     final minutes = (seconds % 3600) ~/ 60;
@@ -260,5 +343,9 @@ class _VideoMessageState extends State<AudioMessage> {
   void dispose() {
     super.dispose();
     AudioController.removePlayer(id);
+    _playerStateChangedSubscription.cancel();
+    _positionChangedSubscription.cancel();
+    _durationChangedSubscription.cancel();
+    _audioPlayer.dispose();
   }
 }
