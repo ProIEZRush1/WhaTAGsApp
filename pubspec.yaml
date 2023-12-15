@@ -90,6 +90,7 @@ dependencies:
   url_launcher: ^6.1.14
   uuid: ^3.0.6
   record: ^5.0.1
+  record_darwin: ^1.0.1-beta.1
 #  whatsapp_camera: ^1.0.0
   whatsapp_camera:
     path: whatsapp_camera-main

@@ -184,12 +184,12 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> with AudioRec
         debugPrint('Recording not Init');
         return;
       }
-      _start();
-      // if (isRecording) {
-      //   _stop();
-      // }else{
-      //   _start();
-      // }
+
+      if (isRecording) {
+        _stop();
+      }else{
+        _start();
+      }
 
       // if (isRecording) {
       //   // await _soundRecorder!.stopRecorder();
