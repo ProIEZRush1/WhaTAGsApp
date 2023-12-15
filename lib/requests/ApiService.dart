@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/message_utils.dart';
+import 'package:com.jee.tag.whatagsapp/utils/message_utils.dart';
 import 'package:com.jee.tag.whatagsapp/utils/DeviceUtils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,9 +19,11 @@ class ApiService {
   String reviveClientEndpoint = "";
   String isLoggedInEndpoint = "";
   String logOutEndpoint = "";
+  String getProfileEndpoint = "";
   String generateQrCodeEndpoint = "";
 
   final String _messagesGroupEndpoint;
+  final String _miscEndpoint;
   String sendMessageEndpoint = "";
   String sendMediaMessageEndpoint = "";
   String markAllAsReadEndpoint = "";
@@ -34,6 +36,7 @@ class ApiService {
         _baseUrl = 'http://192.168.1.75:3000',
         //_baseUrl = 'https://whatsapp.tag.org',
         _authGroupEndpoint = '/auth',
+        _miscEndpoint = '/misc',
         _messagesGroupEndpoint = '/messages' {
     reviveClientEndpoint = '$_authGroupEndpoint/revive';
     isLoggedInEndpoint = '$_authGroupEndpoint/logged';
@@ -44,6 +47,7 @@ class ApiService {
     sendMediaMessageEndpoint = '$_messagesGroupEndpoint/sendMedia';
     markAllAsReadEndpoint = '$_messagesGroupEndpoint/markAllAsRead';
     downloadMessageEndpoint = '$_messagesGroupEndpoint/download';
+    getProfileEndpoint = '$_miscEndpoint/profilePictureUrl';
 
     // Add default headers here if needed
     _dio.options.headers['ngrok-skip-browser-warning'] = 'true';
@@ -108,6 +112,7 @@ class ApiService {
         final authController = ref.read(authControllerProvider);
         await authController.authRepository.auth.signOut();
         Hive.deleteFromDisk();
+        Hive.initFlutter('hive_data');
         MessageUtils.deleteAllDownload();
         if (context.mounted) {
           Navigator.pushNamedAndRemoveUntil(

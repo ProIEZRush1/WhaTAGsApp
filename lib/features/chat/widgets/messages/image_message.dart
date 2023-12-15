@@ -4,16 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
-import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/message_utils.dart';
+import 'package:com.jee.tag.whatagsapp/utils/message_utils.dart';
 
 class ImageMessage extends StatefulWidget {
   final WidgetRef ref;
   final String chatId;
   final String messageId;
-  final double height;
-  final double width;
-  final String mimetype;
-  final Uint8List jpegThumbnail;
+  final double? height;
+  final double? width;
+  final String? mimetype;
+  final Uint8List? jpegThumbnail;
   final String? caption;
 
   const ImageMessage({
@@ -21,10 +21,10 @@ class ImageMessage extends StatefulWidget {
     required this.ref,
     required this.chatId,
     required this.messageId,
-    required this.height,
-    required this.width,
-    required this.mimetype,
-    required this.jpegThumbnail,
+    this.height,
+    this.width,
+    this.mimetype,
+    this.jpegThumbnail,
     this.caption,
   }) : super(key: key);
 
@@ -67,7 +67,8 @@ class _ImageMessageState extends State<ImageMessage> {
       widget.ref,
       widget.chatId,
       widget.messageId,
-        MessageUtils.getFileExtension(MessageEnum.image),
+        MessageEnum.image
+        // MessageUtils.getFileExtension(MessageEnum.image),
     );
 
     if (success) {
@@ -137,9 +138,9 @@ class _ImageMessageState extends State<ImageMessage> {
         const Center(
           child: CircularProgressIndicator(),
         ),
-        widget.jpegThumbnail.isNotEmpty
+        widget.jpegThumbnail?.isNotEmpty??false
             ? Image.memory(
-                widget.jpegThumbnail,
+                widget.jpegThumbnail!,
                 fit: BoxFit.cover,
                 height: maxHeight,
                 width: double.infinity,

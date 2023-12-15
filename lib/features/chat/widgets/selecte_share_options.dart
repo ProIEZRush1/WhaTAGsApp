@@ -68,7 +68,7 @@ class _SelectShareOptionContainerState
           title: 'Contact',
           icon: Icons.person,
           color: Colors.blue,
-          onTap: null,
+          onTap: sendContact,
         ),
       ];
 
@@ -120,7 +120,14 @@ class _SelectShareOptionContainerState
         context, ref, deviceId, widget.recieverUserId, key);
     widget.hideShareButton();
   }
-
+  void sendContact() async {
+    var box = await Hive.openBox('config');
+    String deviceId = box.get('lastDeviceId') ?? "";
+    final key = box.get('lastEncryptionKey') ?? "";
+    ref.read(chatControllerProvider).sendContactMessage(
+        context, ref, deviceId, widget.recieverUserId, key);
+    widget.hideShareButton();
+  }
   void _sendFileMessage(File file, MessageEnum messageEnum,
       {FileMediaModel? model}) async {
     var box = await Hive.openBox('config');

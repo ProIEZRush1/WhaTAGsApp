@@ -8,7 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
-import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/message_utils.dart';
+import 'package:com.jee.tag.whatagsapp/utils/message_utils.dart';
 
 class AudioMessage extends StatefulWidget {
   final WidgetRef ref;
@@ -124,7 +124,8 @@ class _VideoMessageState extends State<AudioMessage> {
       widget.ref,
       widget.chatId,
       widget.messageId,
-      MessageUtils.getFileExtension(MessageEnum.audio),
+        MessageEnum.audio
+      // MessageUtils.getFileExtension(MessageEnum.audio),
     );
 
     if (success) {
