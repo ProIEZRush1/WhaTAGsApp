@@ -50,9 +50,11 @@ class _ChatListState extends ConsumerState<ChatList> {
   void initState() {
     super.initState();
     initializeChat();
+
   }
 
   Future<void> readMessage() async {
+    debugPrint('Reading msg');
     final controller = ref.read(chatControllerProvider);
     controller.setChatSeen(
       context,
@@ -96,11 +98,15 @@ class _ChatListState extends ConsumerState<ChatList> {
           }
           if (!_messages.containsKey(messageId)) {
             _messages[messageId] = message;
+            if(newMessages.length==1) {
+              readMessage();
+            }
             _messageIds.insert(0, messageId);
           } else if (_messages[messageId] != message) {
             int index = _messageIds.indexOf(messageId);
             if (index != -1) {
               _messages[messageId] = message;
+              // readMessage();
             }
           }
         }

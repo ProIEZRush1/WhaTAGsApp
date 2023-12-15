@@ -48,7 +48,7 @@ class _VCardMessageState extends State<VCardMessage> {
     final id = vCard.getWaId() ?? '';
     profileUrl = vcardProfileChased[widget.messageId];
     if (profileUrl != null) {
-      print('profile chased $profileUrl');
+      // print('profile chased $profileUrl');
       imageProvider = NetworkImage(profileUrl ?? '');
       setState(() {
 
