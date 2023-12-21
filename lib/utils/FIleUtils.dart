@@ -2,7 +2,9 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
+import 'package:com.jee.tag.whatagsapp/utils/EncryptionUtils.dart';
 import 'package:com.jee.tag.whatagsapp/utils/message_utils.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -27,9 +29,7 @@ class FileUtils {
     String tempPath = tempDir.path;
 
     // Create a temporary file with a unique name
-    File tempFile = File('$tempPath/${assetPath
-        .split('/')
-        .last}');
+    File tempFile = File('$tempPath/${assetPath.split('/').last}');
 
     // Write the bytes to the file and return it
     return tempFile.writeAsBytes(data.buffer.asUint8List());
@@ -66,9 +66,12 @@ class FileUtils {
   }
 
   static String getFileNameByType(MessageEnum messageEnum) {
-    return _getType(messageEnum) + '-' +
-        DateFormat('yyyyMMdd').format(DateTime.now()).toString() + '-WA'
-    +'.'+(MessageUtils.getFileExtension(messageEnum)??'');
+    return _getType(messageEnum) +
+        '-' +
+        DateFormat('yyyyMMdd').format(DateTime.now()).toString() +
+        '-WA' +
+        '.' +
+        (MessageUtils.getFileExtension(messageEnum) ?? '');
   }
 
   static _getType(MessageEnum messageEnum) {
@@ -83,7 +86,7 @@ class FileUtils {
       case MessageEnum.gif:
         return 'VID';
       case MessageEnum.vcard:
-      // TODO: Handle this case.
+        // TODO: Handle this case.
         break;
       case MessageEnum.sticker:
         return 'STK';
@@ -98,21 +101,34 @@ class FileUtils {
     int count = 0;
     while (file.existsSync()) {
       count++;
-      final extension = '.${file.path
-          .split('.')
-          .last}';
-      var path = file.path
-          .split(extension)
-          .first;
-      path = path
-          .split('-${count - 1}')
-          .first;
+      final extension = '.${file.path.split('.').last}';
+      var path = file.path.split(extension).first;
+      path = path.split('-${count - 1}').first;
       file = File('$path-$count$extension');
     }
     print(count);
-    print(file.path
-        .split('/')
-        .last);
+    print(file.path.split('/').last);
     return file..createSync(recursive: true);
+  }
+
+  static Future<bool> decryptFile(String path,{required Uint8List key, required Uint8List iv}) async{
+    final file = File(path);
+    if (!file.existsSync()) {
+      debugPrint('File not exist');
+      return false;
+    }
+    try {
+      var fileData =await file.readAsBytes();
+      fileData = fileData.sublist(0, fileData.length - 10);
+      print('length == ${fileData.length}');
+      ///remove last 10 bytes :- as per documentation
+      var decryptData =
+          EncryptionUtils.decryptFileWithAES(encryptedData: fileData,key: key,iv: iv);
+      file.writeAsBytesSync(decryptData);
+      return true;
+    }  catch (e) {
+      debugPrint('Error in download file $e \npath = $path');
+      return false;
+    }
   }
 }

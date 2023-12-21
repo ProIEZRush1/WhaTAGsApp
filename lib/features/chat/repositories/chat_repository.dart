@@ -14,6 +14,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:com.jee.tag.whatagsapp/common/utils/utils.dart';
@@ -102,6 +103,15 @@ class ChatRepository {
       'sentId': FieldValue.delete(),
     });
   }
+  Future<bool> isNewChat(String chatId) async {
+    final String userId = auth.currentUser!.uid;
+   var msg= await firestore
+        .collection('users')
+        .doc(userId)
+        .collection('chats')
+        .doc(chatId).get();
+    return msg.data()?.isEmpty??true;
+  }
 
   Stream<List<Map<String, dynamic>>> getMessagesStream(
       BuildContext context, WidgetRef ref, String chatId, String key) {
@@ -127,15 +137,9 @@ class ChatRepository {
     });
   }
 
-  void sendMessage(
-    BuildContext context,
-    WidgetRef ref,
-    String deviceId,
-    String chatId,
-    String text,
-    String key,
-    MessageEnum messageEnum,
-  ) async {
+  void sendMessage(BuildContext context, WidgetRef ref, String deviceId,
+      String chatId, String text, String key, MessageEnum messageEnum,
+      {Contact? contact}) async {
     try {
       final dataToSend = {"type": messageEnum.name, "data": text};
       // Create default message in storage
@@ -172,6 +176,39 @@ class ChatRepository {
         defaultMessage["information"]['degreesLongitude'] = location.longitude;
         dataToSend['degreesLatitude'] = location.latitude.toString();
         dataToSend['degreesLongitude'] = location.longitude.toString();
+      } else if (messageEnum == MessageEnum.vcard) {
+        if (contact == null) {
+          Fluttertoast.showToast(
+            msg: "Please select contact",
+          );
+          return;
+        }
+        var name = contact.name.first + contact.name.middle + contact.name.last;
+
+        // dataToSend['displayName']=name;
+        // var vcard=contact.toVCard();
+        final number = contact.phones.map((e) => e.number).join();
+        // int index= vcard.indexOf('TYPE=cell');
+        //  vcard=  vcard.replaceAll('TYPE=cell,', 'TYPE=cell;waid=${number.replaceAll('+', '').replaceAll(' ', '')}:$number;');
+        //  dataToSend['vcard']=vcard;
+        //  print('object==$vcard');//waid=911234567890
+
+        // print('object===$number');
+        final vcard = 'BEGIN:VCARD\n' // metadata of the contact card
+            +
+            'VERSION:3.0\n' +
+            'FN:$name\n' // full name
+            +
+            'ORG:${contact.organizations.firstOrNull?.title??""};\n' // the organization of the contact
+            +
+            'TEL;type=CELL;type=VOICE;waid=${number.replaceAll('+', '').replaceAll(' ', '')}:$number\n' // WhatsApp ID + phone number
+            // + 'TEL;type=CELL;type=VOICE;waid=911234567890:+91 12345 67890\n' // WhatsApp ID + phone number
+            +
+            'END:VCARD';
+        dataToSend['displayName'] = name;
+        defaultMessage["information"]['displayName'] = name;
+        dataToSend['vcard'] = vcard;
+        defaultMessage["information"]['vcard'] = vcard;
       }
       firestore
           .collection('users')

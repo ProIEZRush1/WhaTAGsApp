@@ -49,12 +49,14 @@ Route<dynamic> generateRoute(RouteSettings settings) {
       final uid = arguments['uid'];
       final isGroupChat = arguments['isGroupChat'] ?? false;
       final profilePic = arguments['profilePic'];
+      final unreadCount = arguments['unreadCount']??0;
       return MaterialPageRoute(
         builder: (context) => MobileChatScreen(
           name: name,
           uid: uid,
+          unreadCount:unreadCount,
           isGroupChat: isGroupChat,
-          profilePic: profilePic,
+          profilePic: profilePic??"",
         ),
       );
     case ConfirmStatusScreen.routeName:

@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:com.jee.tag.whatagsapp/features/chat/controller/chat_controller.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/screens/mobile_chat_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/src/consumer.dart';
@@ -17,7 +18,11 @@ class VCardMessage extends StatefulWidget {
   final WidgetRef ref;
 
   const VCardMessage(
-      {super.key, required this.vcard, required this.messageId, this.picture, required this.ref});
+      {super.key,
+      required this.vcard,
+      required this.messageId,
+      this.picture,
+      required this.ref});
 
   @override
   State<VCardMessage> createState() => _VCardMessageState();
@@ -26,6 +31,8 @@ class VCardMessage extends StatefulWidget {
 class _VCardMessageState extends State<VCardMessage> {
   late VCard vCard;
   late ImageProvider<Object> imageProvider;
+
+  ///number , url
   static Map<String, String?> vcardProfileChased = {};
 
   @override
@@ -46,13 +53,11 @@ class _VCardMessageState extends State<VCardMessage> {
 
   void downloadProfileUrl() async {
     final id = vCard.getWaId() ?? '';
-    profileUrl = vcardProfileChased[widget.messageId];
+    profileUrl = vcardProfileChased[id];
     if (profileUrl != null) {
       // print('profile chased $profileUrl');
       imageProvider = NetworkImage(profileUrl ?? '');
-      setState(() {
-
-      });
+      setState(() {});
       return;
     }
     var box = await Hive.openBox('config');
@@ -64,81 +69,84 @@ class _VCardMessageState extends State<VCardMessage> {
       deviceId ?? "",
       id,
     );
+
+    vcardProfileChased[id] = profileUrl;
     if (profileUrl != null) {
-      vcardProfileChased[widget.messageId] = profileUrl;
       imageProvider = NetworkImage(profileUrl ?? '');
       setState(() {});
-    }
+    } else {}
   }
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10.0),
-        child: Row(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0),
-              child: CircleAvatar(
-                backgroundImage: imageProvider,
-                radius: 20,
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10.0),
+          child: Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: CircleAvatar(
+                  backgroundImage: imageProvider,
+                  radius: 20,
+                ),
               ),
-            ),
-            // const SizedBox(width: 10,),
-            Flexible(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    vCard.formattedName ?? 'Contact',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+              // const SizedBox(width: 10,),
+              Flexible(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      vCard.formattedName ?? 'Contact',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  const SizedBox(
-                    height: 5,
-                  ),
-                  if (vCard.typedTelephone.firstOrNull != null)
-                    Row(
-                      children: [
-                        const Icon(Icons.phone),
-                        Text(vCard.typedTelephone.first[0],
-                            style: const TextStyle(fontSize: 10))
-                      ],
-                    )
-                ],
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    if (vCard.typedTelephone.firstOrNull != null)
+                      Row(
+                        children: [
+                          const Icon(Icons.phone),
+                          Text(vCard.typedTelephone.first[0],
+                              style: const TextStyle(fontSize: 10))
+                        ],
+                      )
+                  ],
+                ),
               ),
-            )
-          ],
-        ),
-      ),
-/*      child: ListTile(
-        leading: CircleAvatar(
-          backgroundImage: imageProvider,
-          radius: 20,
-        ),
-        title: Text(
-          vCard.formattedName ?? 'Contact',
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
+            ],
           ),
         ),
-        // titleAlignment: ListTileTitleAlignment.top,
-        subtitle: (vCard.typedTelephone.firstOrNull != null)?
-          Row(
-            children: [
-              const Icon(Icons.phone),
-              Text(vCard.typedTelephone.first[0],
-                  style: const TextStyle(fontSize: 10))
-            ],
-          ):null,
-        onTap: () {},
-      ),*/
+        if (vCard.getWaId() != null) ...[
+          const Divider(),
+          const SizedBox(
+            height: 5,
+          ),
+          InkWell(
+            onTap: () {
+              final id = vCard.getWaId();
+              Navigator.pushReplacementNamed(
+                context,
+                MobileChatScreen.routeName,
+                arguments: {
+                  'name': vCard.formattedName,
+                  'uid': id,
+                  'isGroupChat': false,
+                  'profilePic': vcardProfileChased[id],
+                },
+              );
+            },
+            child: const Text(
+              'Message',
+              style: TextStyle(color: Colors.blue),
+            ),
+          )
+        ]
+      ],
     );
   }
 }
@@ -157,6 +165,11 @@ extension ImgExtendion on VCard {
   }
 
   String? getWaId() {
+    if (getWaNum() == null) return null;
+    return '${getWaNum()}@s.whatsapp.net';
+  }
+
+  String? getWaNum() {
     var start = vCardString.indexOf(';waid=');
     if (start == -1) {
       return null;

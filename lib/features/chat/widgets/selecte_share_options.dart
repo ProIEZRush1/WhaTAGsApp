@@ -5,7 +5,9 @@ import 'dart:io';
 import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
 import 'package:com.jee.tag.whatagsapp/common/utils/utils.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/controller/chat_controller.dart';
+import 'package:com.jee.tag.whatagsapp/features/select_contacts/screens/select_contacts_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:whatsapp_camera/modle/file_media_model.dart';
@@ -108,7 +110,11 @@ class _SelectShareOptionContainerState
         await pickFile(context, allowedExtensions: imageExt + videoExt);
     widget.hideShareButton();
     if (video != null) {
-      _sendFileMessage(video,imageExt.contains(video.path.split('.').last)?MessageEnum.image: MessageEnum.video);
+      _sendFileMessage(
+          video,
+          imageExt.contains(video.path.split('.').last)
+              ? MessageEnum.image
+              : MessageEnum.video);
     }
   }
 
@@ -120,14 +126,26 @@ class _SelectShareOptionContainerState
         context, ref, deviceId, widget.recieverUserId, key);
     widget.hideShareButton();
   }
+
   void sendContact() async {
-    var box = await Hive.openBox('config');
-    String deviceId = box.get('lastDeviceId') ?? "";
-    final key = box.get('lastEncryptionKey') ?? "";
-    ref.read(chatControllerProvider).sendContactMessage(
-        context, ref, deviceId, widget.recieverUserId, key);
-    widget.hideShareButton();
+    var result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const SelectContactsScreen(shareContact: true),
+        ));
+    if (result is Contact) {
+      var box = await Hive.openBox('config');
+      String deviceId = box.get('lastDeviceId') ?? "";
+      final key = box.get('lastEncryptionKey') ?? "";
+      ref.read(chatControllerProvider).sendContactMessage(
+          context, ref, deviceId, widget.recieverUserId, key,contact: result);
+      widget.hideShareButton();
+    }else{
+      debugPrint('contact not selected $result');
+    }
+    return;
   }
+
   void _sendFileMessage(File file, MessageEnum messageEnum,
       {FileMediaModel? model}) async {
     var box = await Hive.openBox('config');

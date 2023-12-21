@@ -95,14 +95,16 @@ class _MessageState extends State<Message> {
     switch (type) {
 
       case MessageEnum.sticker:
-        return ImageMessage(
-          ref: ref,
-          chatId: chatId,
-          messageId: messageId,
-        );
+        // return ImageMessage(
+        //   ref: ref,
+        //   chatId: chatId,
+        //   messageId: messageId,
+        // );
+        break;
       case MessageEnum.image:
         return ImageMessage(
           ref: ref,
+          sent: widget.sent,
           chatId: chatId,
           messageId: messageId,
           height: imageProperties?.height,
@@ -125,6 +127,7 @@ class _MessageState extends State<Message> {
         return VideoMessage(
           ref: ref,
           chatId: chatId,
+          sent: widget.sent,
           messageId: messageId,
           height: videoProperties!.height,
           width: videoProperties!.width,

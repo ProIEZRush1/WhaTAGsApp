@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_contacts/contact.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
 import 'package:com.jee.tag.whatagsapp/common/providers/message_reply_provider.dart';
@@ -34,7 +35,7 @@ class ChatController {
       BuildContext context, WidgetRef ref, String chatId, String key) {
     return chatRepository.getMessagesStream(context, ref, chatId, key);
   }
-
+Future<bool> isNewChat(String chatId) =>chatRepository.isNewChat(chatId);
   void sendTextMessage(BuildContext context, WidgetRef ref, String deviceId,
       String chatId, String text, String key) {
     chatRepository.sendMessage(context, ref, deviceId, chatId, text, key,MessageEnum.text);
@@ -44,8 +45,8 @@ class ChatController {
     chatRepository.sendMessage(context, ref, deviceId, chatId, '', key,MessageEnum.location);
   }
   void sendContactMessage(BuildContext context, WidgetRef ref, String deviceId,
-      String chatId, String key) {
-    chatRepository.sendMessage(context, ref, deviceId, chatId, '', key,MessageEnum.vcard);
+      String chatId, String key,{Contact? contact}) {
+    chatRepository.sendMessage(context, ref, deviceId, chatId, '', key,MessageEnum.vcard,contact: contact);
   }
 
   void sendMediaMessage(BuildContext context, WidgetRef ref, String deviceId,

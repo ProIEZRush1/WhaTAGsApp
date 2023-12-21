@@ -7,7 +7,8 @@ import 'package:com.jee.tag.whatagsapp/features/select_contacts/controller/selec
 
 class SelectContactsScreen extends ConsumerWidget {
   static const String routeName = '/select-contact';
-  const SelectContactsScreen({Key? key}) : super(key: key);
+  final bool shareContact;
+  const SelectContactsScreen({Key? key,this.shareContact=false}) : super(key: key);
 
   void selectContact(
       WidgetRef ref, Contact selectedContact, BuildContext context) {
@@ -42,7 +43,13 @@ class SelectContactsScreen extends ConsumerWidget {
                 itemBuilder: (context, index) {
                   final contact = contactList[index];
                   return InkWell(
-                    onTap: () => selectContact(ref, contact, context),
+                    onTap: () {
+                      if(shareContact){
+                        Navigator.pop(context,contact);
+                      }else {
+                        selectContact(ref, contact, context);
+                      }
+                    },
                     child: Padding(
                       padding: const EdgeInsets.only(bottom: 8.0),
                       child: ListTile(

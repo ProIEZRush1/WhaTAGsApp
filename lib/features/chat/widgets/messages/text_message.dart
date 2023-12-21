@@ -72,9 +72,9 @@ class _TextMessageState extends State<TextMessage> {
                   if (!url.startsWith('http')) {
                     url = 'http://$url';
                   }
-                  if (await canLaunch(url)) {
-                    await launch(url);
-                  } else {
+                  try {
+                    await launchUrl(Uri.parse(url));
+                  } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Could not launch $url')),
                     );

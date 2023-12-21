@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/controller/download_controller.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/ImageProperties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/audio_properties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/file_properties.dart';
@@ -22,10 +23,12 @@ import 'package:hive/hive.dart';
 class ChatList extends ConsumerStatefulWidget {
   final String chatId;
   final bool isGroupChat;
+  final int unreadCount;
 
   const ChatList({
     Key? key,
     required this.chatId,
+    this.unreadCount = 0,
     required this.isGroupChat,
   }) : super(key: key);
 
@@ -37,7 +40,7 @@ class _ChatListState extends ConsumerState<ChatList> {
   final ScrollController _messageController = ScrollController();
   late final StreamSubscription<List<Map<String, dynamic>>>
       _messageStreamSubscription;
-  LinkedHashMap<String, Map<String, dynamic>> _messages = LinkedHashMap();
+  final LinkedHashMap<String, Map<String, dynamic>> _messages = LinkedHashMap();
   final List<String> _messageIds = [];
   String? _deviceId;
   String? _key;
@@ -45,12 +48,12 @@ class _ChatListState extends ConsumerState<ChatList> {
   final Map<String, Future<String>> _decryptedMessageFutures = {};
   late final GlobalKey<AnimatedListState> _listKey =
       GlobalKey<AnimatedListState>();
+  bool isNewChat = false;
 
   @override
   void initState() {
     super.initState();
     initializeChat();
-
   }
 
   Future<void> readMessage() async {
@@ -68,11 +71,13 @@ class _ChatListState extends ConsumerState<ChatList> {
     var box = await Hive.openBox('config');
     _deviceId = box.get('lastDeviceId') ?? "";
     _key = box.get('lastEncryptionKey') ?? "";
-    readMessage();
+    if (widget.unreadCount > 0) {
+      readMessage();
+    }
     _subscribeToMessageUpdates();
   }
 
-  void _subscribeToMessageUpdates() {
+  void _subscribeToMessageUpdates() async {
     final controller = ref.read(chatControllerProvider);
     _messageStreamSubscription = controller
         .chatMessagesStream(context, ref, widget.chatId, _key!)
@@ -98,7 +103,7 @@ class _ChatListState extends ConsumerState<ChatList> {
           }
           if (!_messages.containsKey(messageId)) {
             _messages[messageId] = message;
-            if(newMessages.length==1) {
+            if (newMessages.length == 1) {
               readMessage();
             }
             _messageIds.insert(0, messageId);
@@ -124,6 +129,9 @@ class _ChatListState extends ConsumerState<ChatList> {
         // }
       });
     });
+    isNewChat = await controller.isNewChat(widget.chatId);
+    print('isNewChat # $isNewChat');
+    setState(() {});
   }
 
   Future<String> _decryptText(String encryptedText) async {
@@ -180,7 +188,7 @@ class _ChatListState extends ConsumerState<ChatList> {
             return _buildListItem(messages[index], animation);
           },
         ),
-        if (_decryptedMessageCache.isEmpty)
+        if (_decryptedMessageCache.isEmpty && !isNewChat)
           const Center(child: CircularProgressIndicator()),
       ],
     );
