@@ -140,8 +140,8 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> with AudioRec
     if (path != null) {
       // widget.onStop(path);
       var file = File(path)..createSync(recursive: true);
-      sendFileMessage(file, MessageEnum.voice);
-      downloadWebData(path);
+      sendFileMessage(file, MessageEnum.voice,model: FileMediaModel(file,duration: _recordDuration));
+      // downloadWebData(path);
     }
   }
 
