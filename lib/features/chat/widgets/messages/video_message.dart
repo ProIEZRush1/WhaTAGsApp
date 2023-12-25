@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:com.jee.tag.whatagsapp/features/chat/controller/download_upload_controller.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/download_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -76,7 +77,7 @@ class _VideoMessageState extends State<VideoMessage> {
       _isDownloading = true;
     });
     videoFileCached.remove(widget.messageId);
-    bool success = await MessageUtils.downloadAndSaveFile(
+    bool success = await UploadCtr.instance.downloadAndSaveFile(
       context,
       widget.ref,
       widget.chatId,
@@ -188,6 +189,7 @@ class _VideoMessageState extends State<VideoMessage> {
                 width: widget.width, // Set the width to match the preview
               ),
         DownloadButton(
+          // fileDownloaded: _videoDownloaded,
           sent: widget.sent,
           onSuccess: () {
             _checkVideoDownloaded();
@@ -195,7 +197,7 @@ class _VideoMessageState extends State<VideoMessage> {
           messageId: widget.messageId,
           downloadAndSaveFile: () {
             videoFileCached.remove(widget.messageId);
-            return MessageUtils.downloadAndSaveFile(
+            return UploadCtr.instance.downloadAndSaveFile(
                 context,
                 widget.ref,
                 widget.chatId,

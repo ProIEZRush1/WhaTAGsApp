@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/controller/download_upload_controller.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/download_button.dart';
 import 'package:com.jee.tag.whatagsapp/utils/message_utils.dart';
 import 'package:com.jee.tag.whatagsapp/utils/ColourUtils.dart';
@@ -65,11 +66,9 @@ class _DocumentMessageState extends ConsumerState<DocumentMessage> {
   }
 
   _downloadFile() async {
-    setState(() {
-      _isDownloading = true;
-    });
-
-    bool success = await MessageUtils.downloadAndSaveFile(
+    _isDownloading = true;
+    refresh();
+    bool success = await UploadCtr.instance.downloadAndSaveFile(
         context, ref, widget.chatId, widget.messageId, MessageEnum.document
         // fileExtension,
         );
@@ -83,9 +82,8 @@ class _DocumentMessageState extends ConsumerState<DocumentMessage> {
       );
     }
 
-    setState(() {
-      _isDownloading = false;
-    });
+    _isDownloading = false;
+    refresh();
   }
 
   openFile() async {
@@ -135,7 +133,7 @@ class _DocumentMessageState extends ConsumerState<DocumentMessage> {
                       Text(
                         FileUtils.getFileSizeString(
                             bytes: widget.bytes, decimals: 1),
-                        style: TextStyle(color: Colors.grey, fontSize: 12),
+                        style: const TextStyle(color: Colors.grey, fontSize: 12),
                       ),
                       const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 8.0),
@@ -156,12 +154,15 @@ class _DocumentMessageState extends ConsumerState<DocumentMessage> {
               ),
             ),
             DownloadButton(
+              key: ValueKey(widget.messageId),
               onSuccess: () {
+                print('on Success called;');
                 _checkVideoDownloaded();
               },
               messageId: widget.messageId,
               sent: widget.sent,
-              downloadAndSaveFile: () => MessageUtils.downloadAndSaveFile(
+              // fileDownloaded: fileDownloaded,
+              downloadAndSaveFile: () => UploadCtr.instance.downloadAndSaveFile(
                   context,
                   ref,
                   widget.chatId,
@@ -233,4 +234,3 @@ class _DocumentMessageState extends ConsumerState<DocumentMessage> {
 </svg>""";
   }
 }
-

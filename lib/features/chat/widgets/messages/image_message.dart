@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:com.jee.tag.whatagsapp/features/chat/controller/download_upload_controller.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/download_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -67,7 +68,7 @@ class _ImageMessageState extends State<ImageMessage> {
       _isDownloading = true;
     });
     imageFileCached.remove(widget.messageId);
-    bool success = await MessageUtils.downloadAndSaveFile(
+    bool success = await UploadCtr.instance.downloadAndSaveFile(
         context, widget.ref, widget.chatId, widget.messageId, MessageEnum.image
         // MessageUtils.getFileExtension(MessageEnum.image),
         );
@@ -153,6 +154,7 @@ class _ImageMessageState extends State<ImageMessage> {
                 width: double.infinity,
               ),
         DownloadButton(
+          // fileDownloaded: _imageDownloaded,
           onSuccess: () {
             _checkImageDownloaded();
           },
@@ -160,7 +162,7 @@ class _ImageMessageState extends State<ImageMessage> {
           sent: widget.sent,
           downloadAndSaveFile: () {
             imageFileCached.remove(widget.messageId);
-            return MessageUtils.downloadAndSaveFile(context, widget.ref,
+            return UploadCtr.instance.downloadAndSaveFile(context, widget.ref,
                 widget.chatId, widget.messageId, MessageEnum.image
                 // MessageUtils.getFileExtension(MessageEnum.image),
                 );

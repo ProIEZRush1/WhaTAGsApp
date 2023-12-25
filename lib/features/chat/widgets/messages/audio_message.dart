@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/controller/audio_controller.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/controller/download_upload_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
@@ -79,7 +80,7 @@ class _VideoMessageState extends State<AudioMessage> {
       _isDownloading = true;
     });
 
-    bool success = await MessageUtils.downloadAndSaveFile(
+    bool success = await UploadCtr.instance.downloadAndSaveFile(
       context,
       widget.ref,
       widget.chatId,

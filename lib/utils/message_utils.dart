@@ -84,67 +84,6 @@ class MessageUtils {
     box.delete('localFilePath_$messageId');
   }
 
-  static Future<bool> downloadAndSaveFile(BuildContext context, WidgetRef ref,
-      String chatId, String messageId, MessageEnum messageEnum) async {
-    bool downloadSuccess = false;
-
-    final ApiService apiService = ApiService();
-    var box = await Hive.openBox('config');
-    String deviceToken = box.get('lastDeviceId') ?? "";
-    final firebaseUid =
-        ref.read(authControllerProvider).authRepository.auth.currentUser!.uid;
-    final directory = await getApplicationDocumentsDirectory();
-    // final fileExtension = getFileExtension(type);
-    // final filePath =
-    //     '${directory.path}/downloads/$messageId.${fileExtension.toLowerCase()}';
-    // final dirPath =
-    //     '${directory.path}/Media/Whatagsapp ${messageEnum.name}';
-    // const url='https://file-examples.com/wp-content/storage/2017/11/file_example_OOG_5MG.oggz';
-    // final url="${apiService.downloadMessageEndpoint}?deviceToken=$deviceToken&firebaseUid=$firebaseUid&chatId=$chatId&messageId=$messageId";
-
-    try {
-      var value = await apiService.get(
-        context,
-        ref,
-        "${apiService.downloadMessageEndpoint}?deviceToken=$deviceToken&firebaseUid=$firebaseUid&chatId=$chatId&messageId=$messageId",
-      );
-      // log('value### ${value}');
-      var fileName =
-          value['fileName'] ?? FileUtils.getFileNameByType(messageEnum);
-
-      if (apiService.checkSuccess(value)) {
-        var path = await getFilePermanentLocation(fileName, messageEnum);
-        var name = path.split('/').last;
-        var model = DownloadResponseModel(
-          messageId: messageId,
-          url: value['url'],
-          name: name,
-          keys: KeysModel.fromJson(value['keys']),
-        );
-        // DownloadController.instance
-        //     .download(model, path.split('/$name').first, fileName: name);
-        UploadCtr.instance.download(
-          data: model,
-          path: path.split('/$name').first,
-        );
-
-        return true;
-        Uint8List uint8list =
-            Uint8List.fromList(List<int>.from(value['buffer']['data']));
-        String savedPath = await saveFileToPermanentLocation(
-            fileName, messageId, uint8list, messageEnum);
-        // print('File save at ${savedPath}');
-        box.put('localFilePath_$messageId', savedPath);
-        downloadSuccess = true;
-      } else {
-        Fluttertoast.showToast(msg: 'Something went wrong');
-      }
-    } catch (e) {
-      Fluttertoast.showToast(msg: 'Something went wrong $e');
-    }
-
-    return downloadSuccess;
-  }
 
   static Future updateSaveMediaMessageId(
     String messageId,

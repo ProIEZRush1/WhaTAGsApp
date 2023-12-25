@@ -27,7 +27,7 @@ void main() async {
       const Settings(persistenceEnabled: true);
   // final directory = await getApplicationDocumentsDirectory();
   await Hive.initFlutter('hive_data');
-  await DownloadController.instance.init();
+  // await DownloadController.instance.init();
   UploadCtr.instance.inti();
   runApp(
     const ProviderScope(
