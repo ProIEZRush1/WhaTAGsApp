@@ -1,17 +1,18 @@
 import 'dart:io';
 
+import 'package:background_downloader/background_downloader.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/controller/download_controller.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/controller/download_upload_controller.dart';
 import 'package:com.jee.tag.whatagsapp/utils/message_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 
 class DownloadButton extends StatefulWidget {
-  const DownloadButton(
-      {Key? key,
-        required this.onSuccess,
-        required this.messageId,
-        required this.sent,
-        required this.downloadAndSaveFile})
+  const DownloadButton({Key? key,
+    required this.onSuccess,
+    required this.messageId,
+    required this.sent,
+    required this.downloadAndSaveFile})
       : super(key: key);
   final String messageId;
   final bool? sent;
@@ -23,7 +24,8 @@ class DownloadButton extends StatefulWidget {
 }
 
 class _DownloadButtonState extends State<DownloadButton> {
-  bool _fileDownloaded = false, _isDownloading = false;
+  bool _fileDownloaded = false,
+      _isDownloading = false;
 
   _checkVideoDownloaded() async {
     final localFilePath = await MessageUtils.getLocalFilePath(widget.messageId);
@@ -78,15 +80,29 @@ class _DownloadButtonState extends State<DownloadButton> {
     });
   }
 
+  AppUploadModel? get upload => UploadCtr.downloads[widget.messageId];
+
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: DownloadController.instance,
+      // animation: DownloadController.instance,
+      animation: UploadCtr.instance,
       builder: (context, child) {
+        if (upload != null) {
+          return Center(
+            child: CircularProgressIndicator(
+                value:upload
+                    ?.progressForIndicator),
+          );
+        }
+        if (upload?.status == TaskStatus.complete) {
+          _checkVideoDownloaded();
+        }
         if(download?.status == DownloadTaskStatus.complete){
           _checkVideoDownloaded();
         }
-        if (download?.status == DownloadTaskStatus.enqueued ||download?.status == DownloadTaskStatus.running ||
+        if (download?.status == DownloadTaskStatus.enqueued ||
+            download?.status == DownloadTaskStatus.running ||
             widget.sent == false ||
             _isDownloading) {
           return Center(

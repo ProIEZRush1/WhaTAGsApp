@@ -5,6 +5,7 @@ import 'package:async/async.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
 import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/controller/download_upload_controller.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/repositories/chat_database.dart';
 import 'package:com.jee.tag.whatagsapp/utils/message_utils.dart';
 import 'package:com.jee.tag.whatagsapp/utils/EncryptionUtils.dart';
@@ -103,14 +104,16 @@ class ChatRepository {
       'sentId': FieldValue.delete(),
     });
   }
+
   Future<bool> isNewChat(String chatId) async {
     final String userId = auth.currentUser!.uid;
-   var msg= await firestore
+    var msg = await firestore
         .collection('users')
         .doc(userId)
         .collection('chats')
-        .doc(chatId).get();
-    return msg.data()?.isEmpty??true;
+        .doc(chatId)
+        .get();
+    return msg.data()?.isEmpty ?? true;
   }
 
   Stream<List<Map<String, dynamic>>> getMessagesStream(
@@ -199,7 +202,7 @@ class ChatRepository {
             'VERSION:3.0\n' +
             'FN:$name\n' // full name
             +
-            'ORG:${contact.organizations.firstOrNull?.title??""};\n' // the organization of the contact
+            'ORG:${contact.organizations.firstOrNull?.title ?? ""};\n' // the organization of the contact
             +
             'TEL;type=CELL;type=VOICE;waid=${number.replaceAll('+', '').replaceAll(' ', '')}:$number\n' // WhatsApp ID + phone number
             // + 'TEL;type=CELL;type=VOICE;waid=911234567890:+91 12345 67890\n' // WhatsApp ID + phone number
@@ -257,22 +260,22 @@ class ChatRepository {
       FileMediaModel? model}) async {
     try {
       final name = file.path.split('/').last;
-      final dataToSend = {
+      final dataToSend = <String, String>{
         "type": messageEnum.type,
         if (text.isNotEmpty) "caption": text,
         // 'file':file,
         if (model?.thumbnail != null)
           'jpegThumbnail': base64.encode(model!.thumbnail!),
-        'seconds': model?.duration,
-        'width': model?.width,
-        'height': model?.height,
+        if (model?.duration != null) 'seconds': model!.duration.toString(),
+        if (model?.width != null) 'width': model!.width.toString(),
+        if (model?.height != null) 'height': model!.height.toString(),
         'mimetype': lookupMimeType(file.path) ?? '${messageEnum.type}/',
         'fileName': name,
-        'media': await MultipartFile.fromFile(
-          file.path,
-          // contentType: http.MediaType(),
-          filename: name,
-        )
+        // 'media': await MultipartFile.fromFile(
+        //   file.path,
+        //   // contentType: http.MediaType(),
+        //   filename: name,
+        // )
       };
       print('dataToSend $dataToSend');
       // Create default message in storage
@@ -308,14 +311,14 @@ class ChatRepository {
         var decodedImage = await decodeImageFromList(file.readAsBytesSync());
         defaultMessage["information"]['height'] = decodedImage.height;
         defaultMessage["information"]['width'] = decodedImage.width;
-        dataToSend['height'] = decodedImage.height;
-        dataToSend['width'] = decodedImage.width;
+        dataToSend['height'] = decodedImage.height.toString();
+        dataToSend['width'] = decodedImage.width.toString();
       } else if (messageEnum == MessageEnum.video) {
         var height = 848, width = 384;
         defaultMessage["information"]['height'] = height;
         defaultMessage["information"]['width'] = width;
-        dataToSend['height'] = height;
-        dataToSend['width'] = width;
+        dataToSend['height'] = height.toString();
+        dataToSend['width'] = width.toString();
       }
       firestore
           .collection('users')
@@ -332,12 +335,22 @@ class ChatRepository {
           ref.read(authControllerProvider).authRepository.auth.currentUser!.uid;
 
       debugPrint(dataToSend.toString());
-      apiService
-          .postMultipart(
-              "${apiService.sendMediaMessageEndpoint}?deviceToken=$deviceId&firebaseUid=$firebaseUid&to=$chatId&id=$messageId",
-              dataToSend)
-          .then((data) {
+
+      final url =
+          "${apiService.baseUrl}${apiService.sendMediaMessageEndpoint}?deviceToken=$deviceId&firebaseUid=$firebaseUid&to=$chatId&id=$messageId";
+
+      // return;
+      // apiService
+      //     .postMultipart(
+      //     url,
+      //         dataToSend)
+      UploadCtr.instance.upload(
+              path: file.path, url: url, data: dataToSend, id: messageId)
+          .then((d) {
+        print('data url==$url');
+        var data = json.decode(d ?? '');
         print('data postMultipart==$data');
+        data = data['data'];
         if (!apiService.checkSuccess(data)) {
           Fluttertoast.showToast(
             msg: "Something went wrong",
@@ -347,6 +360,8 @@ class ChatRepository {
           final id = data['messageData']?['key']?['id'];
           if (id is String) {
             MessageUtils.updateSaveMediaMessageId(messageId, id);
+          } else {
+            debugPrint('id not found ');
           }
         }
         apiService.checkIfLoggedIn(context, ref, data);

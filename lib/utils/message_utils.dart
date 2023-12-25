@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
 import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/controller/download_controller.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/controller/download_upload_controller.dart';
 import 'package:com.jee.tag.whatagsapp/requests/ApiService.dart';
 import 'package:com.jee.tag.whatagsapp/utils/FIleUtils.dart';
 import 'package:flutter/material.dart';
@@ -18,16 +19,17 @@ import 'package:path_provider/path_provider.dart';
 class MessageUtils {
   static List<Contact>? cachedContacts;
   static Box? _box;
-  static Future<Box>get boxInstance async{
-    if(_box==null){
+
+  static Future<Box> get boxInstance async {
+    if (_box == null) {
       print('box is null');
     }
     _box ??= await Hive.openBox('config');
     return _box!;
-}
-  static _intiBox()async{
-
   }
+
+  static _intiBox() async {}
+
   static String getNameFromData(String id, {String? name}) {
     // final String id = chatContactData["id"];
     String phoneNumber = id.split("@")[0];
@@ -119,8 +121,12 @@ class MessageUtils {
           name: name,
           keys: KeysModel.fromJson(value['keys']),
         );
-        DownloadController.instance
-            .download(model, path.split('/$name').first, fileName: name);
+        // DownloadController.instance
+        //     .download(model, path.split('/$name').first, fileName: name);
+        UploadCtr.instance.download(
+          data: model,
+          path: path.split('/$name').first,
+        );
 
         return true;
         Uint8List uint8list =
@@ -147,6 +153,7 @@ class MessageUtils {
     var box = await Hive.openBox('config');
     var path = await getLocalFilePath(messageId);
     box.put('localFilePath_$newMessageId', path);
+    print('updating old file to new');
   }
 
   static Future<bool> saveSendFile(String messageId, String fileName, File file,

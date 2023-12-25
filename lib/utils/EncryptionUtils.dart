@@ -80,13 +80,17 @@ class EncryptionUtils {
   }
 
   ///Accepts encrypted data and decrypt it. Returns plain text
- static Uint8List decryptFileWithAES(
-      {required Uint8List key, required Uint8List iv, required Uint8List encryptedData}) {
+  static Uint8List decryptFileWithAES(
+      {required Uint8List key,
+      required Uint8List iv,
+      required Uint8List encryptedData}) {
     final cipherKey = Key(key);
-    final encryptService = Encrypter(AES(
-      cipherKey,
-      mode: AESMode.cbc,
-    )); //Using AES CBC encryption
+    final encryptService = Encrypter(
+      AES(
+        cipherKey,
+        mode: AESMode.cbc,
+      ),
+    ); //Using AES CBC encryption
     final initVector = IV(iv);
     var val =
         encryptService.decryptBytes(Encrypted(encryptedData), iv: initVector);

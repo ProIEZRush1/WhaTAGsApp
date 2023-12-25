@@ -14,7 +14,7 @@ import 'package:uuid/uuid.dart';
 class ApiService {
   final Dio _dio;
   final String _baseUrl;
-
+  String get baseUrl=>_baseUrl;
   final String _authGroupEndpoint;
   String reviveClientEndpoint = "";
   String isLoggedInEndpoint = "";
@@ -33,7 +33,7 @@ class ApiService {
       : _dio = Dio(),
         // _baseUrl = 'https://horribly-vital-gar.ngrok-free.app',
         // _baseUrl = 'http://localhost:300',
-        _baseUrl = 'http://192.168.1.75:3000',
+        _baseUrl = 'http://192.168.1.17:3000',
         //_baseUrl = 'https://whatsapp.tag.org',
         _authGroupEndpoint = '/auth',
         _miscEndpoint = '/misc',

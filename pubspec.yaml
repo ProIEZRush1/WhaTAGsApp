@@ -31,6 +31,7 @@ dependencies:
   app_settings: ^5.1.1
   async: ^2.11.0
   audioplayers: ^5.1.0
+  background_downloader: 8.0.0
   cached_network_image: ^3.2.1
   cached_video_player:
     git:
