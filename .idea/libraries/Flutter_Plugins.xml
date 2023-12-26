@@ -20,7 +20,6 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/url_launcher_windows-3.1.0" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_contacts-1.1.7+1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/share_plus-7.2.1" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/app_settings-5.1.1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/url_launcher_linux-3.1.0" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/camera_avfoundation-0.9.13+7" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences_android-2.2.1" />
@@ -61,7 +60,6 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences-2.2.2" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/sqflite-2.3.0" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/file_selector_linux-0.9.2+1" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_downloader-1.11.5" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/open_file_plus-3.4.1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences_foundation-2.3.4" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_secure_storage_web-1.1.2" />
@@ -75,7 +73,9 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_background_service-5.0.5" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/audioplayers-5.2.1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences_windows-2.3.2" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/app_settings-5.1.1" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/background_downloader-8.0.0" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_downloader-1.11.6" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
