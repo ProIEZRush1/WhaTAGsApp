@@ -4,10 +4,6 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
-	<key>NSLocationWhenInUseUsageDescription</key>
-    <string>This app needs access to location when open.</string>
-    <key>NSLocationAlwaysUsageDescription</key>
-    <string>This app needs access to location when in the background.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
@@ -24,6 +20,8 @@
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+	<key>CFBundleTypeRole</key>
+	<string>Editor</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -35,20 +33,40 @@
 			</array>
 		</dict>
 		<dict>
-                <key>CFBundleIdentifier</key>
-                <string></string>
-                <key>CFBundleTypeRole</key>
-                <string>Editor</string>
-                <key>CFBundleURLSchemes</key>
-                <array>
-                    <string>app-1-797644769847-ios-7713b07f0e4d14a5d00db2</string>
-                </array>
-            </dict>
+			<key>CFBundleIdentifier</key>
+			<string></string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>app-1-797644769847-ios-7713b07f0e4d14a5d00db2</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>Needs to hear recordings</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Camera Library Use</string>
+	<key>NSContactsUsageDescription</key>
+	<string>Contact list to chat</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>This app needs access to location when in the background.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app needs access to location when open.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Mic Use</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Photo Library Use</string>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
@@ -68,23 +86,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Photo Library Use</string>
-	<key>NSCameraUsageDescription</key>
-	<string>Camera Library Use</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Mic Use</string>
-	<key>NSContactsUsageDescription</key>
-    <string>Contact list to chat</string>
-	<key>NSAppleMusicUsageDescription</key>
-    <string>Needs to hear recordings</string>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
-	<key>UIBackgroundModes</key>
-    <array>
-    <string>remote-notification</string>
-    </array>
-    <key>CFBundleTypeRole</key>
-    <string>Editor</string>
 </dict>
 </plist>
