@@ -1,11 +1,11 @@
 import 'dart:io';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/controller/audio_controller.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/controller/download_upload_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
 import 'package:com.jee.tag.whatagsapp/utils/message_utils.dart';
+import 'package:just_audio/just_audio.dart';
 
 class AudioMessage extends StatefulWidget {
   final WidgetRef ref;
@@ -81,13 +81,9 @@ class _VideoMessageState extends State<AudioMessage> {
     });
 
     bool success = await UploadCtr.instance.downloadAndSaveFile(
-      context,
-      widget.ref,
-      widget.chatId,
-      widget.messageId,
-        MessageEnum.audio
-      // MessageUtils.getFileExtension(MessageEnum.audio),
-    );
+        context, widget.ref, widget.chatId, widget.messageId, MessageEnum.audio
+        // MessageUtils.getFileExtension(MessageEnum.audio),
+        );
 
     if (success) {
       _checkAudioDownloaded();
@@ -109,20 +105,42 @@ class _VideoMessageState extends State<AudioMessage> {
   _initializeVideoController(String videoPath) {
     // player = AudioPlayer(playerId: widget.messageId);
     AudioController.addPlayer(id);
-    player!.onPlayerStateChanged.listen((event) {
-      if (mounted) {
-        if (event == PlayerState.completed || event == PlayerState.stopped) {
-          currentPosition = 0;
-        }
-        setState(() {});
+    // player!.onPlayerStateChanged.listen((event) {
+    //   if (mounted) {
+    //     if (event == PlayerState.completed || event == PlayerState.stopped) {
+    //       currentPosition = 0;
+    //     }
+    //     setState(() {});
+    //   }
+    // });
+    // player!.eventStream.listen((event) {
+    //   // print('eventStream ${event.position?.inSeconds}');
+    //   if (event.position != null) {
+    //     currentPosition = event.position!.inSeconds.toDouble();
+    //     setState(() {});
+    //   }
+    // });
+    // player?.playerStateStream.listen((event) {
+    //   if (event.processingState == ProcessingState.completed) {
+    //     currentPosition = 0;
+    //     refresh();
+    //   }
+    // });
+    player?.playerStateStream.listen((event) {
+      if (!event.playing) {
+        currentPosition = 0;
+        refresh();
       }
     });
-    player!.eventStream.listen((event) {
-      // print('eventStream ${event.position?.inSeconds}');
-      if (event.position != null) {
-        currentPosition = event.position!.inSeconds.toDouble();
-        setState(() {});
-      }
+    player?.positionStream.listen((event) {
+      print('eventStream ${event.inSeconds}');
+      // if (event != null) {
+        currentPosition = event.inSeconds.toDouble();
+        // if(currentPosition==widget.seconds.toDouble()){
+        //   currentPosition=0;
+        // }
+        refresh();
+      // }
     });
 
     // playAudio();
@@ -153,10 +171,13 @@ class _VideoMessageState extends State<AudioMessage> {
   void playAudio() {
     if (audioFile != null) {
       if (isAudioPlaying) {
-        player!.pause();
-      } else if (player?.state == PlayerState.paused) {
+        player!.stop();
+        currentPosition=0;
+      }
+      /*else if (player.) {
         player!.resume();
-      } else {
+      }*/
+      else {
         AudioController.play(id, audioFile);
         // player!.play(BytesSource(videoFile!.readAsBytesSync()));
       } // if(result == 1){ //play success
@@ -167,12 +188,12 @@ class _VideoMessageState extends State<AudioMessage> {
     } else {
       errorToast('Audio file not found!');
     }
-    setState(() {});
+    refresh();
   }
 
   double currentPosition = 0;
 
-  bool get isAudioPlaying => player?.state == PlayerState.playing;
+  bool get isAudioPlaying => player!.playing;
 
   Widget _buildVideoPlaceholder() {
     return SizedBox(
@@ -223,6 +244,7 @@ class _VideoMessageState extends State<AudioMessage> {
                   onChanged: (value) {
                     currentPosition = value;
                     player?.seek(Duration(seconds: value.toInt()));
+                    refresh();
                   },
                 ),
               ),

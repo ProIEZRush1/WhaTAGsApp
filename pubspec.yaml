@@ -91,6 +91,8 @@ dependencies:
   swipe_to: ^1.0.2
   url_launcher: ^6.1.14
   uuid: ^3.0.6
+#  ogg_opus_player:
+  just_audio:
 #  whatsapp_camera: ^1.0.0
   whatsapp_camera:
     path: whatsapp_camera-main

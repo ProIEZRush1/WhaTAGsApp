@@ -1,7 +1,8 @@
 import 'dart:io';
 
-import 'package:audioplayers/audioplayers.dart';
+// import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:just_audio/just_audio.dart';
 
 abstract class AudioController {
   ///Player id as map id
@@ -22,7 +23,7 @@ abstract class AudioController {
   static AudioPlayer addPlayer(String? id) {
     debugPrint('add PLayer $id');
     var player = AudioPlayer(
-      playerId: id,
+      // playerId: id,
     );
     _playerCached[id] = player;
     return player;
@@ -40,11 +41,13 @@ abstract class AudioController {
     if (_playerCached.containsKey(id)) {
       try {
         _playerCached.values.forEach((element) async {
-          if (element.state == PlayerState.playing) {
+          if (element.playing ) {
             await element.stop();
           }
         });
-        _playerCached[id]!.play(BytesSource(file!.readAsBytesSync()));
+        _playerCached[id]!.setFilePath(file?.path??'');
+        _playerCached[id]!.play();
+        // _playerCached[id]!.play(BytesSource(file!.readAsBytesSync()));
         // _playerCached[id]!.play(DeviceFileSource(file!.path));
         // _playerCached[id]!.play(UrlSource('https://file-examples.com/storage/fe444bc7be658b44e9c7550/2017/11/file_example_MP3_5MG.mp3'));
         return true;
