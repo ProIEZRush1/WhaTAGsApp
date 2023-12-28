@@ -404,7 +404,41 @@ class ChatRepository {
       // print(data);
       return data['profileUrl'];
     }
-    apiService.checkIfLoggedIn(context, ref, data);
+    return null;
+  }
+
+  Future<bool> isAvailableOnWhatsApp(BuildContext context, WidgetRef ref,
+      String deviceId, String number) async {
+    final ApiService apiService = ApiService();
+
+    final firebaseUid =
+        ref.read(authControllerProvider).authRepository.auth.currentUser!.uid;
+
+    var data = await apiService.get(context, ref,
+        "${apiService.isAvailableEndpoint}?deviceToken=$deviceId&firebaseUid=$firebaseUid&number=$number");
+    if (!apiService.checkSuccess(data)) {
+      // Fluttertoast.showToast(msg: 'Something went wrong');
+    } else {
+      // print(data);
+      return data['exists'] ?? false;
+    }
+    return false;
+  }
+  Future<Map<String, dynamic>?> getUserDetails(BuildContext context, WidgetRef ref,
+      String deviceId, String number) async {
+    final ApiService apiService = ApiService();
+
+    final firebaseUid =
+        ref.read(authControllerProvider).authRepository.auth.currentUser!.uid;
+
+    var data = await apiService.get(context, ref,
+        "${apiService.getUserDetailEndpoint}?deviceToken=$deviceId&firebaseUid=$firebaseUid&number=$number");
+    if (!apiService.checkSuccess(data)) {
+      // Fluttertoast.showToast(msg: 'Something went wrong');
+    } else {
+      // print(data);
+      return data;
+    }
     return null;
   }
 }

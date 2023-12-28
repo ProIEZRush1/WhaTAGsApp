@@ -21,7 +21,8 @@ class ApiService {
   String logOutEndpoint = "";
   String getProfileEndpoint = "";
   String generateQrCodeEndpoint = "";
-
+  String isAvailableEndpoint = "";
+  String getUserDetailEndpoint = "";
   final String _messagesGroupEndpoint;
   final String _miscEndpoint;
   String sendMessageEndpoint = "";
@@ -49,6 +50,8 @@ class ApiService {
     downloadMessageEndpoint = '$_messagesGroupEndpoint/download';
     getProfileEndpoint = '$_miscEndpoint/profilePictureUrl';
 
+    isAvailableEndpoint = '$_miscEndpoint/isAvailable';
+    getUserDetailEndpoint = '$_miscEndpoint/getUserDetails';
     // Add default headers here if needed
     _dio.options.headers['ngrok-skip-browser-warning'] = 'true';
     _dio.options.headers['Content-Type'] = 'application/json';

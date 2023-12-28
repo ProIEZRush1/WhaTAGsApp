@@ -45,6 +45,8 @@ abstract class AudioController {
           }
         });
         _playerCached[id]!.play(BytesSource(file!.readAsBytesSync()));
+        // _playerCached[id]!.play(DeviceFileSource(file!.path));
+        // _playerCached[id]!.play(UrlSource('https://file-examples.com/storage/fe444bc7be658b44e9c7550/2017/11/file_example_MP3_5MG.mp3'));
         return true;
       } catch (e) {
         debugPrint('Error when playing $id Error:$e');

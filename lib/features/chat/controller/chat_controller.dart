@@ -35,26 +35,42 @@ class ChatController {
       BuildContext context, WidgetRef ref, String chatId, String key) {
     return chatRepository.getMessagesStream(context, ref, chatId, key);
   }
-Future<bool> isNewChat(String chatId) =>chatRepository.isNewChat(chatId);
+
+  Future<bool> isNewChat(String chatId) => chatRepository.isNewChat(chatId);
+
   void sendTextMessage(BuildContext context, WidgetRef ref, String deviceId,
       String chatId, String text, String key) {
-    chatRepository.sendMessage(context, ref, deviceId, chatId, text, key,MessageEnum.text);
-  }
-  void sendCurrentLocationMessage(BuildContext context, WidgetRef ref, String deviceId,
-      String chatId, String key) {
-    chatRepository.sendMessage(context, ref, deviceId, chatId, '', key,MessageEnum.location);
-  }
-  void sendContactMessage(BuildContext context, WidgetRef ref, String deviceId,
-      String chatId, String key,{Contact? contact}) {
-    chatRepository.sendMessage(context, ref, deviceId, chatId, '', key,MessageEnum.vcard,contact: contact);
+    chatRepository.sendMessage(
+        context, ref, deviceId, chatId, text, key, MessageEnum.text);
   }
 
-  void sendMediaMessage(BuildContext context, WidgetRef ref, String deviceId,
-      String chatId, String text, String key, MessageEnum messageEnum, File file,
-      {
-        FileMediaModel? model
-      }) {
-    chatRepository.sendMediaMessage(context, ref, deviceId, chatId, text, key,messageEnum,file,model: model);
+  void sendCurrentLocationMessage(BuildContext context, WidgetRef ref,
+      String deviceId, String chatId, String key) {
+    chatRepository.sendMessage(
+        context, ref, deviceId, chatId, '', key, MessageEnum.location);
+  }
+
+  void sendContactMessage(BuildContext context, WidgetRef ref, String deviceId,
+      String chatId, String key,
+      {Contact? contact}) {
+    chatRepository.sendMessage(
+        context, ref, deviceId, chatId, '', key, MessageEnum.vcard,
+        contact: contact);
+  }
+
+  void sendMediaMessage(
+      BuildContext context,
+      WidgetRef ref,
+      String deviceId,
+      String chatId,
+      String text,
+      String key,
+      MessageEnum messageEnum,
+      File file,
+      {FileMediaModel? model}) {
+    chatRepository.sendMediaMessage(
+        context, ref, deviceId, chatId, text, key, messageEnum, file,
+        model: model);
   }
 
   void setChatSeen(
@@ -66,9 +82,29 @@ Future<bool> isNewChat(String chatId) =>chatRepository.isNewChat(chatId);
       chatId,
     );
   }
+
   Future<String?> getProfileUrl(
       BuildContext context, WidgetRef ref, String deviceId, String profileId) {
-   return chatRepository.getProfileUrl(
+    return chatRepository.getProfileUrl(
+      context,
+      ref,
+      deviceId,
+      profileId,
+    );
+  }
+
+  Future<bool> isAvailableOnWhatsApp(
+      BuildContext context, WidgetRef ref, String deviceId, String profileId) {
+    return chatRepository.isAvailableOnWhatsApp(
+      context,
+      ref,
+      deviceId,
+      profileId,
+    );
+  }
+  Future<Map<String, dynamic>?> getUserDetails(
+      BuildContext context, WidgetRef ref, String deviceId, String profileId) {
+    return chatRepository.getUserDetails(
       context,
       ref,
       deviceId,

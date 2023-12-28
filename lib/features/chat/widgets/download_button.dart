@@ -5,7 +5,7 @@ import 'package:com.jee.tag.whatagsapp/features/chat/controller/download_control
 import 'package:com.jee.tag.whatagsapp/features/chat/controller/download_upload_controller.dart';
 import 'package:com.jee.tag.whatagsapp/utils/message_utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
+// import 'package:flutter_downloader/flutter_downloader.dart';
 
 class DownloadButton extends StatefulWidget {
   const DownloadButton(

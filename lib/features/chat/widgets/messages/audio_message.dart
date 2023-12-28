@@ -121,7 +121,6 @@ class _VideoMessageState extends State<AudioMessage> {
       // print('eventStream ${event.position?.inSeconds}');
       if (event.position != null) {
         currentPosition = event.position!.inSeconds.toDouble();
-
         setState(() {});
       }
     });
@@ -261,6 +260,6 @@ class _VideoMessageState extends State<AudioMessage> {
   @override
   void dispose() {
     super.dispose();
-    AudioController.removePlayer(id);
+    // AudioController.removePlayer(id);
   }
 }

@@ -33,7 +33,7 @@ class _VCardMessageState extends State<VCardMessage> {
   late ImageProvider<Object> imageProvider;
 
   ///number , url
-  static Map<String, String?> vcardProfileChased = {};
+  static Map<String, Map<String, dynamic>?> vcardProfileChased = {};
 
   @override
   void initState() {
@@ -49,32 +49,57 @@ class _VCardMessageState extends State<VCardMessage> {
     downloadProfileUrl();
   }
 
-  String? profileUrl;
+  String? get profileUrl => userData?['profileUrl'];
+
+  bool get isAvailableOnWhatsApp => userData?['exists']??false;
+  Map<String, dynamic>? userData = {};
 
   void downloadProfileUrl() async {
-    final id = vCard.getWaId() ?? '';
-    profileUrl = vcardProfileChased[id];
-    if (profileUrl != null) {
-      // print('profile chased $profileUrl');
-      imageProvider = NetworkImage(profileUrl ?? '');
+    final id = vCard.getWaNum() ?? '';
+    userData =vcardProfileChased[id]==null?null:<String, dynamic>{...?vcardProfileChased[id]};
+    final controller = widget.ref.read(chatControllerProvider);
+    if (userData != null) {
+      if (userData!['profileUrl'] != null) {
+        imageProvider = NetworkImage(userData!['profileUrl']);
+      }
       setState(() {});
       return;
     }
     var box = await Hive.openBox('config');
     final deviceId = box.get('lastDeviceId') ?? "";
-    final controller = widget.ref.read(chatControllerProvider);
-    profileUrl = await controller.getProfileUrl(
+    userData = await controller.getUserDetails(
       context,
       widget.ref,
       deviceId ?? "",
-      id,
+      vCard.getWaNum() ?? "",
     );
+    setState(() {});
+    // profileUrl = vcardProfileChased[id];
+    // if (profileUrl != null) {
 
-    vcardProfileChased[id] = profileUrl;
-    if (profileUrl != null) {
-      imageProvider = NetworkImage(profileUrl ?? '');
+    vcardProfileChased[id] = userData??{};
+    if (userData != null) {
+
+      // print('profile chased $profileUrl');
+      if (userData!['profileUrl'] != null) {
+        imageProvider = NetworkImage(userData!['profileUrl']);
+        print('set profile after api call');
+      }
       setState(() {});
-    } else {}
+      return;
+    }
+    // profileUrl = await controller.getProfileUrl(
+    //   context,
+    //   widget.ref,
+    //   deviceId ?? "",
+    //   id,
+    // );
+
+    // vcardProfileChased[id] = profileUrl ?? "";
+    // if (profileUrl != null) {
+    //   imageProvider = NetworkImage(profileUrl ?? '');
+    //   setState(() {});
+    // } else {}
   }
 
   @override
@@ -121,7 +146,8 @@ class _VCardMessageState extends State<VCardMessage> {
             ],
           ),
         ),
-        if (vCard.getWaId() != null) ...[
+        if (isAvailableOnWhatsApp) ...[
+          // if (vCard.getWaId() != null) ...[
           const Divider(),
           const SizedBox(
             height: 5,
