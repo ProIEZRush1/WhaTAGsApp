@@ -1,12 +1,11 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/controller/audio_controller.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/controller/download_upload_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:video_player/video_player.dart';
 import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
-import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/message_utils.dart';
+import 'package:com.jee.tag.whatagsapp/utils/message_utils.dart';
 
 class AudioMessage extends StatefulWidget {
   final WidgetRef ref;
@@ -81,12 +80,13 @@ class _VideoMessageState extends State<AudioMessage> {
       _isDownloading = true;
     });
 
-    bool success = await MessageUtils.downloadAndSaveFile(
+    bool success = await UploadCtr.instance.downloadAndSaveFile(
       context,
       widget.ref,
       widget.chatId,
       widget.messageId,
-      MessageUtils.getFileExtension(MessageEnum.video),
+        MessageEnum.audio
+      // MessageUtils.getFileExtension(MessageEnum.audio),
     );
 
     if (success) {
@@ -121,7 +121,6 @@ class _VideoMessageState extends State<AudioMessage> {
       // print('eventStream ${event.position?.inSeconds}');
       if (event.position != null) {
         currentPosition = event.position!.inSeconds.toDouble();
-
         setState(() {});
       }
     });
@@ -261,7 +260,6 @@ class _VideoMessageState extends State<AudioMessage> {
   @override
   void dispose() {
     super.dispose();
-    player?.dispose();
-    AudioController.removePlayer(id);
+    // AudioController.removePlayer(id);
   }
 }

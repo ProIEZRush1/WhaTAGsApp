@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:com.jee.tag.whatagsapp/features/chat/controller/download_upload_controller.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/download_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:video_player/video_player.dart';
 import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
-import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/message_utils.dart';
+import 'package:com.jee.tag.whatagsapp/utils/message_utils.dart';
 
 class VideoMessage extends StatefulWidget {
   final WidgetRef ref;
@@ -16,7 +18,7 @@ class VideoMessage extends StatefulWidget {
   final Uint8List jpegThumbnail; // Use jpegThumbnail for the video thumbnail
   final int seconds;
   final String? caption;
-
+  final bool? sent;
   const VideoMessage({
     Key? key,
     required this.ref,
@@ -28,6 +30,7 @@ class VideoMessage extends StatefulWidget {
     required this.jpegThumbnail,
     required this.seconds,
     this.caption,
+    this.sent,
   }) : super(key: key);
 
   @override
@@ -38,7 +41,7 @@ class _VideoMessageState extends State<VideoMessage> {
   bool _isDownloading = false;
   bool _videoDownloaded = false;
   VideoPlayerController? _videoController;
-  static var videoFileCached = <String,String?>{};
+  static var videoFileCached = <String, String?>{};
 
   @override
   void initState() {
@@ -47,12 +50,12 @@ class _VideoMessageState extends State<VideoMessage> {
   }
 
   _checkVideoDownloaded() async {
-    final _localFilePath =videoFileCached[widget.messageId]??
+    final _localFilePath = videoFileCached[widget.messageId] ??
         await MessageUtils.getLocalFilePath(widget.messageId);
     if (_localFilePath != null) {
       File videoFile = File(_localFilePath);
       if (videoFile.existsSync()) {
-        videoFileCached[widget.messageId]=_localFilePath;
+        videoFileCached[widget.messageId] = _localFilePath;
         _videoDownloaded = true;
         refresh();
         _initializeVideoController(_localFilePath);
@@ -74,12 +77,13 @@ class _VideoMessageState extends State<VideoMessage> {
       _isDownloading = true;
     });
     videoFileCached.remove(widget.messageId);
-    bool success = await MessageUtils.downloadAndSaveFile(
+    bool success = await UploadCtr.instance.downloadAndSaveFile(
       context,
       widget.ref,
       widget.chatId,
       widget.messageId,
-      MessageUtils.getFileExtension(MessageEnum.video),
+      MessageEnum.video
+      // MessageUtils.getFileExtension(MessageEnum.video),
     );
 
     if (success) {
@@ -139,7 +143,7 @@ class _VideoMessageState extends State<VideoMessage> {
     if (_videoController != null) {
       return Center(
         child: AspectRatio(
-          aspectRatio: _videoController!.value.aspectRatio,
+          aspectRatio: (widget.width/widget.height)*2,
           child: Stack(
             children: [
               VideoPlayer(_videoController!),
@@ -184,30 +188,49 @@ class _VideoMessageState extends State<VideoMessage> {
                 height: widget.height / 2,
                 width: widget.width, // Set the width to match the preview
               ),
-        if (_isDownloading)
-          const Center(
-            child: CircularProgressIndicator(),
-          )
-        else
-          GestureDetector(
-            onTap: () {
-              if (_videoDownloaded) {
-                _playVideo();
-              }
-            },
-            child: SizedBox(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.5),
-                  shape: BoxShape.circle,
-                ),
-                child: IconButton(
-                  icon: const Icon(Icons.file_download, color: Colors.white),
-                  onPressed: _downloadAndPlayVideo,
-                ),
-              ),
-            ),
-          ),
+        DownloadButton(
+          // fileDownloaded: _videoDownloaded,
+          sent: widget.sent,
+          onSuccess: () {
+            _checkVideoDownloaded();
+          },
+          messageId: widget.messageId,
+          downloadAndSaveFile: () {
+            videoFileCached.remove(widget.messageId);
+            return UploadCtr.instance.downloadAndSaveFile(
+                context,
+                widget.ref,
+                widget.chatId,
+                widget.messageId,
+                MessageEnum.video
+              // MessageUtils.getFileExtension(MessageEnum.video),
+            );
+          },
+        ),
+        // if (_isDownloading)
+        //   const Center(
+        //     child: CircularProgressIndicator(),
+        //   )
+        // else
+        //   GestureDetector(
+        //     onTap: () {
+        //       if (_videoDownloaded) {
+        //         _playVideo();
+        //       }
+        //     },
+        //     child: SizedBox(
+        //       child: Container(
+        //         decoration: BoxDecoration(
+        //           color: Colors.black.withOpacity(0.5),
+        //           shape: BoxShape.circle,
+        //         ),
+        //         child: IconButton(
+        //           icon: const Icon(Icons.file_download, color: Colors.white),
+        //           onPressed: _downloadAndPlayVideo,
+        //         ),
+        //       ),
+        //     ),
+        //   ),
         Positioned(
           right: 8.0,
           bottom: 8.0,

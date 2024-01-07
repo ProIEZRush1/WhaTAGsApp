@@ -1,30 +1,34 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:com.jee.tag.whatagsapp/features/chat/controller/download_upload_controller.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/download_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
-import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/message_utils.dart';
+import 'package:com.jee.tag.whatagsapp/utils/message_utils.dart';
 
 class ImageMessage extends StatefulWidget {
   final WidgetRef ref;
   final String chatId;
   final String messageId;
-  final double height;
-  final double width;
-  final String mimetype;
-  final Uint8List jpegThumbnail;
+  final double? height;
+  final double? width;
+  final String? mimetype;
+  final Uint8List? jpegThumbnail;
   final String? caption;
+  final bool? sent;
 
   const ImageMessage({
     Key? key,
     required this.ref,
     required this.chatId,
     required this.messageId,
-    required this.height,
-    required this.width,
-    required this.mimetype,
-    required this.jpegThumbnail,
+    this.height,
+    this.sent,
+    this.width,
+    this.mimetype,
+    this.jpegThumbnail,
     this.caption,
   }) : super(key: key);
 
@@ -37,7 +41,8 @@ class _ImageMessageState extends State<ImageMessage> {
   bool _imageDownloaded = false;
   String? _localFilePath;
 
-  static var imageFileCached = <String,String?>{};
+  static var imageFileCached = <String, String?>{};
+
   @override
   void initState() {
     super.initState();
@@ -45,11 +50,12 @@ class _ImageMessageState extends State<ImageMessage> {
   }
 
   _checkImageDownloaded() async {
-    _localFilePath = imageFileCached[widget.messageId] ??await MessageUtils.getLocalFilePath(widget.messageId);
-    if (_localFilePath != null&&mounted) {
+    _localFilePath = imageFileCached[widget.messageId] ??
+        await MessageUtils.getLocalFilePath(widget.messageId);
+    if (_localFilePath != null && mounted) {
       File imageFile = File(_localFilePath!);
       if (imageFile.existsSync()) {
-        imageFileCached[widget.messageId]=_localFilePath;
+        imageFileCached[widget.messageId] = _localFilePath;
         setState(() => _imageDownloaded = true);
       } else {
         setState(() => _imageDownloaded = false);
@@ -62,13 +68,10 @@ class _ImageMessageState extends State<ImageMessage> {
       _isDownloading = true;
     });
     imageFileCached.remove(widget.messageId);
-    bool success = await MessageUtils.downloadAndSaveFile(
-      context,
-      widget.ref,
-      widget.chatId,
-      widget.messageId,
-        MessageUtils.getFileExtension(MessageEnum.image),
-    );
+    bool success = await UploadCtr.instance.downloadAndSaveFile(
+        context, widget.ref, widget.chatId, widget.messageId, MessageEnum.image
+        // MessageUtils.getFileExtension(MessageEnum.image),
+        );
 
     if (success) {
       _checkImageDownloaded();
@@ -101,7 +104,7 @@ class _ImageMessageState extends State<ImageMessage> {
               ? _buildDownloadedImage(imagePreviewHeight)
               : _buildThumbnail(imagePreviewHeight),
         ),
-        if (widget.caption?.isNotEmpty??false)
+        if (widget.caption?.isNotEmpty ?? false)
           Padding(
             padding: const EdgeInsets.all(4.0),
             child: Text(
@@ -137,9 +140,9 @@ class _ImageMessageState extends State<ImageMessage> {
         const Center(
           child: CircularProgressIndicator(),
         ),
-        widget.jpegThumbnail.isNotEmpty
+        widget.jpegThumbnail?.isNotEmpty ?? false
             ? Image.memory(
-                widget.jpegThumbnail,
+                widget.jpegThumbnail!,
                 fit: BoxFit.cover,
                 height: maxHeight,
                 width: double.infinity,
@@ -150,19 +153,34 @@ class _ImageMessageState extends State<ImageMessage> {
                 height: maxHeight,
                 width: double.infinity,
               ),
-        if (_isDownloading)
-          const CircularProgressIndicator()
-        else
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.5),
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.file_download, color: Colors.white),
-              onPressed: _downloadAndDisplayImage,
-            ),
-          ),
+        DownloadButton(
+          // fileDownloaded: _imageDownloaded,
+          onSuccess: () {
+            _checkImageDownloaded();
+          },
+          messageId: widget.messageId,
+          sent: widget.sent,
+          downloadAndSaveFile: () {
+            imageFileCached.remove(widget.messageId);
+            return UploadCtr.instance.downloadAndSaveFile(context, widget.ref,
+                widget.chatId, widget.messageId, MessageEnum.image
+                // MessageUtils.getFileExtension(MessageEnum.image),
+                );
+          },
+        )
+        // if (_isDownloading)
+        //   const CircularProgressIndicator()
+        // else
+        //   Container(
+        //     decoration: BoxDecoration(
+        //       color: Colors.black.withOpacity(0.5),
+        //       shape: BoxShape.circle,
+        //     ),
+        //     child: IconButton(
+        //       icon: const Icon(Icons.file_download, color: Colors.white),
+        //       onPressed: _downloadAndDisplayImage,
+        //     ),
+        //   ),
       ],
     );
   }

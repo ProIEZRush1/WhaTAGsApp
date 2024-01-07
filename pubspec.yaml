@@ -31,6 +31,7 @@ dependencies:
   app_settings: ^5.1.1
   async: ^2.11.0
   audioplayers: ^5.1.0
+  background_downloader: 8.0.0
   cached_network_image: ^3.2.1
   cached_video_player:
     git:
@@ -58,6 +59,7 @@ dependencies:
   flutter_background_service: ^5.0.1
   flutter_contacts: ^1.1.5
   flutter_dialogs: ^3.0.0
+#  flutter_downloader: ^1.11.5
   flutter_isolate: ^2.0.4
   flutter_riverpod: ^2.0.0-dev.9
   flutter_secure_storage: ^9.0.0

@@ -1,6 +1,6 @@
 import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/repositories/chat_database.dart';
-import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/message_utils.dart';
+import 'package:com.jee.tag.whatagsapp/utils/message_utils.dart';
 import 'package:com.jee.tag.whatagsapp/requests/ApiService.dart';
 import 'package:com.jee.tag.whatagsapp/utils/DialogUtils.dart';
 import 'package:flutter/material.dart' hide DateUtils;
@@ -191,7 +191,7 @@ class _ContactsListState extends ConsumerState<ContactsList> {
           children: [
             InkWell(
               onTap: () {
-                openChat(id, contactName, isGroupChat, profilePicUrl);
+                openChat(id, contactName, isGroupChat, profilePicUrl,unreadCount);
               },
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 8.0),
@@ -243,7 +243,7 @@ class _ContactsListState extends ConsumerState<ContactsList> {
                           contactName,
                           () {
                             Navigator.pop(context);
-                            openChat(id, contactName, isGroupChat, profilePicUrl);
+                            openChat(id, contactName, isGroupChat, profilePicUrl,unreadCount);
                           },
                           () {},
                           () {},
@@ -340,7 +340,7 @@ class _ContactsListState extends ConsumerState<ContactsList> {
   }
 
   void openChat(
-      String id, String contactName, bool isGroupChat, String profilePicUrl) {
+      String id, String contactName, bool isGroupChat, String profilePicUrl,int unreadCount) {
     widget.onChatOpened();
     Navigator.pushNamed(
       context,
@@ -350,6 +350,7 @@ class _ContactsListState extends ConsumerState<ContactsList> {
         'uid': id,
         'isGroupChat': isGroupChat,
         'profilePic': profilePicUrl,
+        'unreadCount':unreadCount
       },
     );
   }

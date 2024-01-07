@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
-import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/message_utils.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/controller/download_upload_controller.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/widgets/download_button.dart';
+import 'package:com.jee.tag.whatagsapp/utils/message_utils.dart';
 import 'package:com.jee.tag.whatagsapp/utils/ColourUtils.dart';
 import 'package:com.jee.tag.whatagsapp/utils/FIleUtils.dart';
 import 'package:flutter/material.dart';
@@ -64,17 +66,12 @@ class _DocumentMessageState extends ConsumerState<DocumentMessage> {
   }
 
   _downloadFile() async {
-    setState(() {
-      _isDownloading = true;
-    });
-
-    bool success = await MessageUtils.downloadAndSaveFile(
-      context,
-      ref,
-      widget.chatId,
-      widget.messageId,
-      fileExtension,
-    );
+    _isDownloading = true;
+    refresh();
+    bool success = await UploadCtr.instance.downloadAndSaveFile(
+        context, ref, widget.chatId, widget.messageId, MessageEnum.document
+        // fileExtension,
+        );
 
     if (success) {
       _checkVideoDownloaded();
@@ -85,16 +82,15 @@ class _DocumentMessageState extends ConsumerState<DocumentMessage> {
       );
     }
 
-    setState(() {
-      _isDownloading = false;
-    });
+    _isDownloading = false;
+    refresh();
   }
 
-  openFile() async{
+  openFile() async {
     try {
       if (file?.existsSync() ?? false) {
         print('opening file');
-        var res=await MessageUtils.openFile(file!.path);
+        var res = await MessageUtils.openFile(file!.path);
         print(res);
       } else {
         throw Exception();
@@ -134,9 +130,10 @@ class _DocumentMessageState extends ConsumerState<DocumentMessage> {
                   ),
                   Row(
                     children: [
-                       Text(
-                        FileUtils.getFileSizeString(bytes: widget.bytes,decimals: 1),
-                        style: TextStyle(color: Colors.grey, fontSize: 12),
+                      Text(
+                        FileUtils.getFileSizeString(
+                            bytes: widget.bytes, decimals: 1),
+                        style: const TextStyle(color: Colors.grey, fontSize: 12),
                       ),
                       const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 8.0),
@@ -156,33 +153,56 @@ class _DocumentMessageState extends ConsumerState<DocumentMessage> {
                 ],
               ),
             ),
-            if (_isDownloading||widget.sent==false)
-              const Center(
-                child: CircularProgressIndicator(),
-              )
-            else
-              _fileDownloaded
-                  ? const SizedBox()
-                  : GestureDetector(
-                      onTap: () {
-                        if (_fileDownloaded) {
-                          // _playVideo();
-                        }
-                      },
-                      child: SizedBox(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.5),
-                            shape: BoxShape.circle,
-                          ),
-                          child: IconButton(
-                            icon: const Icon(Icons.file_download,
-                                color: Colors.white),
-                            onPressed: _downloadFile,
-                          ),
-                        ),
-                      ),
-                    ),
+            DownloadButton(
+              key: ValueKey(widget.messageId),
+              onSuccess: () {
+                print('on Success called;');
+                _checkVideoDownloaded();
+              },
+              messageId: widget.messageId,
+              sent: widget.sent,
+              // fileDownloaded: fileDownloaded,
+              downloadAndSaveFile: () => UploadCtr.instance.downloadAndSaveFile(
+                  context,
+                  ref,
+                  widget.chatId,
+                  widget.messageId,
+                  MessageEnum.document
+                  // fileExtension,
+                  ),
+            ),
+            // if (DownloadController.instance.downloadModel(widget.messageId)?.status==DownloadTaskStatus.enqueued||widget.sent==false||_isDownloading)
+            //   Center(
+            //     child: Row(
+            //       children: [
+            //         Text(DownloadController.instance.downloadModel(widget.messageId)?.progressForIndicator.toString()??'0000000'),
+            //         CircularProgressIndicator(value: DownloadController.instance.downloadModel(widget.messageId)?.progressForIndicator),
+            //       ],
+            //     ),
+            //   )
+            // else
+            //   _fileDownloaded
+            //       ? const SizedBox()
+            //       : GestureDetector(
+            //           onTap: () {
+            //             if (_fileDownloaded) {
+            //               // _playVideo();
+            //             }
+            //           },
+            //           child: SizedBox(
+            //             child: Container(
+            //               decoration: BoxDecoration(
+            //                 color: Colors.black.withOpacity(0.5),
+            //                 shape: BoxShape.circle,
+            //               ),
+            //               child: IconButton(
+            //                 icon: const Icon(Icons.file_download,
+            //                     color: Colors.white),
+            //                 onPressed: _downloadFile,
+            //               ),
+            //             ),
+            //           ),
+            //         ),
             const SizedBox(
               width: 10,
             )

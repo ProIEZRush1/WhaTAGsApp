@@ -5,9 +5,12 @@ import 'dart:io';
 import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
 import 'package:com.jee.tag.whatagsapp/common/utils/utils.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/controller/chat_controller.dart';
+import 'package:com.jee.tag.whatagsapp/features/select_contacts/screens/select_contacts_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
+import 'package:whatsapp_camera/modle/file_media_model.dart';
 import 'package:whatsapp_camera/whatsapp_camera.dart';
 
 class SelectShareOptionContainer extends StatefulWidget {
@@ -67,7 +70,7 @@ class _SelectShareOptionContainerState
           title: 'Contact',
           icon: Icons.person,
           color: Colors.blue,
-          onTap: null,
+          onTap: sendContact,
         ),
       ];
 
@@ -81,14 +84,17 @@ class _SelectShareOptionContainerState
   }
 
   void selectImage() async {
-    List<File>? res = await Navigator.push(
-      context, MaterialPageRoute(
-      builder: (context) => const WhatsappCamera(multiple: false),
-    ),
+    List<FileMediaModel>? res = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const WhatsappCamera(multiple: false),
+      ),
     );
-    if(res?.isNotEmpty??false){
-      var file=res!.first;
-      _sendFileMessage(file,file.path.split('.').last=='mp4'?MessageEnum.video: MessageEnum.image);
+    if (res?.isNotEmpty ?? false) {
+      var file = res!.first;
+      _sendFileMessage(
+          file.file, file.isImage ? MessageEnum.image : MessageEnum.video,
+          model: file);
     }
     // File? image = await pickImageFromGallery(context);
     // if (image != null) {
@@ -98,13 +104,18 @@ class _SelectShareOptionContainerState
   }
 
   void selectVideoAndImage() async {
-    File? video = await pickFile(context,
-        allowedExtensions: ['jpg', 'png', 'mp4', 'avi', 'mov']);
+    final imageExt = ['jpg', 'png'];
+    final videoExt = ['mp4', 'avi', 'mov'];
+    File? video =
+        await pickFile(context, allowedExtensions: imageExt + videoExt);
     widget.hideShareButton();
     if (video != null) {
-      _sendFileMessage(video, MessageEnum.video);
+      _sendFileMessage(
+          video,
+          imageExt.contains(video.path.split('.').last)
+              ? MessageEnum.image
+              : MessageEnum.video);
     }
-
   }
 
   void sendCurrentLocation() async {
@@ -116,16 +127,34 @@ class _SelectShareOptionContainerState
     widget.hideShareButton();
   }
 
-  void _sendFileMessage(
-    File file,
-    MessageEnum messageEnum,
-  ) async {
+  void sendContact() async {
+    var result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const SelectContactsScreen(shareContact: true),
+        ));
+    if (result is Contact) {
+      var box = await Hive.openBox('config');
+      String deviceId = box.get('lastDeviceId') ?? "";
+      final key = box.get('lastEncryptionKey') ?? "";
+      ref.read(chatControllerProvider).sendContactMessage(
+          context, ref, deviceId, widget.recieverUserId, key,contact: result);
+      widget.hideShareButton();
+    }else{
+      debugPrint('contact not selected $result');
+    }
+    return;
+  }
+
+  void _sendFileMessage(File file, MessageEnum messageEnum,
+      {FileMediaModel? model}) async {
     var box = await Hive.openBox('config');
     String deviceId = box.get('lastDeviceId') ?? "";
     final key = box.get('lastEncryptionKey') ?? "";
     // debugPrint('deviceId $deviceId');
     ref.read(chatControllerProvider).sendMediaMessage(context, ref, deviceId,
-        widget.recieverUserId, '', key, messageEnum, file);
+        widget.recieverUserId, '', key, messageEnum, file,
+        model: model);
   }
 
   @override

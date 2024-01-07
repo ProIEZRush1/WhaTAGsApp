@@ -1,4 +1,7 @@
+import 'package:background_downloader/background_downloader.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/controller/download_controller.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/controller/download_upload_controller.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -24,6 +27,8 @@ void main() async {
       const Settings(persistenceEnabled: true);
   // final directory = await getApplicationDocumentsDirectory();
   await Hive.initFlutter('hive_data');
+  // await DownloadController.instance.init();
+  UploadCtr.instance.inti();
   runApp(
     const ProviderScope(
       child: MyApp(),

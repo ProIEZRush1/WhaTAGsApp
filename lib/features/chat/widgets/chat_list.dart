@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:com.jee.tag.whatagsapp/features/chat/controller/download_controller.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/ImageProperties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/audio_properties.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/messages/properties/file_properties.dart';
@@ -22,10 +23,12 @@ import 'package:hive/hive.dart';
 class ChatList extends ConsumerStatefulWidget {
   final String chatId;
   final bool isGroupChat;
+  final int unreadCount;
 
   const ChatList({
     Key? key,
     required this.chatId,
+    this.unreadCount = 0,
     required this.isGroupChat,
   }) : super(key: key);
 
@@ -37,7 +40,7 @@ class _ChatListState extends ConsumerState<ChatList> {
   final ScrollController _messageController = ScrollController();
   late final StreamSubscription<List<Map<String, dynamic>>>
       _messageStreamSubscription;
-  LinkedHashMap<String, Map<String, dynamic>> _messages = LinkedHashMap();
+  final LinkedHashMap<String, Map<String, dynamic>> _messages = LinkedHashMap();
   final List<String> _messageIds = [];
   String? _deviceId;
   String? _key;
@@ -45,6 +48,7 @@ class _ChatListState extends ConsumerState<ChatList> {
   final Map<String, Future<String>> _decryptedMessageFutures = {};
   late final GlobalKey<AnimatedListState> _listKey =
       GlobalKey<AnimatedListState>();
+  bool isNewChat = false;
 
   @override
   void initState() {
@@ -52,15 +56,28 @@ class _ChatListState extends ConsumerState<ChatList> {
     initializeChat();
   }
 
+  Future<void> readMessage() async {
+    debugPrint('Reading msg');
+    final controller = ref.read(chatControllerProvider);
+    controller.setChatSeen(
+      context,
+      ref,
+      _deviceId ?? "",
+      widget.chatId,
+    );
+  }
+
   Future<void> initializeChat() async {
     var box = await Hive.openBox('config');
     _deviceId = box.get('lastDeviceId') ?? "";
     _key = box.get('lastEncryptionKey') ?? "";
-
+    if (widget.unreadCount > 0) {
+      readMessage();
+    }
     _subscribeToMessageUpdates();
   }
 
-  void _subscribeToMessageUpdates() {
+  void _subscribeToMessageUpdates() async {
     final controller = ref.read(chatControllerProvider);
     _messageStreamSubscription = controller
         .chatMessagesStream(context, ref, widget.chatId, _key!)
@@ -86,11 +103,15 @@ class _ChatListState extends ConsumerState<ChatList> {
           }
           if (!_messages.containsKey(messageId)) {
             _messages[messageId] = message;
+            if (newMessages.length == 1) {
+              readMessage();
+            }
             _messageIds.insert(0, messageId);
           } else if (_messages[messageId] != message) {
             int index = _messageIds.indexOf(messageId);
             if (index != -1) {
               _messages[messageId] = message;
+              // readMessage();
             }
           }
         }
@@ -108,6 +129,9 @@ class _ChatListState extends ConsumerState<ChatList> {
         // }
       });
     });
+    isNewChat = await controller.isNewChat(widget.chatId);
+    print('isNewChat # $isNewChat');
+    setState(() {});
   }
 
   Future<String> _decryptText(String encryptedText) async {
@@ -164,7 +188,7 @@ class _ChatListState extends ConsumerState<ChatList> {
             return _buildListItem(messages[index], animation);
           },
         ),
-        if (_decryptedMessageCache.isEmpty)
+        if (_decryptedMessageCache.isEmpty && !isNewChat)
           const Center(child: CircularProgressIndicator()),
       ],
     );
@@ -173,7 +197,9 @@ class _ChatListState extends ConsumerState<ChatList> {
   Widget _buildListItem(
       Map<String, dynamic> message, Animation<double> animation) {
     ///for Media messages that have caption's
-    final encryptedBody = message["information"]["body"] ?? message["information"]["caption"]??"";
+    final encryptedBody = message["information"]["body"] ??
+        message["information"]["caption"] ??
+        "";
     if (!_decryptedMessageFutures.containsKey(encryptedBody)) {
       _decryptedMessageFutures[encryptedBody] = _decryptText(encryptedBody);
     }
@@ -224,7 +250,8 @@ class _ChatListState extends ConsumerState<ChatList> {
           : null;
       List<int> sortedValues = [];
       // Convert keys to a list and sort them
-      if (information["jpegThumbnail"] != null) {
+      if (information["jpegThumbnail"] != null &&
+          information["jpegThumbnail"] is Map) {
         var sortedKeys = information["jpegThumbnail"].keys.toList()
           ..sort((a, b) =>
               int.parse(a.toString()).compareTo(int.parse(b.toString())));
@@ -233,6 +260,8 @@ class _ChatListState extends ConsumerState<ChatList> {
             .map((key) => information["jpegThumbnail"][key])
             .toList()
             .cast<int>();
+      } else {
+        sortedValues = List<int>.from(information["jpegThumbnail"] ?? []);
       }
       imageProperties = ImageProperties(
         height: heightValue ?? 0.0,
@@ -255,7 +284,8 @@ class _ChatListState extends ConsumerState<ChatList> {
       print("widthValue: $widthValue");
       List<int> sortedValues = [];
       // Convert keys to a list and sort them
-      if (information["jpegThumbnail"] != null) {
+      if (information["jpegThumbnail"] != null &&
+          information["jpegThumbnail"] is Map) {
         var sortedKeys = information["jpegThumbnail"].keys.toList()
           ..sort((a, b) =>
               int.parse(a.toString()).compareTo(int.parse(b.toString())));
@@ -265,6 +295,8 @@ class _ChatListState extends ConsumerState<ChatList> {
             .map((key) => information["jpegThumbnail"][key])
             .toList()
             .cast<int>();
+      } else {
+        sortedValues = List<int>.from(information["jpegThumbnail"] ?? []);
       }
 
       videoProperties = VideoProperties(
@@ -358,15 +390,15 @@ class _ChatListState extends ConsumerState<ChatList> {
 
       return myMessageCard;
     }
-    print('information## $information');
+    // print('information## $information');
     final SenderMessageCard senderMessageCard = SenderMessageCard(
       name: information['name'],
       key: messageKey,
-      isGroupChat:widget.isGroupChat,
+      isGroupChat: widget.isGroupChat,
       ref: ref,
       chatId: widget.chatId,
       id: id,
-      participantId:participantId,
+      participantId: participantId,
       body: body,
       timestamp: timestamp,
       type: ConvertMessage(type).toEnum(),

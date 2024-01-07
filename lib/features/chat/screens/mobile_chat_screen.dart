@@ -15,11 +15,13 @@ class MobileChatScreen extends ConsumerStatefulWidget {
   final String name;
   final String uid;
   final bool isGroupChat;
+  final int unreadCount;
   final String profilePic;
 
   const MobileChatScreen({
     Key? key,
     required this.name,
+    required this.unreadCount,
     required this.uid,
     required this.isGroupChat,
     required this.profilePic,
@@ -89,6 +91,7 @@ class _MobileChatScreenState extends ConsumerState<MobileChatScreen> {
                     child: ChatList(
                       chatId: uid,
                       isGroupChat: isGroupChat,
+                      unreadCount: widget.unreadCount,
                     ),
                   ),
 
