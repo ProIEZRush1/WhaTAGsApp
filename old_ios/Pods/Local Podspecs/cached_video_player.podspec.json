@@ -1,0 +1,35 @@
+{
+  "name": "cached_video_player",
+  "version": "0.0.2",
+  "summary": "Cached Video Player",
+  "description": "Cached Video Player",
+  "homepage": "https://github.com/vikram25897/flutter_cached_video_player",
+  "license": {
+    "type": "BSD",
+    "file": "../LICENSE"
+  },
+  "authors": {
+    "Vikram Pratap Singh": "vikram@lazyarts.me"
+  },
+  "source": {
+    "http": "https://github.com/vikram25897/flutter_cached_video_player"
+  },
+  "documentation_url": "https://pub.dev/packages/cached_video_player",
+  "source_files": "Classes/**/*",
+  "public_header_files": "Classes/**/*.h",
+  "dependencies": {
+    "Flutter": [
+
+    ],
+    "KTVHTTPCache": [
+      "~> 2.0.0"
+    ]
+  },
+  "platforms": {
+    "ios": "10.0"
+  },
+  "pod_target_xcconfig": {
+    "DEFINES_MODULE": "YES",
+    "VALID_ARCHS[sdk=iphonesimulator*]": "x86_64"
+  }
+}
