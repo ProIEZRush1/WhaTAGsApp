@@ -54,7 +54,7 @@ class UploadCtr extends ChangeNotifier {
       var value = await apiService.get(
         context,
         ref,
-        "${apiService.downloadMessageEndpoint}?deviceToken=$deviceToken&firebaseUid=$firebaseUid&chatId=$chatId&messageId=$messageId",
+        "${apiService.downloadMessageEndpoint}?deviceToken=$deviceToken&firebaseUid=$firebaseUid&chatId=$chatId&messageId=$messageId&decodeToMp3=${Platform.isIOS}",
       );
       // log('value### ${value}');
       var fileName =

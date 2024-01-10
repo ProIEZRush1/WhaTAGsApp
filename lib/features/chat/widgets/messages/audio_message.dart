@@ -76,9 +76,8 @@ class _VideoMessageState extends State<AudioMessage> {
   }
 
   _downloadAndPlayVideo() async {
-    setState(() {
       _isDownloading = true;
-    });
+      refresh();
 
     bool success = await UploadCtr.instance.downloadAndSaveFile(
       context,
@@ -95,9 +94,8 @@ class _VideoMessageState extends State<AudioMessage> {
       errorToast('Failed to download audio');
     }
 
-    setState(() {
       _isDownloading = false;
-    });
+    refresh();
   }
 
   void errorToast(String message) {
@@ -114,21 +112,21 @@ class _VideoMessageState extends State<AudioMessage> {
         if (event == PlayerState.completed || event == PlayerState.stopped) {
           currentPosition = 0;
         }
-        setState(() {});
+        refresh();
       }
     });
     player!.eventStream.listen((event) {
       // print('eventStream ${event.position?.inSeconds}');
       if (event.position != null) {
         currentPosition = event.position!.inSeconds.toDouble();
-        setState(() {});
+        refresh();
       }
     });
 
     // playAudio();
     // _videoController = VideoPlayerController.file(File(videoPath))
     //   ..initialize().then((_) {
-    //     setState(() {}); // Ensure the widget rebuilds with the video player.
+    //        refresh(); // Ensure the widget rebuilds with the video player.
     //   });
   }
 
@@ -167,7 +165,7 @@ class _VideoMessageState extends State<AudioMessage> {
     } else {
       errorToast('Audio file not found!');
     }
-    setState(() {});
+    refresh();
   }
 
   double currentPosition = 0;

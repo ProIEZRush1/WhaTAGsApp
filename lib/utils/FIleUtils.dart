@@ -99,15 +99,13 @@ class FileUtils {
   static File checkExistingFile(String path) {
     var file = File(path);
     int count = 0;
+    final extension = '.${file.path.split('.').last}';
+    final fileName = file.path.split('/').last.split(extension).first;
+    final dirPath =file.path.split(fileName).first;
     while (file.existsSync()) {
       count++;
-      final extension = '.${file.path.split('.').last}';
-      var path = file.path.split(extension).first;
-      path = path.split('-${count - 1}').first;
-      file = File('$path-$count$extension');
+      file = File('$dirPath${fileName}_$count$extension');
     }
-    print(count);
-    print(file.path.split('/').last);
     return file..createSync(recursive: true);
   }
 

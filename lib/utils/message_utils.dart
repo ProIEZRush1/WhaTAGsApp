@@ -139,7 +139,8 @@ class MessageUtils {
     // final filePath =
     //     '${directory.path}/downloads/$messageId.${fileExtension.toLowerCase()}';
     final filePath =
-        '${directory.path}/Media/Whatagsapp ${messageEnum.name}/${isSend ? 'sent/' : ''}$fileName';
+        '${directory.path}/Media/Whatagsapp ${messageEnum.name}2/${isSend ? 'sent/' : ''}$fileName';
+    print(filePath);
     final file = FileUtils.checkExistingFile(filePath);
 
     await file.writeAsBytes(buffer);
