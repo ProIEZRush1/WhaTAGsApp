@@ -34,8 +34,8 @@ class ApiService {
       : _dio = Dio(),
         // _baseUrl = 'https://horribly-vital-gar.ngrok-free.app',
         // _baseUrl = 'http://localhost:300',
-         _baseUrl = 'http://192.168.1.202:3000',
-        //_baseUrl = 'https://whatagsappserver-production.up.railway.app',
+        // _baseUrl = 'http://192.168.1.202:3000',
+        _baseUrl = 'https://whatagsappserver-production.up.railway.app',
         _authGroupEndpoint = '/auth',
         _miscEndpoint = '/misc',
         _messagesGroupEndpoint = '/messages' {

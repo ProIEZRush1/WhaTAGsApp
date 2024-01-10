@@ -111,7 +111,7 @@ class _MobileLayoutScreenState extends ConsumerState<MobileLayoutScreen>
                     ],
                   )
                 : const Text(
-                    'WhaTAGsApp',
+                    'ZapChat',
                     style: TextStyle(
                       fontSize: 20,
                       color: Colors.grey,

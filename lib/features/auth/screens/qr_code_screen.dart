@@ -96,7 +96,7 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
     final response = await dio.get(qrCodeUrl,
         options: Options(responseType: ResponseType.bytes));
     final tempDir = await getTemporaryDirectory();
-    final filePath = '${tempDir.path}/{$deviceToken}.png';
+    final filePath = '${tempDir.path}/{$deviceToken}${DateTime.now().millisecondsSinceEpoch}.png';
     final file = File(filePath);
 
     // Write the image into a file in the temporary directory
