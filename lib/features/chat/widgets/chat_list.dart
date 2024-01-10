@@ -318,7 +318,7 @@ class _ChatListState extends ConsumerState<ChatList> {
     AudioProperties? audioProperties;
     if (type == MessageEnum.voice.name || type == MessageEnum.audio.name) {
       audioProperties = AudioProperties(
-        seconds: information["seconds"] ?? 13,
+        seconds: information["seconds"] ?? 00,
       );
       // print('type audio ${audioProperties.seconds}');
     }
