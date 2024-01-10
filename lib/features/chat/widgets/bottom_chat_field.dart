@@ -1,12 +1,11 @@
 import 'dart:io';
-import 'package:com.jee.tag.whatagsapp/features/chat/widgets/selecte_share_options.dart';
-import 'package:com.jee.tag.whatagsapp/utils/DeviceUtils.dart';
+import 'dart:math';
+
 import 'package:com.jee.tag.whatagsapp/utils/EncryptionUtils.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_sound/flutter_sound.dart';
-import 'package:flutter_sound/public/flutter_sound_recorder.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -16,6 +15,7 @@ import 'package:com.jee.tag.whatagsapp/common/providers/message_reply_provider.d
 import 'package:com.jee.tag.whatagsapp/common/utils/utils.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/controller/chat_controller.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/message_reply_preview.dart';
+import 'package:record/record.dart';
 import 'package:whatsapp_camera/camera/camera_whatsapp.dart';
 import 'package:whatsapp_camera/modle/file_media_model.dart';
 
@@ -38,7 +38,7 @@ class BottomChatField extends ConsumerStatefulWidget {
 class _BottomChatFieldState extends ConsumerState<BottomChatField> {
   bool get isShowSendButton => _messageController.text.isNotEmpty;
   final TextEditingController _messageController = TextEditingController();
-  FlutterSoundRecorder? _soundRecorder;
+  AudioRecorder? _audioRecorder;
   bool isRecorderInit = false;
   bool isShowEmojiContainer = false;
   bool isRecording = false;
@@ -47,16 +47,15 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
   @override
   void initState() {
     super.initState();
-    _soundRecorder = FlutterSoundRecorder();
+    _audioRecorder = AudioRecorder();
     openAudio();
   }
 
   void openAudio() async {
     final status = await Permission.microphone.request();
     if (status != PermissionStatus.granted) {
-      throw RecordingPermissionException('Mic permission not allowed!');
+      throw PermissionDeniedException("Microphone");
     }
-    await _soundRecorder!.openRecorder();
     isRecorderInit = true;
   }
 
@@ -82,21 +81,21 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
       setState(() {
         _messageController.text = '';
       });
-    } else {
-      var tempDir = await getTemporaryDirectory();
-      var path = '${tempDir.path}/flutter_sound.aac';
-      var file = File(path)..createSync();
+    }
+    else {
       if (!isRecorderInit) {
         debugPrint('Recording not Init');
         return;
       }
       if (isRecording) {
-        await _soundRecorder!.stopRecorder();
-        sendFileMessage(file, MessageEnum.voice);
-      } else {
-        await _soundRecorder!.startRecorder(
-          toFile: file.path,
-        );
+        final path = await _audioRecorder!.stop();
+        sendFileMessage(File(path!), MessageEnum.voice);
+      }
+      else {
+        var tempDir = await getTemporaryDirectory();
+        var path = '${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}.aac';
+
+        await _audioRecorder!.start(const RecordConfig(), path: path);
       }
 
       setState(() {
@@ -186,7 +185,7 @@ class _BottomChatFieldState extends ConsumerState<BottomChatField> {
   void dispose() {
     super.dispose();
     _messageController.dispose();
-    _soundRecorder!.closeRecorder();
+    _audioRecorder!.dispose();
     isRecorderInit = false;
   }
 

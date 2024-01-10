@@ -281,7 +281,9 @@ class ChatRepository {
       // Create default message in storage
       final String messageId = const Uuid().v4(); // Generates a unique ID
       final int timestamp = DateTime.now().millisecondsSinceEpoch;
+
       MessageUtils.saveSendFile(messageId, name, file, messageEnum);
+
       final Map<String, dynamic> defaultMessage = {
         "key": {
           "remoteJid": chatId,

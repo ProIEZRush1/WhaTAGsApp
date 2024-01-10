@@ -219,7 +219,7 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
-                'WhaTAGsApp',
+                'ZapChat',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,

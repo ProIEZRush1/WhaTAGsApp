@@ -139,8 +139,8 @@ class MessageUtils {
     // final filePath =
     //     '${directory.path}/downloads/$messageId.${fileExtension.toLowerCase()}';
     final filePath =
-        '${directory.path}/Media/Whatagsapp ${messageEnum.name}2/${isSend ? 'sent/' : ''}$fileName';
-    print(filePath);
+        '${directory.path}/Media/ZapChat ${messageEnum.name}/${isSend ? 'sent/' : ''}$fileName';
+
     final file = FileUtils.checkExistingFile(filePath);
 
     await file.writeAsBytes(buffer);
@@ -155,7 +155,7 @@ class MessageUtils {
     // final filePath =
     //     '${directory.path}/downloads/$messageId.${fileExtension.toLowerCase()}';
     final filePath =
-        '${directory.path}/Media/Whatagsapp ${messageEnum.name}/${isSend ? 'sent/' : ''}$fileName';
+        '${directory.path}/Media/ZapChat ${messageEnum.name}/${isSend ? 'sent/' : ''}$fileName';
     final file = FileUtils.checkExistingFile(filePath);
     return file.path;
   }

@@ -23,7 +23,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <application
         android:icon="@mipmap/ic_launcher"
-        android:label="com.jee.tag.whatagsapp"
+        android:label="ZapChat"
         android:usesCleartextTraffic="true">
         <activity
             android:name=".MainActivity"
