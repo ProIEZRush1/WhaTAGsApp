@@ -3,7 +3,7 @@
 // import 'dart:ui';
 //
 // import 'package:com.jee.tag.whatagsapp/features/chat/controller/chat_controller.dart';
-// import 'package:com.jee.tag.whatagsapp/utils/FIleUtils.dart';
+// import 'package:com.jee.tag.whatagsapp/utils/FileUtils.dart';
 // import 'package:com.jee.tag.whatagsapp/utils/message_utils.dart';
 // import 'package:flutter/material.dart';
 // import 'package:flutter_downloader/flutter_downloader.dart';

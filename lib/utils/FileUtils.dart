@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'dart:math';
+import 'dart:ui' as ui;
 
 import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
 import 'package:com.jee.tag.whatagsapp/utils/EncryptionUtils.dart';
 import 'package:com.jee.tag.whatagsapp/utils/message_utils.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -118,7 +120,6 @@ class FileUtils {
     try {
       var fileData =await file.readAsBytes();
       fileData = fileData.sublist(0, fileData.length - 10);
-      print('length == ${fileData.length}');
       ///remove last 10 bytes :- as per documentation
       var decryptData =
           EncryptionUtils.decryptFileWithAES(encryptedData: fileData,key: key,iv: iv);
@@ -128,5 +129,15 @@ class FileUtils {
       debugPrint('Error in download file $e \npath = $path');
       return false;
     }
+  }
+
+  static Future<String> saveQrImageToFile(ui.Image image) async {
+    final tempDir = await getTemporaryDirectory();
+    final file = await File('${tempDir.path}/qr_code.png').create();
+
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    await file.writeAsBytes(byteData!.buffer.asUint8List());
+
+    return file.path;
   }
 }

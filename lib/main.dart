@@ -55,7 +55,8 @@ class MyApp extends ConsumerWidget {
         data: (user) {
           if (user == null) {
             return const LandingScreen();
-          } else {
+          }
+          else {
             return const MobileLayoutScreen();
           }
         },

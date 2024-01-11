@@ -5,7 +5,7 @@ import 'package:background_downloader/background_downloader.dart';
 import 'package:com.jee.tag.whatagsapp/common/enums/message_enum.dart';
 import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
 import 'package:com.jee.tag.whatagsapp/requests/ApiService.dart';
-import 'package:com.jee.tag.whatagsapp/utils/FIleUtils.dart';
+import 'package:com.jee.tag.whatagsapp/utils/FileUtils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

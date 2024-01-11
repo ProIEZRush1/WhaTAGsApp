@@ -7,7 +7,7 @@ import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.
 import 'package:com.jee.tag.whatagsapp/features/chat/controller/download_controller.dart';
 import 'package:com.jee.tag.whatagsapp/features/chat/controller/download_upload_controller.dart';
 import 'package:com.jee.tag.whatagsapp/requests/ApiService.dart';
-import 'package:com.jee.tag.whatagsapp/utils/FIleUtils.dart';
+import 'package:com.jee.tag.whatagsapp/utils/FileUtils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/contact.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

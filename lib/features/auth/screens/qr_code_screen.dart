@@ -7,12 +7,13 @@ import 'package:flutter_dialogs/flutter_dialogs.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:sn_progress_dialog/progress_dialog.dart';
 import 'package:com.jee.tag.whatagsapp/features/auth/controller/auth_controller.dart';
 import 'package:com.jee.tag.whatagsapp/requests/ApiService.dart';
 import 'package:com.jee.tag.whatagsapp/utils/DeviceUtils.dart';
-import 'package:com.jee.tag.whatagsapp/utils/FIleUtils.dart';
+import 'package:com.jee.tag.whatagsapp/utils/FileUtils.dart';
 import 'package:uuid/uuid.dart';
 
 class QRCodeScreen extends ConsumerStatefulWidget {
@@ -30,6 +31,11 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
     width: 300,
     height: 300,
   );
+  QrImageView qrImageView = QrImageView(
+    data: '',
+    version: QrVersions.auto,
+    size: 300,
+  );
   String? qrCodeLocalPath;
   bool qrCodeLoading = true;
 
@@ -40,7 +46,8 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
     isLoggedIn(false).then((loggedIn) {
       if (loggedIn) {
         storeUserData();
-      } else {
+      }
+      else {
         generateQrCode();
       }
     });
@@ -74,6 +81,7 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
     return loggedIn;
   }
 
+  GlobalKey repaintBoundaryKey = GlobalKey();
   void generateQrCode() async {
     qrCodeLoading = true;
 
@@ -89,21 +97,20 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
       Fluttertoast.showToast(msg: 'Something went wrong');
       return;
     }
-    final qrCodeUrl = data['qrCodeUrl'];
+    final qrCodeData = data['qrCodeData'];
 
-    // Download the image from the URL
-    final dio = Dio();
-    final response = await dio.get(qrCodeUrl,
-        options: Options(responseType: ResponseType.bytes));
-    final tempDir = await getTemporaryDirectory();
-    final filePath = '${tempDir.path}/{$deviceToken}${DateTime.now().millisecondsSinceEpoch}.png';
-    final file = File(filePath);
-
-    // Write the image into a file in the temporary directory
-    await file.writeAsBytes(response.data);
+    final qrPainter = await QrPainter(
+      data: qrCodeData,
+      version: QrVersions.auto,
+    ).toImage(300);
+    final filePath = await FileUtils.saveQrImageToFile(qrPainter);
 
     setState(() {
-      qrCodeImage = Image.file(File(filePath));
+      qrImageView = QrImageView(
+        data: qrCodeData,
+        version: QrVersions.auto,
+        size: 300,
+      );
       qrCodeLocalPath = filePath;
       qrCodeLoading = false;
     });
@@ -246,8 +253,18 @@ class _QRCodeScreenState extends ConsumerState<QRCodeScreen> {
                 ),
               ),
               Expanded(
-                child:
-                    qrCodeImage, // Replace with your image URL or use an asset
+                child: qrCodeLoading ? qrCodeImage :
+                Center( // Use Center to respect the size constraints
+                  child: RepaintBoundary(
+                    key: repaintBoundaryKey,
+                    child: Container(
+                      color: Colors.white, // White background
+                      height: 310, // Set height
+                      width: 310, // Set width
+                      child: qrImageView, // Your QR image view
+                    ),
+                  ),
+                ),
               ),
               const SizedBox(height: 30),
               ElevatedButton(

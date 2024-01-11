@@ -5,7 +5,7 @@ import 'package:com.jee.tag.whatagsapp/features/chat/controller/download_upload_
 import 'package:com.jee.tag.whatagsapp/features/chat/widgets/download_button.dart';
 import 'package:com.jee.tag.whatagsapp/utils/message_utils.dart';
 import 'package:com.jee.tag.whatagsapp/utils/ColourUtils.dart';
-import 'package:com.jee.tag.whatagsapp/utils/FIleUtils.dart';
+import 'package:com.jee.tag.whatagsapp/utils/FileUtils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';

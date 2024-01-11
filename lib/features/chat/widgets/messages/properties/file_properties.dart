@@ -1,4 +1,4 @@
-import 'package:com.jee.tag.whatagsapp/utils/FIleUtils.dart';
+import 'package:com.jee.tag.whatagsapp/utils/FileUtils.dart';
 
 class FileProperties{
   final int sizeInBytes;

@@ -53,7 +53,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final bool isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom != 0;
+
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: const Text('Enter your phone number'),
         elevation: 0,
@@ -82,7 +85,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 elevation: 4,
                 child: Row(
                   children: [
-                    if (country != null) Text('+${country!.phoneCode}'),
+                    if (country != null) Text('  +${country!.phoneCode}'),
                     const SizedBox(width: 10),
                     SizedBox(
                       width: size.width * 0.7,
@@ -99,7 +102,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ],
                 ),
               ),
-              SizedBox(height: size.height * 0.58),
+              !isKeyboardVisible ? SizedBox(height: size.height * 0.58) : SizedBox(
+                height: size.height * 0.01,
+              ),
               SizedBox(
                 width: 90,
                 child: CustomButton(
