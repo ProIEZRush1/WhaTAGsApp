@@ -63,6 +63,8 @@ class _ContactsListState extends ConsumerState<ContactsList> {
       print('contact sync from Device');
       FlutterContacts.getContacts(withProperties: true)
           .then((value) {
+            print(value.first.name);
+            print(value.first.phones.first.number);
             return MessageUtils.cachedContacts = value;
           });
     }
